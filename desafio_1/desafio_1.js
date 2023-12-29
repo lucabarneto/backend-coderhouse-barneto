@@ -4,15 +4,12 @@ class ProductManager {
     this.id = 0;
   }
 
-  addProducts = (title, description, price, thumbnail, code, stock) => {
+  addProducts = ({ title, description, price, thumbnail, code, stock }) => {
     if (!title || !description || !price || !thumbnail || !code || !stock) {
       //Si no se llenan todos los parámetros salta este error
       console.log("Error: Deben completarse todos los campos");
     } else {
       if (!this.products.some((p) => p.code === code)) {
-        //le agrego un id al producto y actualizo el valor del this.id
-        const id = this.id + 1;
-        this.updateId();
         //añado el producto al array
         this.products.push({
           title,
@@ -21,7 +18,7 @@ class ProductManager {
           thumbnail,
           code,
           stock,
-          id,
+          id: this.id++,
         });
         console.log(
           `El producto ${title} (código ${code}) se ha agregado correctamente`
@@ -45,15 +42,11 @@ class ProductManager {
     const findById = this.products.find((p) => p.id === id);
     if (findById) {
       console.log("Mostrando el producto:", findById);
-      return findById;
     } else {
       //Si no se encuentra ningún producto que matchee el solicitado salta este mensaje
       console.log("Producto no encontrado");
     }
   };
-
-  //Actualiza el valor de this.id para que cada producto tenga un id único
-  updateId = () => this.id++;
 }
 
 const product = new ProductManager();
@@ -63,25 +56,54 @@ const product = new ProductManager();
 const separador = "---------------------------------";
 
 console.log("Verificando validación de parámetros");
-product.addProducts("Faltan otros parámetros"); //Funciona
+product.addProducts("Faltan otros parámetros");
+product.addProducts({
+  title: "Mesa blanca",
+  description: "una mesa blanca",
+  price: 23000,
+  code: 999,
+  stock: 5,
+  // No tiene thumbnail
+}); //Funciona
 console.log(separador);
 
 console.log("Verificando agregado correcto de productos y id único");
-product.addProducts(
-  "Mesa blanca",
-  "una mesa blanca",
-  23000,
-  "thumbnail",
-  999,
-  5
-);
-product.addProducts("Mesa gris", "una mesa gris", 25000, "thumbnail", 888, 5);
-product.addProducts("Mesa negra", "una mesa negra", 32000, "thumbnail", 777, 5);
+product.addProducts({
+  title: "Mesa blanca",
+  description: "una mesa blanca",
+  price: 23000,
+  thumbnail: "thumbnail",
+  code: 999,
+  stock: 5,
+});
+product.addProducts({
+  description: "una mesa gris",
+  title: "Mesa gris",
+  price: 25000,
+  stock: 5,
+  thumbnail: "thumbnail",
+  code: 888,
+});
+product.addProducts({
+  title: "Mesa negra",
+  thumbnail: "thumbnail",
+  description: "una mesa negra",
+  stock: 5,
+  code: 777,
+  price: 32000,
+});
 product.getProducts(); //Funciona
 console.log(separador);
 
 console.log("Verificando no agregado de productos repetidos");
-product.addProducts("Mesa gris", "una mesa gris", 25000, "thumbnail", 888, 5); //Funciona
+product.addProducts({
+  title: "Mesa gris",
+  description: "una mesa gris",
+  price: 25000,
+  thumbnail: "thumbnail",
+  code: 888,
+  stock: 5,
+}); //Funciona
 product.getProducts();
 console.log(separador);
 
