@@ -11,7 +11,7 @@ class ProductManager {
         JSON.stringify(this.products, null, 2),
         "utf-8"
       )
-      .then((res) => console.log("El archivo se ha creado correctamente"))
+      .then(() => console.log("El archivo se ha creado correctamente"))
       .catch((err) => console.log("Ocurrió el siguiente error:", err));
   }
 
@@ -59,7 +59,7 @@ class ProductManager {
               JSON.stringify(db, null, 2),
               "utf-8"
             )
-            .then((res) =>
+            .then(() =>
               console.log(`El producto se ha agregado correctamente:`, db)
             )
             .catch((err) => console.log("Ocurrió el siguiente error:", err));
@@ -112,7 +112,7 @@ class ProductManager {
             JSON.stringify(newDb, null, 2),
             "utf-8"
           )
-          .then((res) =>
+          .then(() =>
             console.log(`El producto se ha eliminado correctamente:`, newDb)
           )
           .catch((err) => console.log("Ocurrió el siguiente error:", err));
@@ -124,19 +124,43 @@ class ProductManager {
     }
   };
 
-  updateProduct = async (id) => {
+  updateProduct = async (id, key, value) => {
     try {
-      const db = await this.readProducts();
-      const findById = db.find((p) => p.id === id);
-      if (findById) {
-        //no se muy bien qué hacer :/
-        console.log("Ayuda :(");
+      if (
+        key === "title" ||
+        key === "description" ||
+        key === "price" ||
+        key === "thumbnail" ||
+        key === "stock" ||
+        key === "code"
+      ) {
+        const db = await this.readProducts();
+        let findById = db.find((p) => p.id === id);
+        if (findById) {
+          const newDb = db.filter((p) => p.id !== id);
+          findById = { ...findById, [key]: value };
+          fs.promises
+            .writeFile(
+              "./desafio_2/products_fs.json",
+              JSON.stringify([...newDb, findById], null, 2),
+              "utf-8"
+            )
+            .then(() =>
+              console.log(
+                `El producto se ha actualizado correctamente:`,
+                findById
+              )
+            )
+            .catch((err) => console.log("Ocurrió el siguiente error:", err));
+        } else {
+          //Si no se encuentra ningún producto que matchee el solicitado salta este mensaje
+          console.log("Producto no encontrado");
+        }
       } else {
-        //Si no se encuentra ningún producto que matchee el solicitado salta este mensaje
-        console.log("Producto no encontrado");
+        throw console.log("Error: elija un campo válido");
       }
     } catch (err) {
-      console.log("Error:", err);
+      console.log("Error:", err || "Revisar código");
     }
   };
 }
@@ -146,6 +170,48 @@ const product = new ProductManager();
 const separador = "---------------------------------";
 
 //Haciendo las respectivas verificaciones. Uso setTimeouts para simular asincronia entre los distintos métodos
+
+// setTimeout(() => {
+//   product.addProducts({
+//     title: "Mesa verde",
+//     description: "una mesa verde",
+//     price: 22000,
+//     thumbnail: "thumbnail",
+//     code: 312,
+//     stock: 5,
+//   });
+//   setTimeout(() => {
+//     product.addProducts({
+//       title: "Mesa azul",
+//       description: "una mesa azul",
+//       price: 22000,
+//       thumbnail: "thumbnail",
+//       code: 321,
+//       stock: 5,
+//     });
+//     setTimeout(() => {
+//       product.addProducts({
+//         title: "Mesa roja",
+//         description: "una mesa roja",
+//         price: 22000,
+//         thumbnail: "thumbnail",
+//         code: 123,
+//         stock: 5,
+//       });
+//       setTimeout(() => {
+//         console.log(separador);
+//         product.getProducts();
+//         product.getProductById(0);
+//         product.getProductById(9);
+//         setTimeout(() => {
+//           console.log(separador);
+//           product.deleteProduct(2);
+//           product.deleteProduct(9);
+//         }, 1000);
+//       }, 1000);
+//     }, 1000);
+//   }, 1000);
+// }, 1000);
 
 setTimeout(() => {
   product.addProducts({
@@ -157,34 +223,15 @@ setTimeout(() => {
     stock: 5,
   });
   setTimeout(() => {
-    product.addProducts({
-      title: "Mesa azul",
-      description: "una mesa azul",
-      price: 22000,
-      thumbnail: "thumbnail",
-      code: 321,
-      stock: 5,
-    });
-    setTimeout(() => {
-      product.addProducts({
-        title: "Mesa roja",
-        description: "una mesa roja",
-        price: 22000,
-        thumbnail: "thumbnail",
-        code: 123,
-        stock: 5,
-      });
-      setTimeout(() => {
-        console.log(separador);
-        product.getProducts();
-        product.getProductById(0);
-        product.getProductById(9);
-        setTimeout(() => {
-          console.log(separador);
-          product.deleteProduct(2);
-          product.deleteProduct(9);
-        }, 1000);
-      }, 1000);
-    }, 1000);
+    product.updateProduct(
+      0,
+      "description",
+      "Acabo de cambiar la descripción de la mesa"
+    );
+    product.updateProduct(
+      0,
+      "notavalidkey",
+      "Acabo de cambiar la descripción de la mesa"
+    );
   }, 1000);
 }, 1000);
