@@ -15,13 +15,6 @@ class ProductManager {
     }
   }
 
-  testingFs = async () => {
-    const db = await fs.promises
-      .readFile(this.#path, "utf-8")
-      .then((res) => JSON.parse(res));
-    console.log(db.length);
-  };
-
   addProducts = async ({
     title,
     description,
@@ -42,7 +35,7 @@ class ProductManager {
         .then((res) => JSON.parse(res));
 
       if (!db.some((p) => p.code === code)) {
-        //Añado un id autoincrementable al producto
+        // Añado un id autoincrementable al producto
         let id;
         if (db.lenght === 0) {
           id = 1;
@@ -183,38 +176,3 @@ class ProductManager {
     }
   };
 }
-
-const product = new ProductManager();
-
-product.testingFs();
-
-// product.deleteProduct(0);
-
-console.log("agregando productos");
-
-product.addProducts({
-  title: "Mesa roja",
-  description: "una mesa roja",
-  price: 22000,
-  thumbnail: "thumbnail",
-  code: 123,
-  stock: 5,
-});
-
-// product.addProducts({
-//   title: "Mesa azul",
-//   description: "una mesa azul",
-//   price: 22000,
-//   thumbnail: "thumbnail",
-//   code: 321,
-//   stock: 5,
-// });
-
-// product.addProducts({
-//   title: "Mesa verde",
-//   description: "una mesa verde",
-//   price: 22000,
-//   thumbnail: "thumbnail",
-//   code: 312,
-//   stock: 5,
-// });
