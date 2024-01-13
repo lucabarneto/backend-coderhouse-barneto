@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "title": "Mesa azul",
+    "description": "Una mesa azul",
+    "price": 22000,
+    "thumbnail": "thumbnail.jpeg",
+    "code": 333,
+    "stock": 5,
+    "id": 1
+  },
+  {
+    "title": "Mesa verde",
+    "description": "Una mesa verde",
+    "price": 22000,
+    "thumbnail": "thumbnail.jpeg",
+    "code": 222,
+    "stock": 5,
+    "id": 2
+  },
+  {
+    "title": "Mesa roja",
+    "description": "Una mesa roja",
+    "price": 22000,
+    "thumbnail": "thumbnail.jpeg",
+    "code": 111,
+    "stock": 5,
+    "id": 3
+  }
+]

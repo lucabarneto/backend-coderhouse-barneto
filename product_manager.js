@@ -37,10 +37,10 @@ class ProductManager {
       if (!db.some((p) => p.code === code)) {
         // Añado un id autoincrementable al producto
         let id;
-        if (db.lenght === 0) {
+        if (db.length === 0) {
           id = 1;
         } else {
-          id = db[db.lenght - 1].id + 1;
+          id = db[db.length - 1].id + 1;
         }
 
         //Agrego el producto al array
@@ -176,3 +176,5 @@ class ProductManager {
     }
   };
 }
+
+module.exports = ProductManager;
