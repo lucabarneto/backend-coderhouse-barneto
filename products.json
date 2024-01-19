@@ -1,29 +1,24 @@
 [
   {
-    "title": "Mesa azul",
-    "description": "Una mesa azul",
-    "price": 22000,
-    "thumbnail": "thumbnail.jpeg",
-    "code": 333,
-    "stock": 5,
-    "id": 1
+    "title": "Cuadro Eva 001 Evangelion",
+    "description": "Aquí va la descripción del producto",
+    "price": 23,
+    "thumbnails": [],
+    "code": 12345,
+    "stock": 67,
+    "pid": 1,
+    "category": "Anime",
+    "status": true
   },
   {
-    "title": "Mesa verde",
-    "description": "Una mesa verde",
-    "price": 22000,
-    "thumbnail": "thumbnail.jpeg",
-    "code": 222,
-    "stock": 5,
-    "id": 2
-  },
-  {
-    "title": "Mesa roja",
-    "description": "Una mesa roja",
-    "price": 22000,
-    "thumbnail": "thumbnail.jpeg",
-    "code": 111,
-    "stock": 5,
-    "id": 3
+    "title": "Cuadro Torre Eiffel",
+    "description": "Aquí va la descripción del producto",
+    "price": 32,
+    "thumbnails": [],
+    "code": 51234,
+    "stock": 14,
+    "pid": 2,
+    "category": "Paisaje",
+    "status": true
   }
 ]

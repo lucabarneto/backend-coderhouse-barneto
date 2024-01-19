@@ -19,28 +19,28 @@ class ProductManager {
     title,
     description,
     price,
-    thumbnail,
+    thumbnails,
     code,
     stock,
+    category,
   }) => {
     try {
-      //Si no se llenan todos los parámetros salta este error
-      if (!title || !description || !price || !thumbnail || !code || !stock) {
-        throw new Error("Deben completarse todos los campos");
+      //Si no se llenan estos parámetros salta este error
+      if (!title || !description || !price || !code || !stock || !category) {
+        console.log(new Error("Deben completarse todos los campos"));
+        return false;
       }
 
       //Leo el archivo json
-      const db = await fs.promises
-        .readFile(this.#path, "utf-8")
-        .then((res) => JSON.parse(res));
+      const db = JSON.parse(await fs.promises.readFile(this.#path, "utf-8"));
 
       if (!db.some((p) => p.code === code)) {
         // Añado un id autoincrementable al producto
-        let id;
+        let pid;
         if (db.length === 0) {
-          id = 1;
+          pid = 1;
         } else {
-          id = db[db.length - 1].id + 1;
+          pid = db[db.length - 1].pid + 1;
         }
 
         //Agrego el producto al array
@@ -50,10 +50,12 @@ class ProductManager {
             title,
             description,
             price,
-            thumbnail,
+            thumbnails,
             code,
             stock,
-            id,
+            pid,
+            category,
+            status: true,
           },
         ];
 
@@ -64,10 +66,15 @@ class ProductManager {
             console.log(`El producto se ha agregado correctamente:`, newDb)
           )
           .catch((err) => console.log(err));
+
+        return true;
       } else {
-        throw new Error(
-          `El producto ${title} (código ${code}) ya se encuentra dentro de la base de datos`
+        console.log(
+          new Error(
+            `El producto ${title} (código ${code}) ya se encuentra dentro de la base de datos`
+          )
         );
+        return false;
       }
     } catch (err) {
       console.log(err);
@@ -76,25 +83,22 @@ class ProductManager {
 
   getProducts = async () => {
     //Leo el archivo json
-    const db = await fs.promises
-      .readFile(this.#path, "utf-8")
-      .then((res) => JSON.parse(res));
+    const db = JSON.parse(await fs.promises.readFile(this.#path, "utf-8"));
 
     console.log(db);
     return db;
   };
 
-  getProductById = async (id) => {
+  getProductById = async (pid) => {
     try {
       //Leo el archivo json
-      const db = await fs.promises
-        .readFile(this.#path, "utf-8")
-        .then((res) => JSON.parse(res));
+      const db = JSON.parse(await fs.promises.readFile(this.#path, "utf-8"));
 
-      const product = db.find((p) => p.id === id);
+      const product = db.find((p) => p.pid === pid);
 
       if (!product) {
-        throw new Error("Producto no encontrado");
+        console.log(new Error("Producto no encontrado"));
+        return false;
       }
 
       console.log(product);
@@ -104,18 +108,17 @@ class ProductManager {
     }
   };
 
-  deleteProduct = async (id) => {
+  deleteProduct = async (pid) => {
     try {
       //Leo el archivo json
-      const db = await fs.promises
-        .readFile(this.#path, "utf-8")
-        .then((res) => JSON.parse(res));
+      const db = JSON.parse(await fs.promises.readFile(this.#path, "utf-8"));
 
       //Encuentro el producto con el id especificado
-      const product = db.find((p) => p.id === id);
+      const product = db.find((p) => p.pid === pid);
 
       if (!product) {
-        throw new Error("Producto no encontrado");
+        console.log(new Error("Producto no encontrado"));
+        return false;
       }
 
       //Creo un nuevo array sin el producto
@@ -127,36 +130,30 @@ class ProductManager {
           console.log(`El producto se ha eliminado correctamente:`, newDb)
         )
         .catch((err) => console.log(err));
+
+      return true;
     } catch (err) {
       console.log(err);
     }
   };
 
-  updateProduct = async (id, key, value) => {
+  updateProduct = async (pid, update) => {
     try {
-      if (
-        key === "title" ||
-        key === "description" ||
-        key === "price" ||
-        key === "thumbnail" ||
-        key === "stock" ||
-        key === "code"
-      ) {
-        //Leo el archivo json
-        const db = await fs.promises
-          .readFile(this.#path, "utf-8")
-          .then((res) => JSON.parse(res));
+      //Leo el archivo json
+      const db = JSON.parse(await fs.promises.readFile(this.#path, "utf-8"));
 
-        let product = db.find((p) => p.id === id);
+      const product = db.find((p) => p.pid === pid);
 
-        if (!product) {
-          throw new Error("Producto no encontrado");
-        }
+      if (product) {
+        product.title = update.title;
+        product.description = update.description;
+        product.price = update.price;
+        product.stock = update.stock;
+        product.thumbnails = update.thumbnails;
+        product.code = update.code;
+        product.category = update.category;
 
-        //Creo un nuevo array sin el producto
-        const newDb = await db.filter((p) => p !== product);
-
-        product = { ...product, [key]: value };
+        const newDb = db.filter((prod) => prod !== product);
 
         fs.promises
           .writeFile(
@@ -168,8 +165,11 @@ class ProductManager {
             console.log(`El producto se ha actualizado correctamente:`, product)
           )
           .catch((err) => console.log(err));
+
+        return true;
       } else {
-        throw new Error("Elija un campo válido");
+        console.log(new Error("Producto no encontrado"));
+        return false;
       }
     } catch (err) {
       console.log(err);
@@ -177,4 +177,9 @@ class ProductManager {
   };
 }
 
+//Exporto ProductManager
 module.exports = ProductManager;
+
+const pm = new ProductManager();
+
+pm.getProductById(1);
