@@ -144,33 +144,25 @@ class ProductManager {
 
       const product = db.find((p) => p.pid === pid);
 
-      if (product) {
-        product.title = update.title;
-        product.description = update.description;
-        product.price = update.price;
-        product.stock = update.stock;
-        product.thumbnails = update.thumbnails;
-        product.code = update.code;
-        product.category = update.category;
-
-        const newDb = db.filter((prod) => prod !== product);
-
-        fs.promises
-          .writeFile(
-            this.#path,
-            JSON.stringify([...newDb, product], null, 2),
-            "utf-8"
-          )
-          .then(() =>
-            console.log(`El producto se ha actualizado correctamente:`, product)
-          )
-          .catch((err) => console.log(err));
-
-        return true;
-      } else {
+      if (!product) {
         console.log(new Error("Producto no encontrado"));
         return false;
       }
+
+      //Actualizo el producto
+      for (const key in product) {
+        if (update.hasOwnProperty(key)) {
+          product[key] = update[key];
+        }
+      }
+
+      fs.promises
+        .writeFile(this.#path, JSON.stringify(db, null, 2), "utf-8")
+        .then(() =>
+          console.log(`El producto se ha actualizado correctamente:`, product)
+        )
+        .catch((err) => console.log(err));
+      return true;
     } catch (err) {
       console.log(err);
     }
@@ -179,7 +171,3 @@ class ProductManager {
 
 //Exporto ProductManager
 module.exports = ProductManager;
-
-const pm = new ProductManager();
-
-pm.getProductById(1);
