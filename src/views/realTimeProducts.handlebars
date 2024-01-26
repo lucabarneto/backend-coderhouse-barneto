@@ -1,0 +1,13 @@
+<section>
+  <h1>Mostrando productos en tiempo real</h1>
+  <ul>
+    {{#each products}}
+      <li>
+        <div>{{this.title}}</div>
+        <div>${{this.price}} - categoría:{{this.category}}</div>
+      </li>
+    {{/each}}
+  </ul>
+</section>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/index.js"></script>
