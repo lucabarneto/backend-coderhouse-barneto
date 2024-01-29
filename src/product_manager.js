@@ -85,7 +85,6 @@ class ProductManager {
     //Leo el archivo json
     const db = JSON.parse(await fs.promises.readFile(this.#path, "utf-8"));
 
-    // console.log(db);
     return db;
   };
 

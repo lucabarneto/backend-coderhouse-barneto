@@ -3,8 +3,10 @@ const express = require("express"),
   routerCarts = require("./routes/carts.routes"),
   routerViews = require("./routes/views.routes"),
   handlebars = require("express-handlebars"),
-  http = require("http"),
-  { Server } = require("socket.io");
+  productManager = require("./product_manager");
+(http = require("http")), ({ Server } = require("socket.io"));
+
+const pm = new productManager();
 
 const app = express();
 
@@ -27,9 +29,23 @@ app.use("/api/products", routerProducts);
 app.use("/api/carts", routerCarts);
 app.use("/", routerViews);
 
-//Implemento socket
+//Implemento el socket del lado del server
 io.on("connection", (socket) => {
   console.log("New user connected");
+
+  //Añado producto
+  socket.on("addProduct", async (data) => {
+    await pm.addProducts(data);
+
+    socket.emit("updatedAddProducts", await pm.getProducts());
+  });
+
+  //Elimino producto
+  socket.on("delProduct", async (data) => {
+    await pm.deleteProduct(data);
+
+    socket.emit("updatedDelProducts", await pm.getProducts());
+  });
 });
 
 //Creo el .listen

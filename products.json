@@ -20,5 +20,27 @@
     "pid": 2,
     "category": "Paisaje",
     "status": true
+  },
+  {
+    "title": "Cuadro Eva 001 Evangelion",
+    "description": "Aquí va la descripción del producto",
+    "price": 35,
+    "thumbnails": [],
+    "code": 99999,
+    "stock": 23,
+    "pid": 3,
+    "category": "Anime",
+    "status": true
+  },
+  {
+    "title": "Cuadro Iron Mike blanco y negro",
+    "description": "Aquí va la descripción del producto",
+    "price": 34,
+    "thumbnails": [],
+    "code": 67890,
+    "stock": 11,
+    "pid": 4,
+    "category": "Boxeo",
+    "status": true
   }
 ]

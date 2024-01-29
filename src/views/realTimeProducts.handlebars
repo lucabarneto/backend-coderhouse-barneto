@@ -1,13 +1,65 @@
+<h1>Mostrando productos en tiempo real</h1>
 <section>
-  <h1>Mostrando productos en tiempo real</h1>
-  <ul>
+  <ul id="pr-list">
     {{#each products}}
       <li>
         <div>{{this.title}}</div>
         <div>${{this.price}} - categoría:{{this.category}}</div>
+        <div>id:{{this.pid}}</div>
       </li>
     {{/each}}
   </ul>
+  <h2>Agrega un producto a la lista</h2>
+  <form id="add-pr-form">
+    <input
+      type="text"
+      id="pr-title"
+      name="pr-title"
+      placeholder="título del producto"
+      required
+    />
+    <input
+      type="text"
+      id="pr-description"
+      name="pr-description"
+      placeholder="descripción del producto"
+      required
+    />
+    <input
+      type="number"
+      id="pr-price"
+      name="pr-price"
+      placeholder="precio del producto"
+      required
+    />
+    <input
+      type="text"
+      id="pr-category"
+      name="pr-category"
+      placeholder="categoría del producto"
+      required
+    />
+    <input
+      type="number"
+      id="pr-stock"
+      name="pr-stock"
+      placeholder="stock del producto"
+      required
+    />
+    <input
+      type="number"
+      id="pr-code"
+      name="pr-code"
+      placeholder="código del producto"
+      required
+    />
+    <input type="submit" value="Agregar producto" />
+  </form>
+  <h2>Elimina un producto de la lista</h2>
+  <form id="del-pr-form">
+    <input type="number" name="pr-pid" id="pr-pid">
+    <input type="submit" value="Eliminar producto">
+  </form>
 </section>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/index.js"></script>
