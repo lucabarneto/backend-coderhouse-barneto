@@ -1,42 +1,50 @@
 //Importo las dependencias
 const express = require("express"),
-  cartManager = require("../cart_manager.js");
+  productModel = require("../dao/db/models/product.model.js"),
+  cartModel = require("../dao/db/models/cart.model.js");
 
 //Guardo las dependencias en constantes
-const routerCarts = express.Router(),
-  cm = new cartManager();
+const routerCarts = express.Router();
 
 //Crea un nuevo carrito
 routerCarts.post("/", async (req, res) => {
-  const cart = await cm.addCart();
-
-  res.status(201).send(cart);
+  try {
+    await cartModel.create(req.body);
+    res.status(201).send("Cart created succesfully");
+  } catch (err) {
+    console.log(err);
+    res.status(400).send("An error ocurred");
+  }
 });
 
 //Muestra los productos del carrito
 routerCarts.get("/:cid", async (req, res) => {
-  const cid = req.params.cid;
-
-  const products = await cm.getCartsProducts(Number(cid));
-
-  if (!products) {
-    res.status(404).send("Carrito no encontrado");
+  try {
+    const cid = req.params.cid;
+    const cart = await cartModel.find({ _id: cid }, { products: 1 });
+    res.status(200).send(cart);
+  } catch (err) {
+    console.log(err);
+    res.status(404).send("Cart not found");
   }
-
-  res.status(200).send(products);
 });
 
 //Añade un producto al carrito
 routerCarts.post("/:cid/product/:pid", async (req, res) => {
-  const cid = req.params.cid,
-    pid = req.params.pid;
+  try {
+    const cid = req.params.cid,
+      pid = req.params.pid;
+    const product = await productModel.findById(pid);
 
-  const updatedCart = await cm.addProductToCart(Number(cid), Number(pid));
+    await cartModel.updateOne(
+      { _id: cid },
+      { $addToSet: { products: product } }
+    );
 
-  if (updatedCart) {
     res.status(201).send("Producto agregado al carrito exitósamente");
-  } else {
-    res.status(404).send("Carrito o producto no encontrados");
+  } catch (err) {
+    console.log(err);
+    res.status(404).send("Cart or product not found");
   }
 });
 

@@ -6,7 +6,7 @@ class CartManager {
 
   constructor() {
     //Creo el archivo json donde se guarda el cart
-    this.#path = "carts.json";
+    this.#path = __dirname + "/carts.json";
 
     if (!fs.existsSync(this.#path)) {
       fs.writeFileSync(this.#path, "[]", {

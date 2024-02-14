@@ -1,10 +1,19 @@
-//Implemento el socket del lado del cliente
+//Instancio el socket del lado del cliente
 const socket = io();
 
-const d = document;
+//DOM
+const d = document,
+  $chat = d.getElementById("online-chat"),
+  $auth = d.getElementById("auth"),
+  $typing = d.getElementById("user-typing"),
+  $chatSubmit = d.getElementById("chat-submit"),
+  $authSubmit = d.getElementById("auth-submit"),
+  $formChat = d.getElementById("form-chat"),
+  $formAuth = d.getElementById("form-auth"),
+  $connections = d.createElement("div"),
+  $list = document.getElementById("pr-list");
 
-const $list = document.getElementById("pr-list");
-
+//::RealTimeProducts View::
 //Agrego producto
 
 //Prevengo que se recargue la página y guardo los values de los inputs en un objeto

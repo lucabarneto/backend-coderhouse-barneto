@@ -6,7 +6,7 @@ class ProductManager {
 
   constructor() {
     //Creo el archivo json donde se guarda el array de productos.
-    this.#path = "products.json";
+    this.#path = __dirname + "/products.json";
 
     if (!fs.existsSync(this.#path)) {
       fs.writeFileSync(this.#path, "[]", {

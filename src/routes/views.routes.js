@@ -1,25 +1,36 @@
 //Importo las dependencias
 const express = require("express"),
-  productManager = require("../product_manager.js");
+  productModel = require("../dao/db/models/product.model.js");
 
 //Guardo las dependencias en constantes
-const routerViews = express.Router(),
-  pm = new productManager();
+const routerViews = express.Router();
 
 routerViews.get("/", async (req, res) => {
-  const products = await pm.getProducts();
-
-  res.render("home", {
-    products: products,
-  });
+  try {
+    const products = await productModel.find();
+    res.render("home", {
+      products: products,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(404).send("Page not found");
+  }
 });
 
 routerViews.get("/realtimeproducts", async (req, res) => {
-  const products = await pm.getProducts();
+  try {
+    const products = await productModel.find();
+    res.render("realTimeProducts", {
+      products: products,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(404).send("Page not found");
+  }
+});
 
-  res.render("realTimeProducts", {
-    products: products,
-  });
+routerViews.get("/chat", (req, res) => {
+  res.render("chat");
 });
 
 // exporto routerViews

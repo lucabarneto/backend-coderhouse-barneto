@@ -1,81 +1,72 @@
 //Importo las dependencias
 const express = require("express"),
-  productManager = require("../product_manager.js");
+  productModel = require("../dao/db/models/product.model.js");
 
-//Guardo las dependencias en constantes
-const routerProducts = express.Router(),
-  pm = new productManager();
+const routerProducts = express.Router();
 
 //Muestro los productos
 routerProducts.get("/", async (req, res) => {
-  //Recibo los productos
-  const products = await pm.getProducts();
+  try {
+    const limit = Number(req.query.limit);
 
-  const limit = req.query.limit;
-
-  //Array que se enviará si limit != 0
-  const queryProducts = [];
-
-  if (!limit) {
-    //Envía todos los productos
-    res.status(200).send(products);
-  } else {
-    //Pushea productos hasta que i = limit
-    for (let i = 0; i < limit; i++) {
-      queryProducts.push(products[i]);
+    if (!limit) {
+      //Envía todos los productos
+      const products = await productModel.find();
+      res.status(200).send(products);
+    } else {
+      const queryProducts = await productModel.find().limit(limit);
+      res.status(200).send(queryProducts);
     }
-    res.status(200).send(queryProducts);
+  } catch (err) {
+    console.log(err);
   }
 });
 
 //Muestro el producto con el id específico
 routerProducts.get("/:pid", async (req, res) => {
-  const pid = req.params.pid;
-
-  //Encuentro el producto que matchea con el pid
-  const requestedProduct = await pm.getProductById(Number(pid));
-
-  if (requestedProduct) {
-    res.status(200).send(requestedProduct);
-  } else {
-    res.status(404).send("Producto no encontrado");
+  try {
+    const pid = req.params.pid;
+    const product = await productModel.findById(pid);
+    res.status(200).send(product);
+  } catch (err) {
+    console.log(err);
+    console.log("Product not found");
+    res.status(404).send("Product not found");
   }
 });
 
 //Agrego un producto
 routerProducts.post("/", async (req, res) => {
-  const addedProduct = await pm.addProducts(req.body);
-
-  if (addedProduct) {
-    res.status(201).send("Producto creado correctamente");
-  } else {
-    res.status(400).send("Producto ya existente");
+  try {
+    await productModel.create(req.body);
+    res.status(201).send("Product created succesfully");
+  } catch (err) {
+    console.log(err);
+    res.status(400).send("An error ocurred");
   }
 });
 
 //Actualizo un producto
 routerProducts.put("/:pid", async (req, res) => {
-  const pid = req.params.pid;
-
-  const updatedProduct = await pm.updateProduct(Number(pid), req.body);
-
-  if (updatedProduct) {
-    res.status(200).send("Producto actualizado correctamente");
-  } else {
-    res.status(404).send("Producto no encontrado");
+  try {
+    const pid = req.params.pid;
+    await productModel.updateOne({ _id: pid }, req.body);
+    res.status(200).send("Product updated sucesfully");
+  } catch (err) {
+    console.log(err);
+    res.status(404).send("An error ocurred");
   }
 });
 
 //Elimino un producto
 routerProducts.delete("/:pid", async (req, res) => {
-  const pid = req.params.pid;
-
-  const resultingProducts = await pm.deleteProduct(Number(pid));
-
-  if (resultingProducts) {
-    res.status(200).send("Producto eliminado correctamente");
-  } else {
-    res.status(404).send("Producto no encontrado");
+  try {
+    const pid = req.params.pid;
+    await productModel.deleteOne({ _id: pid });
+    res.status(200).send("Product deleted sucesfully");
+  } catch (err) {
+    console.log(err);
+    res.status(404).send("An error ocurred");
   }
 });
 

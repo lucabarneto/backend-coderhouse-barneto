@@ -1,0 +1,111 @@
+/* ::::General:::: */
+html {
+  box-sizing: border-box;
+  font-family: sans-serif;
+  font-size: 16px;
+}
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+}
+
+/* ::::Forms:::: */
+.input {
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  border: thin solid lightgrey;
+  margin-right: 1rem;
+}
+
+.input::placeholder {
+  color: gray;
+}
+
+.submit {
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  border: none;
+  background-color: blue;
+  color: white;
+  font-weight: 700;
+  padding: 0 1.5rem;
+}
+
+.submit:hover {
+  background-color: darkblue;
+  cursor: pointer;
+}
+
+/* ::::Chat:::: */
+
+/* Chat form */
+#form-chat {
+  width: 100vw;
+  height: 5.625rem;
+  padding: 0 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  background-color: white;
+  position: absolute;
+  bottom: 0;
+  border-top: medium solid blue;
+}
+
+#input-message {
+  width: 100%;
+}
+
+/* Chat section */
+.chat {
+  padding: 40px 120px 0;
+  max-height: calc(100vh - 5.625rem);
+  overflow-y: scroll;
+}
+
+.typing {
+  padding: 0 120px;
+  color: gray;
+}
+
+.connections {
+  text-align: center;
+  color: gray;
+}
+
+/* ::::Auth:::: */
+.auth {
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  background-color: #00000020;
+  backdrop-filter: blur(2px);
+}
+
+.auth div {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  text-align: center;
+}
+
+/* ::::Helper classes:::: */
+
+.display-none {
+  display: none;
+}
+
+.disabled {
+  background-color: gray;
+  pointer-events: none;
+}
