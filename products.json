@@ -35,10 +35,10 @@
   {
     "title": "Cuadro Iron Mike blanco y negro",
     "description": "Aquí va la descripción del producto",
-    "price": 34,
+    "price": 23,
     "thumbnails": [],
-    "code": 67890,
-    "stock": 11,
+    "code": 77777,
+    "stock": 12,
     "pid": 4,
     "category": "Boxeo",
     "status": true

@@ -3,8 +3,9 @@ const express = require("express"),
   routerCarts = require("./routes/carts.routes"),
   routerViews = require("./routes/views.routes"),
   handlebars = require("express-handlebars"),
-  productManager = require("./product_manager");
-(http = require("http")), ({ Server } = require("socket.io"));
+  productManager = require("./product_manager"),
+  http = require("http"),
+  { Server } = require("socket.io");
 
 const pm = new productManager();
 
@@ -33,7 +34,7 @@ app.use("/", routerViews);
 io.on("connection", (socket) => {
   console.log("New user connected");
 
-  //Añado producto
+  // Añado producto
   socket.on("addProduct", async (data) => {
     await pm.addProducts(data);
 
