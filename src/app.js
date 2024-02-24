@@ -2,15 +2,11 @@ const express = require("express"),
   routerProducts = require("./routes/products.routes"),
   routerCarts = require("./routes/carts.routes"),
   routerViews = require("./routes/views.routes"),
+  routerChat = require("./routes/chat.routes.js"),
   handlebars = require("express-handlebars"),
-  productModel = require("./dao/db/models/product.model.js"),
-  messageModel = require("./dao/db/models/message.model.js"),
-  productManager = require("./dao/fs/product_manager"),
   http = require("http"),
   { Server } = require("socket.io"),
   Database = require("./dao/db/index.js");
-
-const pm = new productManager();
 
 const app = express();
 
@@ -29,36 +25,14 @@ app.set("view engine", "handlebars");
 app.use(express.static(__dirname + "/public"));
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use("/api/products", routerProducts);
 app.use("/api/carts", routerCarts);
 app.use("/", routerViews);
-
-let users = [];
-
-let chat = [];
-
-let connections = 0;
+app.use("/api/chat", routerChat);
 
 //Implemento el socket del lado del server
-io.on("connection", (socket) => {
-  console.log("New user connected");
-  connections++;
-
-  //::RealTimeProducts View::
-  // Añado producto
-  socket.on("addProduct", async (data) => {
-    await productModel.create(data);
-
-    socket.emit("updatedAddProducts", await productModel.find());
-  });
-
-  //Elimino producto
-  socket.on("delProduct", async (data) => {
-    await productModel.deleteOne(data);
-
-    socket.emit("updatedDelProducts", await productModel.find());
-  });
-});
 
 //Creo el .listen
 httpServer.listen(PORT, () => {
@@ -66,3 +40,5 @@ httpServer.listen(PORT, () => {
   //Me conecto a la base de datos
   Database.connect();
 });
+
+module.exports = io;

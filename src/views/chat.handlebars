@@ -1,0 +1,47 @@
+<div id="auth" class="auth">
+  <div id="auth-content">
+    <h2>Accede al chat online</h2>
+    <form id="form-auth">
+      <input
+        type="text"
+        name="username"
+        id="input-username"
+        class="input"
+        placeholder="Nombre de usuario"
+        maxlength="12"
+        required
+      />
+      <input
+        type="submit"
+        value="Ingresar"
+        class="submit disabled"
+        id="auth-submit"
+      />
+    </form>
+  </div>
+</div>
+<section class="chat-container">
+  <div id="online-chat" class="chat">
+  </div>
+  <div id="user-typing" class="typing"></div>
+  <form id="form-chat">
+    <input
+      type="text"
+      name="message"
+      id="input-message"
+      class="input"
+      placeholder="Escribe tu mensaje"
+      autocomplete="off"
+      required
+    />
+    <input
+      type="submit"
+      value="Enviar"
+      class="submit disabled"
+      id="chat-submit"
+    />
+  </form>
+</section>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/index.js"></script>

@@ -1,7 +1,6 @@
 //Importo las dependencias
 const express = require("express"),
-  productModel = require("../dao/db/models/product.model.js"),
-  cartModel = require("../dao/db/models/cart.model.js");
+  cm = require("../dao/db/cart_manager.js");
 
 //Guardo las dependencias en constantes
 const routerCarts = express.Router();
@@ -9,11 +8,11 @@ const routerCarts = express.Router();
 //Crea un nuevo carrito
 routerCarts.post("/", async (req, res) => {
   try {
-    await cartModel.create(req.body);
-    res.status(201).send("Cart created succesfully");
+    await cm.addCart(req.body);
+    res.status(201).send("Cart created successfully");
   } catch (err) {
     console.log(err);
-    res.status(400).send("An error ocurred");
+    res.status(400).send("An error has occurred");
   }
 });
 
@@ -21,7 +20,7 @@ routerCarts.post("/", async (req, res) => {
 routerCarts.get("/:cid", async (req, res) => {
   try {
     const cid = req.params.cid;
-    const cart = await cartModel.find({ _id: cid }, { products: 1 });
+    const cart = await cm.getCartProducts(cid);
     res.status(200).send(cart);
   } catch (err) {
     console.log(err);
@@ -34,14 +33,10 @@ routerCarts.post("/:cid/product/:pid", async (req, res) => {
   try {
     const cid = req.params.cid,
       pid = req.params.pid;
-    const product = await productModel.findById(pid);
 
-    await cartModel.updateOne(
-      { _id: cid },
-      { $addToSet: { products: product } }
-    );
+    await cm.addProductToCart(cid, pid);
 
-    res.status(201).send("Producto agregado al carrito exitósamente");
+    res.status(201).send("Product added to cart successfully");
   } catch (err) {
     console.log(err);
     res.status(404).send("Cart or product not found");
