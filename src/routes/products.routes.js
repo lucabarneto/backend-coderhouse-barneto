@@ -1,6 +1,6 @@
 //Importo las dependencias
 const express = require("express"),
-  pm = require("../dao/db/product_manager");
+  pm = require("../dao/db/managers/product_manager");
 
 const routerProducts = express.Router();
 

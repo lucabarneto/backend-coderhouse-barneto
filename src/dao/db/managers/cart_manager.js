@@ -1,4 +1,4 @@
-const cartModel = require("./models/cart.model.js"),
+const cartModel = require("../models/cart.model.js"),
   pm = require("./product_manager.js");
 
 module.exports = {

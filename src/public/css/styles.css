@@ -78,27 +78,6 @@ body {
   text-align: center;
   color: gray;
 }
-
-/* ::::Auth:::: */
-.auth {
-  height: 100vh;
-  width: 100vw;
-  position: fixed;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1;
-  background-color: #00000020;
-  backdrop-filter: blur(2px);
-}
-
-.auth div {
-  background-color: white;
-  padding: 1.5rem;
-  border-radius: 0.75rem;
-  text-align: center;
-}
-
 /* ::::Helper classes:::: */
 
 .display-none {

@@ -1,6 +1,6 @@
 //Importo las dependencias
 const express = require("express"),
-  pm = require("../dao/db/product_manager.js");
+  pm = require("../dao/db/managers/product_manager.js");
 
 //Guardo las dependencias en constantes
 const routerViews = express.Router();
@@ -27,6 +27,10 @@ routerViews.get("/realtimeproducts", async (req, res) => {
     console.log(err);
     res.status(404).send("Page not found");
   }
+});
+
+routerViews.get("/chat", (req, res) => {
+  res.render("chat");
 });
 
 // exporto routerViews

@@ -1,14 +1,16 @@
 const express = require("express"),
-  socket = require("../app.js");
+  mm = require("../dao/db/managers/message_manager.js");
 
 const routerChat = express.Router();
 
-routerChat.get("/realChat", (req, res) => {
-  res.render("realChat");
-});
+routerChat.post("/", async (req, res) => {
+  const io = require("../app.js");
 
-routerChat.post("/realChat", async (req, res) => {
-  socket.emit("Message", req.body);
+  console.log(req.body);
+
+  // await mm.saveMessage(req.body);
+
+  io.sockets.emit("new message", req.body);
   res.status(201).send(req.body);
 });
 
