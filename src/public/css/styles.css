@@ -43,7 +43,12 @@ body {
 
 /* ::::Chat:::: */
 
-/* Chat form */
+.chat {
+  padding: 40px 120px 0;
+  max-height: calc(100vh - 5.625rem);
+  overflow-y: scroll;
+}
+
 #form-chat {
   width: 100vw;
   height: 5.625rem;
@@ -62,27 +67,7 @@ body {
   width: 100%;
 }
 
-/* Chat section */
-.chat {
-  padding: 40px 120px 0;
-  max-height: calc(100vh - 5.625rem);
-  overflow-y: scroll;
-}
-
-.typing {
-  padding: 0 120px;
-  color: gray;
-}
-
-.connections {
-  text-align: center;
-  color: gray;
-}
-/* ::::Helper classes:::: */
-
-.display-none {
-  display: none;
-}
+/* Helper classes */
 
 .disabled {
   background-color: gray;

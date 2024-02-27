@@ -8,7 +8,7 @@ routerChat.post("/", async (req, res) => {
 
   console.log(req.body);
 
-  // await mm.saveMessage(req.body);
+  await mm.saveMessage(req.body);
 
   io.sockets.emit("new message", req.body);
   res.status(201).send(req.body);

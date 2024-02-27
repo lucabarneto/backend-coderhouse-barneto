@@ -9,6 +9,8 @@ const d = document,
   $chatMessage = d.getElementById("input-message"),
   $chatSubmit = d.getElementById("chat-submit");
 
+$chat.innerHTML = "";
+
 //Habilitar el submit
 $formChat.addEventListener("keyup", () => {
   $chatSubmit.classList.add("disabled");
@@ -28,20 +30,25 @@ $formChat.addEventListener("submit", async (e) => {
   $chatSubmit.classList.add("disabled");
 
   const newMessage = {
-    username: d.getElementById("input-username").value,
-    message: d.getElementById("input-message").value,
+    user: $chatUsername.value,
+    message: $chatMessage.value,
   };
-
-  console.log(newMessage);
 
   fetch("http://localhost:8080/api/chat/", {
     method: "POST",
     body: JSON.stringify(newMessage),
-  })
-    .then((res) => console.log(res.json))
-    .catch((err) => {
-      console.log(err);
-    });
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  }).catch((err) => {
+    console.log(err);
+  });
 
   d.getElementById("input-message").value = "";
+});
+
+socket.on("new message", (data) => {
+  $chat.innerHTML += `
+    <div><strong>${data.user}:</strong> ${data.message}</div>
+    `;
 });
