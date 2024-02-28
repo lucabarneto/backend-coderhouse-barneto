@@ -7,16 +7,22 @@ const routerProducts = express.Router();
 //Muestro los productos
 routerProducts.get("/", async (req, res) => {
   try {
-    const limit = Number(req.query.limit);
+    const queries = {};
 
-    if (!limit) {
-      //Envía todos los productos
-      const products = await pm.getProducts();
-      res.status(200).send(products);
-    } else {
-      const queryProducts = await pm.getProducts(null, limit);
-      res.status(200).send(queryProducts);
-    }
+    const limit = Number(req.query.limit) || 2,
+      page = Number(req.query.page) || 1,
+      sort = Number(req.query.sort) || 0;
+    entries = Object.entries(req.query);
+
+    entries.forEach((q) => {
+      queries[q[0]] = q[1];
+    });
+    delete queries.limit;
+    delete queries.page;
+    delete queries.sort;
+
+    const queryProducts = await pm.getProducts(limit, page, queries, sort);
+    res.status(200).send(queryProducts);
   } catch (err) {
     console.log(err);
   }
