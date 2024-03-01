@@ -1,6 +1,6 @@
 //Importo las dependencias
 const express = require("express"),
-  pm = require("../dao/db/managers/product_manager");
+  productManager = require("../dao/db/managers/product_manager");
 
 const routerProducts = express.Router();
 
@@ -21,7 +21,12 @@ routerProducts.get("/", async (req, res) => {
     delete queries.page;
     delete queries.sort;
 
-    const queryProducts = await pm.getProducts(limit, page, queries, sort);
+    const queryProducts = await productManager.getProducts(
+      limit,
+      page,
+      sort,
+      queries
+    );
     res.status(200).send(queryProducts);
   } catch (err) {
     console.log(err);
@@ -32,7 +37,7 @@ routerProducts.get("/", async (req, res) => {
 routerProducts.get("/:pid", async (req, res) => {
   try {
     const pid = req.params.pid;
-    const product = await pm.getProductById(pid);
+    const product = await productManager.getProductById(pid);
     res.status(200).send(product);
   } catch (err) {
     console.log(err);
@@ -43,7 +48,7 @@ routerProducts.get("/:pid", async (req, res) => {
 //Agrego un producto
 routerProducts.post("/", async (req, res) => {
   try {
-    await pm.addProduct(req.body);
+    await productManager.addProduct(req.body);
     res.status(201).send("Product created successfully");
   } catch (err) {
     console.log(err);
@@ -55,7 +60,7 @@ routerProducts.post("/", async (req, res) => {
 routerProducts.put("/:pid", async (req, res) => {
   try {
     const pid = req.params.pid;
-    await pm.updateProduct(pid, req.body);
+    await productManager.updateProduct(pid, req.body);
     res.status(200).send("Product updated successfully");
   } catch (err) {
     console.log(err);
@@ -67,7 +72,7 @@ routerProducts.put("/:pid", async (req, res) => {
 routerProducts.delete("/:pid", async (req, res) => {
   try {
     const pid = req.params.pid;
-    await pm.deleteProduct(pid);
+    await productManager.deleteProduct(pid);
     res.status(200).send("Product deleted successfully");
   } catch (err) {
     console.log(err);

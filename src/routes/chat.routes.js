@@ -1,5 +1,5 @@
 const express = require("express"),
-  mm = require("../dao/db/managers/message_manager.js");
+  messageManager = require("../dao/db/managers/message_manager.js");
 
 const routerChat = express.Router();
 
@@ -8,7 +8,7 @@ routerChat.post("/", async (req, res) => {
 
   console.log(req.body);
 
-  await mm.saveMessage(req.body);
+  await messageManager.saveMessage(req.body);
 
   io.sockets.emit("new message", req.body);
   res.status(201).send(req.body);

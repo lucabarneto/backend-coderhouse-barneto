@@ -1,22 +1,17 @@
 const productModel = require("../models/product.model.js");
 
 module.exports = {
-  getProducts: async (limit, page, queries, sort) => {
+  getProducts: async (limit, page, sort, queries) => {
     try {
-      // const products = await productModel.find(opt).limit(lim);
-
-      let isSorted = {};
-
+      const isSorted = {};
       if (sort !== 0) {
-        isSorted = {
-          sort: { price: sort },
-        };
+        isSorted.price = sort;
       }
 
       const products = await productModel.paginate(queries, {
         limit,
         page,
-        customLabels: isSorted,
+        sort: isSorted,
       });
 
       if (!products) {
