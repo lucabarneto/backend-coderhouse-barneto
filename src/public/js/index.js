@@ -1,12 +1,13 @@
 //Instancio el socket del lado del cliente
 const socket = io();
 
-//DOM
-const d = document,
-  $chat = d.getElementById("online-chat"),
+const d = document;
+
+/*:::::Sección Chat:::::*/
+const $chat = d.getElementById("online-chat"),
   $formChat = d.getElementById("form-chat"),
-  $chatUsername = d.getElementById("input-username"),
-  $chatMessage = d.getElementById("input-message"),
+  $chatUsername = d.getElementById("input-chat-username"),
+  $chatMessage = d.getElementById("input-chat-message"),
   $chatSubmit = d.getElementById("chat-submit");
 
 $chat.innerHTML = "";
