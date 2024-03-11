@@ -56,9 +56,12 @@ routerCarts.delete("/:cid", async (req, res) => {
 
     const cart = await cartManager.deleteAllProducts(cid);
 
-    res.status(200).send(`Productos eliminados correctamente: ${cart}`);
+    if (cart) {
+      res.status(200).send("Products deleted successfully");
+    }
   } catch (err) {
     console.log(err);
+    res.status(400).send("An error has occurred");
   }
 });
 
@@ -69,9 +72,12 @@ routerCarts.delete("/:cid/products/:pid", async (req, res) => {
 
     const cart = await cartManager.deleteProduct(cid, pid);
 
-    res.status(200).send(`Producto eliminado correctamente: ${cart}`);
+    if (cart) {
+      res.status(200).send("Producto eliminado correctamente");
+    }
   } catch (err) {
     console.log(err);
+    res.status(400).send("An error has occurred");
   }
 });
 
@@ -96,9 +102,9 @@ routerCarts.put("/:cid", async (req, res) => {
 
     const cart = await cartManager.updateCart(cid, products);
 
-    console.log(cart);
-
-    res.status(200).send(`Productos agregados al carrito: ${cart}`);
+    if (cart) {
+      res.status(200).send(`Productos agregados al carrito.`);
+    }
   } catch (err) {
     console.log(err);
   }

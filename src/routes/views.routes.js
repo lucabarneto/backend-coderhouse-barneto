@@ -5,13 +5,13 @@ const express = require("express"),
 //Guardo las dependencias en constantes
 const routerViews = express.Router();
 
-const auth = (req, res, next) => {
-  if (req.session.user) {
-    return next();
-  }
+//Middleware de autenticación para acceder a las vistas
+const auth = (req, res, next) =>
+  req.session.user ? next() : res.redirect("http://localhost:8080/login");
 
-  res.redirect("http://localhost:8080/login");
-};
+//Middleware para evitar volver a loggearse si ya se está loggeado
+const logged = (req, res, next) =>
+  req.session.user ? res.redirect("http://localhost:8080/profile") : next();
 
 routerViews.get("/", auth, async (req, res) => {
   try {
@@ -43,22 +43,30 @@ routerViews.get("/chat", auth, (req, res) => {
 });
 
 //Renderiza el login
-routerViews.get("/login", (req, res) => {
+routerViews.get("/login", logged, (req, res) => {
   res.render("login");
 });
 
 //Renderiza el registro
-routerViews.get("/register", (req, res) => {
+routerViews.get("/register", logged, (req, res) => {
   res.render("register");
 });
 
 //Renderiza la sección del perfil del usuario
 routerViews.get("/profile", auth, (req, res) => {
+  let role = "user";
+
+  //Manejo del rol del usuario
+  if (
+    req.session.user.email === "adminCoder@coder.com" &&
+    req.session.user.password === "adminCod3r123"
+  ) {
+    role = "admin";
+  }
+
   const userInfo = {
-    firstName: req.session.firstName,
-    lastName: req.session.lastName,
-    age: req.session.age,
-    admin: req.session.admin,
+    email: req.session.user.email,
+    role,
   };
 
   res.render("profile", userInfo);

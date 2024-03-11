@@ -1,13 +1,18 @@
-const messageModel = require("../models/message.model.js");
+const Message = require("../models/message.model.js");
 
 module.exports = {
   saveMessage: async (body) => {
     try {
-      const message = await messageModel.create(body);
+      //Verifico que se haya pasado el parámetro
+      if (!body) {
+        throw new Error("Body not provided");
+      }
+
+      const message = await Message.create(body);
 
       return message;
     } catch (err) {
-      console.log("An error has occurred: ", err);
+      console.error("An error has occurred: ", err);
     }
   },
 };

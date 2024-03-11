@@ -1,16 +1,10 @@
 <main>
   <h1>Bienvenido, {{firstName}} {{lastName}}</h1>
-
-  {{#if admin}}
-    <div> Eres un administrador del sitio web!</div>
-  {{/if}}
-
   <div>
     <h2>Tus datos de perfil:</h2>
     <ul>
-      <li>Nombre: <strong>{{firstName}}</strong></li>
-      <li>Apellido: <strong>{{lastName}}</strong></li>
-      <li>Edad: <strong>{{age}}</strong></li>
+      <li>Email: <strong>{{email}}</strong></li>
+      <li>Rol: <strong>{{role}}</strong></li>
     </ul>
   </div>
   <form method="post" action="http://localhost:8080/api/sessions/logout">

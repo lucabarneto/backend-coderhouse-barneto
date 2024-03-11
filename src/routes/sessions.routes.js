@@ -1,42 +1,33 @@
-const express = require("express");
+const express = require("express"),
+  userManager = require("../dao/db/managers/user_manager.js");
 
 const routerSessions = express.Router();
 
-const auth = (req, res, next) => {
-  if (
-    req.body.email === req.session.email &&
-    req.body.password === req.session.password
-  ) {
-    return next();
+//Sube los datos del usuario a la db
+routerSessions.post("/register", async (req, res) => {
+  const user = await userManager.saveUser(req.body);
+
+  if (user) {
+    res.redirect("http://localhost:8080/login");
   }
-
-  res.send("Error de autenticación, email o contraseña incorrectos");
-};
-
-routerSessions.post("/register", (req, res) => {
-  const { firstName, lastName, email, age, password } = req.body;
-
-  req.session.firstName = firstName;
-  req.session.lastName = lastName;
-  req.session.email = email;
-  req.session.age = age;
-  req.session.password = password;
-  req.session.admin = false;
-
-  if (email === "adminCoder@coder.com" && password === "adminCod3r123") {
-    req.session.admin = true;
-  }
-
-  res.redirect("http://localhost:8080/login");
 });
 
-routerSessions.post("/login", auth, (req, res) => {
-  req.session.user = true;
-  res.redirect("http://localhost:8080/profile");
+// Maneja el login y permite el acceso al perfil
+routerSessions.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await userManager.getUser(email, password);
+
+  if (user) {
+    req.session.user = req.body;
+    res.redirect("http://localhost:8080/profile");
+  } else {
+    res.send("Error de autenticación, email o contraseña incorrectos");
+  }
 });
 
+// Destruye la session y devuelve al usuario al login
 routerSessions.post("/logout", (req, res) => {
-  req.session.user = false;
   req.session.destroy((err) => {
     if (err) {
       return res.send(`Error al salir de sesión: ${err}`);
@@ -44,10 +35,6 @@ routerSessions.post("/logout", (req, res) => {
 
     res.redirect("http://localhost:8080/login");
   });
-});
-
-routerSessions.get("/getSession", (req, res) => {
-  res.send(req.session);
 });
 
 module.exports = routerSessions;
