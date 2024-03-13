@@ -9,7 +9,9 @@ const express = require("express"),
   { Server } = require("socket.io"),
   Database = require("./dao/db/index.js"),
   session = require("express-session"),
-  MongoStore = require("connect-mongo");
+  // MongoStore = require("connect-mongo"),
+  intilializePassport = require("./config/passport.config.js"),
+  passport = require("passport");
 
 const app = express();
 
@@ -19,7 +21,7 @@ const httpServer = http.createServer(app);
 
 const io = new Server(httpServer);
 
-const secret = "171916265321163164519213115144";
+const SECRET_KEY = "171916265321163164519213115144";
 
 //Configuro handlebars
 app.engine("handlebars", handlebars.engine());
@@ -32,15 +34,20 @@ app.use(express.static(__dirname + "/public"));
 //Configuro middlewares de session
 app.use(
   session({
-    store: MongoStore.create({
-      mongoUrl:
-        "mongodb+srv://lucabarneto:Aa4121121205@database-coderhouse-bar.vlphwq8.mongodb.net/eccomerce",
-    }),
-    secret: secret,
+    // store: MongoStore.create({
+    //   mongoUrl:
+    //     "mongodb+srv://lucabarneto:Aa4121121205@database-coderhouse-bar.vlphwq8.mongodb.net/eccomerce",
+    // }),
+    secret: SECRET_KEY,
     resave: true,
     saveUninitialized: true,
   })
 );
+
+// Agrego middleware de passport
+intilializePassport();
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -9,23 +9,23 @@ module.exports = {
 
       await User.create(body);
 
-      return true;
+      return body;
     } catch (err) {
       console.error("An error has occurred: ", err);
     }
   },
-  getUser: async (email, password) => {
+  getUser: async (email, password = undefined) => {
     try {
       if (!email) {
         throw new Error("Email not provided");
       }
-      if (!password) {
+      if (password === undefined) {
         throw new Error("Password not provided");
       }
 
       const user = await User.find({ email, password });
 
-      if (!user) {
+      if (user.length === 0) {
         return false;
       }
 

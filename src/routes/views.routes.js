@@ -47,9 +47,17 @@ routerViews.get("/login", logged, (req, res) => {
   res.render("login");
 });
 
+routerViews.get("/faillogin", (req, res) => {
+  res.send("Failed to log in: incorrect user or password");
+});
+
 //Renderiza el registro
 routerViews.get("/register", logged, (req, res) => {
   res.render("register");
+});
+
+routerViews.get("/failregister", (req, res) => {
+  res.status(400).send("Failed to register user");
 });
 
 //Renderiza la sección del perfil del usuario

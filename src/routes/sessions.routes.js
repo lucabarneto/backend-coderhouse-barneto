@@ -1,30 +1,30 @@
 const express = require("express"),
-  userManager = require("../dao/db/managers/user_manager.js");
+  jwt = require("../utils/jwt.js");
+passport = require("passport");
 
 const routerSessions = express.Router();
 
-//Sube los datos del usuario a la db
-routerSessions.post("/register", async (req, res) => {
-  const user = await userManager.saveUser(req.body);
-
-  if (user) {
+//
+routerSessions.post(
+  "/register",
+  passport.authenticate("register", { failureRedirect: "/failregister" }),
+  (req, res) => {
     res.redirect("http://localhost:8080/login");
   }
-});
+);
 
 // Maneja el login y permite el acceso al perfil
-routerSessions.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+routerSessions.post(
+  "/login",
+  passport.authenticate("login", { failureRedirect: "/faillogin" }),
+  (req, res) => {
+    console.log(req.user);
+    const ACCESS_TOKEN = jwt.generateToken(req.user);
+    console.log(ACCESS_TOKEN);
 
-  const user = await userManager.getUser(email, password);
-
-  if (user) {
-    req.session.user = req.body;
     res.redirect("http://localhost:8080/profile");
-  } else {
-    res.send("Error de autenticación, email o contraseña incorrectos");
   }
-});
+);
 
 // Destruye la session y devuelve al usuario al login
 routerSessions.post("/logout", (req, res) => {
