@@ -1,9 +1,10 @@
-const { errorMonitor } = require("connect-mongo");
 const Cart = require("../models/cart.model.js"),
-  productManager = require("../managers/product_manager.js");
+  ProductManager = require("../managers/product_manager.js");
 
-module.exports = {
-  addCart: async (body) => {
+class CartManager {
+  constructor() {}
+
+  addCart = async (body) => {
     try {
       //Verifico que se haya pasado el parámetro
       if (!body) {
@@ -17,8 +18,9 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-  getCartProducts: async (cid) => {
+  };
+
+  getCartProducts = async (cid) => {
     try {
       //Verifico que se haya pasado el parámetro
       if (!cid) {
@@ -37,8 +39,9 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-  addProductToCart: async (cid, pid, quantity = 1) => {
+  };
+
+  addProductToCart = async (cid, pid, quantity = 1) => {
     try {
       //Verifico que se hayan pasado los parámetros
       if (!cid) {
@@ -62,7 +65,7 @@ module.exports = {
       }
 
       //Verifico que la cantidad agregada no sobrepase el stock del producto
-      const product = await productManager.getProductById(pid);
+      const product = await ProductManager.getProductById(pid);
 
       if (!product) {
         throw new Error("Product not found");
@@ -81,8 +84,9 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-  deleteProduct: async (cid, pid) => {
+  };
+
+  deleteProduct = async (cid, pid) => {
     try {
       //Verifico que se hayan pasado los parámetros
       if (!cid) {
@@ -102,8 +106,9 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-  deleteAllProducts: async (cid) => {
+  };
+
+  deleteAllProducts = async (cid) => {
     try {
       //Verifico que se haya pasado el parámetro
       if (!cid) {
@@ -117,8 +122,9 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-  updateProductQuantity: async (cid, pid, quantity = undefined) => {
+  };
+
+  updateProductQuantity = async (cid, pid, quantity = undefined) => {
     try {
       //Verifico que se hayan pasado los parámetros
       if (!cid) {
@@ -162,8 +168,9 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-  updateCart: async (cid, arr) => {
+  };
+
+  updateCart = async (cid, arr) => {
     try {
       //Verifico que se hayan pasado los parámetros
       if (!cid) {
@@ -187,5 +194,7 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-};
+  };
+}
+
+module.exports = CartManager;

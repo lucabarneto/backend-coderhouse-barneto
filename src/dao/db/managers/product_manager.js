@@ -1,9 +1,11 @@
 const Product = require("../models/product.model.js");
 
-module.exports = {
-  getProducts: async (limit = 10, page = 1, sort = 0, queries) => {
+class ProductManager {
+  constructor() {}
+
+  getProducts = async (limit = 10, page = 1, sort = 0, queries) => {
     try {
-      //Valido que los parámetros paados sean números
+      //Valido que los parámetros pasados sean números
       if (limit.toString().match(/[^0-9]/))
         throw new Error("Limit must be a number");
       if (page.toString().match(/[^0-9]/))
@@ -59,8 +61,9 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-  getProductById: async (pid) => {
+  };
+
+  getProductById = async (pid) => {
     try {
       //Verifico que se haya pasado el parámetro
       if (!pid) {
@@ -78,8 +81,9 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-  addProduct: async (body) => {
+  };
+
+  addProduct = async (body) => {
     try {
       //Verifico que se haya pasado el parámetro
       if (!body) {
@@ -93,8 +97,9 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-  updateProduct: async (pid, body) => {
+  };
+
+  updateProduct = async (pid, body) => {
     try {
       //Verifico que se hayan pasado los parámetros
       if (!pid) {
@@ -111,8 +116,9 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-  deleteProduct: async (pid) => {
+  };
+
+  deleteProduct = async (pid) => {
     try {
       //Verifico que se haya pasado el parámetro
       if (!pid) {
@@ -126,5 +132,7 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-};
+  };
+}
+
+module.exports = ProductManager;

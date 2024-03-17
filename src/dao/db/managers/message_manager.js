@@ -1,7 +1,9 @@
 const Message = require("../models/message.model.js");
 
-module.exports = {
-  saveMessage: async (body) => {
+class MessageManager {
+  constructor() {}
+
+  saveMessage = async (body) => {
     try {
       //Verifico que se haya pasado el parámetro
       if (!body) {
@@ -15,5 +17,7 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-};
+  };
+}
+
+module.exports = MessageManager;

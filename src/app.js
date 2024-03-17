@@ -9,7 +9,6 @@ const express = require("express"),
   { Server } = require("socket.io"),
   Database = require("./dao/db/index.js"),
   session = require("express-session"),
-  // MongoStore = require("connect-mongo"),
   intilializePassport = require("./config/passport.config.js"),
   passport = require("passport");
 
@@ -34,10 +33,6 @@ app.use(express.static(__dirname + "/public"));
 //Configuro middlewares de session
 app.use(
   session({
-    // store: MongoStore.create({
-    //   mongoUrl:
-    //     "mongodb+srv://lucabarneto:Aa4121121205@database-coderhouse-bar.vlphwq8.mongodb.net/eccomerce",
-    // }),
     secret: SECRET_KEY,
     resave: true,
     saveUninitialized: true,

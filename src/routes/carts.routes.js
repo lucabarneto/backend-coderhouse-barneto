@@ -1,9 +1,10 @@
 //Importo las dependencias
 const express = require("express"),
-  cartManager = require("../dao/db/managers/cart_manager.js");
+  CartManager = require("../dao/db/managers/cart_manager.js");
 
 //Guardo las dependencias en constantes
-const routerCarts = express.Router();
+const routerCarts = express.Router(),
+  cartManager = new CartManager();
 
 //Crea un nuevo carrito
 routerCarts.post("/", async (req, res) => {

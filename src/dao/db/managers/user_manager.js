@@ -1,7 +1,9 @@
 const User = require("../models/user.model.js");
 
-module.exports = {
-  saveUser: async (body) => {
+class UserManager {
+  constructor() {}
+
+  saveUser = async (body) => {
     try {
       if (!body) {
         throw new Error("Body not provided");
@@ -14,8 +16,9 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-  getUser: async (email) => {
+  };
+
+  getUser = async (email) => {
     try {
       const user = await User.findOne({ email });
 
@@ -28,5 +31,7 @@ module.exports = {
       console.error(err);
       return { status: false, payload: null, error: err };
     }
-  },
-};
+  };
+}
+
+module.exports = UserManager;

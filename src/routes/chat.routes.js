@@ -1,7 +1,8 @@
 const express = require("express"),
-  messageManager = require("../dao/db/managers/message_manager.js");
+  MessageManager = require("../dao/db/managers/message_manager.js");
 
-const routerChat = express.Router();
+const routerChat = express.Router(),
+  messageManager = new MessageManager();
 
 routerChat.post("/", async (req, res) => {
   try {

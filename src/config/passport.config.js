@@ -1,8 +1,10 @@
-const userManager = require("../dao/db/managers/user_manager.js"),
+const UserManager = require("../dao/db/managers/user_manager.js"),
   bcrypt = require("../utils/bcrypt.js"),
   passport = require("passport"),
   LocalStrategy = require("passport-local").Strategy,
   GithubStrategy = require("passport-github2").Strategy;
+
+const userManager = new UserManager();
 
 const intilializePassport = () => {
   passport.use(

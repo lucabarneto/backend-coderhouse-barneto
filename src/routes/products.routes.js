@@ -1,8 +1,9 @@
 //Importo las dependencias
 const express = require("express"),
-  productManager = require("../dao/db/managers/product_manager");
+  ProductManager = require("../dao/db/managers/product_manager");
 
-const routerProducts = express.Router();
+const routerProducts = express.Router(),
+  productManager = new ProductManager();
 
 //Muestro los productos
 routerProducts.get("/", async (req, res) => {
