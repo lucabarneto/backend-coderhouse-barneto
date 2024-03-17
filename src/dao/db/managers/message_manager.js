@@ -10,9 +10,10 @@ module.exports = {
 
       const message = await Message.create(body);
 
-      return message;
+      return { status: true, payload: message, error: null };
     } catch (err) {
-      console.error("An error has occurred: ", err);
+      console.error(err);
+      return { status: false, payload: null, error: err };
     }
   },
 };

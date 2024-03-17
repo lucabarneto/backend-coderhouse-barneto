@@ -4,14 +4,20 @@ const express = require("express"),
 const routerChat = express.Router();
 
 routerChat.post("/", async (req, res) => {
-  const io = require("../app.js");
+  try {
+    const io = require("../app.js");
 
-  console.log(req.body);
+    const message = await messageManager.saveMessage(req.body);
 
-  await messageManager.saveMessage(req.body);
-
-  io.sockets.emit("new message", req.body);
-  res.status(201).send(req.body);
+    if (message.status) {
+      io.sockets.emit("new message", req.body);
+      res.status(201).send(req.body);
+    } else {
+      throw new Error(message.error);
+    }
+  } catch (err) {
+    res.status(400).send("An error has occurred: " + err);
+  }
 });
 
 module.exports = routerChat;

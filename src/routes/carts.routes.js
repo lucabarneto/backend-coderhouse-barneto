@@ -8,105 +8,126 @@ const routerCarts = express.Router();
 //Crea un nuevo carrito
 routerCarts.post("/", async (req, res) => {
   try {
-    await cartManager.addCart(req.body);
-    res.status(201).send("Cart created successfully");
+    const cart = await cartManager.addCart(req.body);
+
+    if (cart.status) {
+      res.status(201).send("Cart created successfully");
+    } else {
+      throw new Error(cart.error);
+    }
   } catch (err) {
-    console.log(err);
-    res.status(400).send("An error has occurred");
+    res.status(400).send("An error has occurred: " + err);
   }
 });
 
 //Muestra los productos del carrito
 routerCarts.get("/:cid", async (req, res) => {
   try {
-    const cid = req.params.cid;
+    let cid = req.params.cid;
     const cart = await cartManager.getCartProducts(cid);
-    res.status(200).send(cart);
+
+    if (cart.status) {
+      res.status(200).send(cart.payload);
+    } else {
+      throw new Error(cart.error);
+    }
   } catch (err) {
-    console.log(err);
-    res.status(404).send("Cart not found");
+    res.status(400).send("An error has occurred: " + err);
   }
 });
 
 //Añade un producto al carrito
 routerCarts.post("/:cid/products/:pid", async (req, res) => {
   try {
-    const cid = req.params.cid,
+    let cid = req.params.cid,
       pid = req.params.pid,
-      quantity = req.body.quantity || 1;
-
+      quantity = req.body.quantity;
     const cart = await cartManager.addProductToCart(cid, pid, quantity);
 
-    console.log(JSON.stringify(cart, null, 2));
-
-    res
-      .status(201)
-      .send(
-        `Product added to cart successfully: ${JSON.stringify(cart, 2, null)}`
-      );
+    if (cart.status) {
+      res
+        .status(201)
+        .send(
+          `Product added to cart successfully: ${JSON.stringify(
+            cart.payload,
+            2,
+            null
+          )}`
+        );
+    } else {
+      throw new Error(cart.error);
+    }
   } catch (err) {
-    console.log(err);
-    res.status(404).send("Cart or product not found");
+    res.status(400).send("An error has occurred: " + err);
   }
 });
 
+//Elimina todos los productos del carrito
 routerCarts.delete("/:cid", async (req, res) => {
   try {
-    const cid = req.params.cid;
-
+    let cid = req.params.cid;
     const cart = await cartManager.deleteAllProducts(cid);
 
-    if (cart) {
+    if (cart.status) {
       res.status(200).send("Products deleted successfully");
+    } else {
+      throw new Error(cart.error);
     }
   } catch (err) {
-    console.log(err);
-    res.status(400).send("An error has occurred");
+    res.status(400).send("An error has occurred: " + err);
   }
 });
 
+//Elimina un producto del carrito
 routerCarts.delete("/:cid/products/:pid", async (req, res) => {
   try {
-    const cid = req.params.cid,
+    let cid = req.params.cid,
       pid = req.params.pid;
-
     const cart = await cartManager.deleteProduct(cid, pid);
 
-    if (cart) {
-      res.status(200).send("Producto eliminado correctamente");
+    if (cart.status) {
+      res.status(200).send("Product deleted succesfully");
+    } else {
+      throw new Error(cart.error);
     }
   } catch (err) {
-    console.log(err);
-    res.status(400).send("An error has occurred");
+    res.status(400).send("An error has occurred: " + err);
   }
 });
 
+//Actualiza la cantidad de un producto del carro
 routerCarts.put("/:cid/products/:pid", async (req, res) => {
   try {
-    const cid = req.params.cid,
+    let cid = req.params.cid,
       pid = req.params.pid,
       quantity = req.body.quantity;
 
-    await cartManager.updateProductQuantity(cid, pid, quantity);
+    const cart = await cartManager.updateProductQuantity(cid, pid, quantity);
 
-    res.send("Producto actualizado correctamente");
+    if (cart.status) {
+      res.status(201).send("Product updated successfully");
+    } else {
+      throw new Error(cart.error);
+    }
   } catch (err) {
-    console.log(err);
+    res.status(400).send("An error has occurred: " + err);
   }
 });
 
+//Agrega un array de productos al carro
 routerCarts.put("/:cid", async (req, res) => {
   try {
-    const cid = req.params.cid,
+    let cid = req.params.cid,
       products = req.body;
-
     const cart = await cartManager.updateCart(cid, products);
 
-    if (cart) {
-      res.status(200).send(`Productos agregados al carrito.`);
+    if (cart.status) {
+      res.status(201).send("Products added to cart successfully");
+    } else {
+      throw new Error(cart.error);
     }
   } catch (err) {
-    console.log(err);
+    res.status(400).send("An error has occurred: " + err);
   }
 });
 

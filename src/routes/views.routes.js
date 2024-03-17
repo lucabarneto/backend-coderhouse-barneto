@@ -1,19 +1,12 @@
 //Importo las dependencias
 const express = require("express"),
-  pm = require("../dao/db/managers/product_manager.js");
+  pm = require("../dao/db/managers/product_manager.js"),
+  auth = require("../middlewares/auth.js");
 
 //Guardo las dependencias en constantes
 const routerViews = express.Router();
 
-//Middleware de autenticación para acceder a las vistas
-const auth = (req, res, next) =>
-  req.session.user ? next() : res.redirect("http://localhost:8080/login");
-
-//Middleware para evitar volver a loggearse si ya se está loggeado
-const logged = (req, res, next) =>
-  req.session.user ? res.redirect("http://localhost:8080/profile") : next();
-
-routerViews.get("/", auth, async (req, res) => {
+routerViews.get("/", async (req, res) => {
   try {
     const products = await pm.getProducts();
     res.render("home", {
@@ -25,7 +18,7 @@ routerViews.get("/", auth, async (req, res) => {
   }
 });
 
-routerViews.get("/realtimeproducts", auth, async (req, res) => {
+routerViews.get("/realtimeproducts", async (req, res) => {
   try {
     const products = await pm.getProducts();
     res.render("realTimeProducts", {
@@ -43,41 +36,19 @@ routerViews.get("/chat", auth, (req, res) => {
 });
 
 //Renderiza el login
-routerViews.get("/login", logged, (req, res) => {
+routerViews.get("/login", (req, res) => {
   res.render("login");
 });
 
-routerViews.get("/faillogin", (req, res) => {
-  res.send("Failed to log in: incorrect user or password");
-});
-
 //Renderiza el registro
-routerViews.get("/register", logged, (req, res) => {
+routerViews.get("/register", (req, res) => {
   res.render("register");
-});
-
-routerViews.get("/failregister", (req, res) => {
-  res.status(400).send("Failed to register user");
 });
 
 //Renderiza la sección del perfil del usuario
 routerViews.get("/profile", auth, (req, res) => {
-  let role = "user";
-
-  //Manejo del rol del usuario
-  if (
-    req.session.user.email === "adminCoder@coder.com" &&
-    req.session.user.password === "adminCod3r123"
-  ) {
-    role = "admin";
-  }
-
-  const userInfo = {
-    email: req.session.user.email,
-    role,
-  };
-
-  res.render("profile", userInfo);
+  console.log(req.user);
+  res.render("profile", req.user);
 });
 
 // exporto routerViews

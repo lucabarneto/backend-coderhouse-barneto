@@ -9,29 +9,24 @@ module.exports = {
 
       await User.create(body);
 
-      return body;
+      return { status: true, payload: body, error: null };
     } catch (err) {
-      console.error("An error has occurred: ", err);
+      console.error(err);
+      return { status: false, payload: null, error: err };
     }
   },
-  getUser: async (email, password = undefined) => {
+  getUser: async (email) => {
     try {
-      if (!email) {
-        throw new Error("Email not provided");
-      }
-      if (password === undefined) {
-        throw new Error("Password not provided");
-      }
+      const user = await User.findOne({ email });
 
-      const user = await User.find({ email, password });
-
-      if (user.length === 0) {
-        return false;
+      if (!user) {
+        throw new Error("User not found");
       }
 
-      return true;
+      return { status: true, payload: user, error: null };
     } catch (err) {
-      console.error("An error has occurred: ", err);
+      console.error(err);
+      return { status: false, payload: null, error: err };
     }
   },
 };

@@ -1,4 +1,6 @@
-const Cart = require("../models/cart.model.js");
+const { errorMonitor } = require("connect-mongo");
+const Cart = require("../models/cart.model.js"),
+  productManager = require("../managers/product_manager.js");
 
 module.exports = {
   addCart: async (body) => {
@@ -10,9 +12,10 @@ module.exports = {
 
       await Cart.create(body);
 
-      return true;
+      return { status: true, payload: null, error: null };
     } catch (err) {
-      console.error("An error has occurred: ", err);
+      console.error(err);
+      return { status: false, payload: null, error: err };
     }
   },
   getCartProducts: async (cid) => {
@@ -29,12 +32,13 @@ module.exports = {
         throw new Error("Cart not found");
       }
 
-      return cart[0].products;
+      return { status: true, payload: cart[0].products, error: null };
     } catch (err) {
-      console.error("An error has occurred: ", err);
+      console.error(err);
+      return { status: false, payload: null, error: err };
     }
   },
-  addProductToCart: async (cid, pid, quantity) => {
+  addProductToCart: async (cid, pid, quantity = 1) => {
     try {
       //Verifico que se hayan pasado los parámetros
       if (!cid) {
@@ -43,6 +47,12 @@ module.exports = {
       if (!pid) {
         throw new Error("No pid provided");
       }
+      if (typeof quantity !== "number")
+        throw new TypeError("Product's quantity must be a number");
+      if (quantity <= 0)
+        throw new RangeError(
+          "Product's quantity must not be neither 0 nor a negative number"
+        );
 
       const cart = await Cart.find({ _id: cid });
 
@@ -51,13 +61,25 @@ module.exports = {
         throw new Error("Cart not found");
       }
 
+      //Verifico que la cantidad agregada no sobrepase el stock del producto
+      const product = await productManager.getProductById(pid);
+
+      if (!product) {
+        throw new Error("Product not found");
+      }
+      if (quantity > product.stock)
+        throw new RangeError(
+          `Product's quantity cannot be greater than it's stock \n inserted quantity: ${quantity} - product's stock: ${product.stock}`
+        );
+
       cart[0].products.push({ product: pid, quantity });
 
-      await Cart.updateOne({ _id: cid }, cart);
+      await Cart.updateOne({ _id: cid }, cart[0]);
 
-      return cart;
+      return { status: true, payload: cart, error: null };
     } catch (err) {
-      console.error("An error has occurred: ", err);
+      console.error(err);
+      return { status: false, payload: null, error: err };
     }
   },
   deleteProduct: async (cid, pid) => {
@@ -75,9 +97,10 @@ module.exports = {
         { $pull: { products: { product: pid } } }
       );
 
-      return true;
+      return { status: true, payload: null, error: null };
     } catch (err) {
       console.error(err);
+      return { status: false, payload: null, error: err };
     }
   },
   deleteAllProducts: async (cid) => {
@@ -89,12 +112,13 @@ module.exports = {
 
       await Cart.updateOne({ _id: cid }, { $set: { products: [] } });
 
-      return true;
+      return { status: true, payload: null, error: null };
     } catch (err) {
-      console.error("An error has occurred: ", err);
+      console.error(err);
+      return { status: false, payload: null, error: err };
     }
   },
-  updateProductQuantity: async (cid, pid, quantity) => {
+  updateProductQuantity: async (cid, pid, quantity = undefined) => {
     try {
       //Verifico que se hayan pasado los parámetros
       if (!cid) {
@@ -103,9 +127,16 @@ module.exports = {
       if (!pid) {
         throw new Error("No pid provided");
       }
-      if (!quantity) {
+      if (quantity === undefined) {
         throw new Error("No new quantity provided");
       }
+      if (typeof quantity !== "number") {
+        throw new TypeError("Product's quantity must be a number");
+      }
+      if (quantity <= 0)
+        throw new RangeError(
+          "Product's quantity must not be neither 0 nor a negative number"
+        );
 
       const cart = await Cart.find({ _id: cid });
 
@@ -116,13 +147,20 @@ module.exports = {
 
       //Aumento la cantidad del producto con el pid específico
       const product = cart[0].products.find((p) => p.product._id == pid);
+
+      if (quantity > product.stock)
+        throw new RangeError(
+          `Product's new quantity cannot be greater than it's stock \n inserted quantity: ${quantity} - product's stock: ${product.stock}`
+        );
+
       product.quantity = quantity;
 
       await Cart.updateOne({ _id: cid }, cart);
 
-      return true;
+      return { status: true, payload: null, error: null };
     } catch (err) {
-      console.error("An error has occurred: ", err);
+      console.error(err);
+      return { status: false, payload: null, error: err };
     }
   },
   updateCart: async (cid, arr) => {
@@ -135,7 +173,7 @@ module.exports = {
         throw new Error("No array provided");
       }
       //Verifico que el cuerpo pasado sea un array
-      if (!Array.isArray(arr)) {
+      if (!(arr instanceof Array)) {
         throw new TypeError("Body must be an array");
       }
 
@@ -144,9 +182,10 @@ module.exports = {
         { $addToSet: { products: { $each: arr } } }
       );
 
-      return true;
+      return { status: true, payload: null, error: null };
     } catch (err) {
-      console.error("An error has occurred: ", err);
+      console.error(err);
+      return { status: false, payload: null, error: err };
     }
   },
 };

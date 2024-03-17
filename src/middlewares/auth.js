@@ -2,9 +2,9 @@ const jwt = require("../utils/jwt.js");
 
 const auth = (req, res, next) => {
   try {
-    let tokenHeader = req.headers.authorization;
+    let tokenHeader = req.headers["authorization"];
     if (!tokenHeader) {
-      return res.status(401).send("Unauthenticated user");
+      throw new Error("Unauthenticated user");
     }
 
     let token = tokenHeader.split(" ")[1];
@@ -17,7 +17,8 @@ const auth = (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
-    return res.status(400).send("An error has occurred" + err);
+    console.error(err);
+    return res.status(400).send("An error has occurred: " + err);
   }
 };
 
