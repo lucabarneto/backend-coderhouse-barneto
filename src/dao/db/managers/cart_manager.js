@@ -1,6 +1,8 @@
 const Cart = require("../models/cart.model.js"),
   ProductManager = require("../managers/product_manager.js");
 
+const productManager = new ProductManager();
+
 class CartManager {
   constructor() {}
 
@@ -65,7 +67,7 @@ class CartManager {
       }
 
       //Verifico que la cantidad agregada no sobrepase el stock del producto
-      const product = await ProductManager.getProductById(pid);
+      const product = await productManager.getProductById(pid);
 
       if (!product) {
         throw new Error("Product not found");
