@@ -11,10 +11,10 @@ class UserManager {
 
       await User.create(body);
 
-      return { status: true, payload: body, error: null };
+      return { status: true, payload: body };
     } catch (err) {
       console.error(err);
-      return { status: false, payload: null, error: err };
+      return { status: false, error: err };
     }
   };
 
@@ -26,10 +26,10 @@ class UserManager {
         throw new Error("User not found");
       }
 
-      return { status: true, payload: user, error: null };
+      return { status: true, payload: user };
     } catch (err) {
       console.error(err);
-      return { status: false, payload: null, error: err };
+      return { status: false, error: err };
     }
   };
 }

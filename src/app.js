@@ -1,14 +1,14 @@
 const express = require("express"),
-  routerProducts = require("./routes/products.routes"),
-  routerCarts = require("./routes/carts.routes"),
-  routerViews = require("./routes/views.routes"),
-  routerChat = require("./routes/chat.routes.js"),
-  routerSessions = require("./routes/sessions.routes.js"),
+  ProductRouter = require("./routes/products.routes"),
+  CartRouter = require("./routes/carts.routes"),
+  ViewRouter = require("./routes/views.routes"),
+  MessageRouter = require("./routes/chat.routes.js"),
+  SessionRouter = require("./routes/sessions.routes.js"),
   handlebars = require("express-handlebars"),
   http = require("http"),
   { Server } = require("socket.io"),
   Database = require("./dao/db/index.js"),
-  session = require("express-session"),
+  cookieparser = require("cookie-parser"),
   intilializePassport = require("./config/passport.config.js"),
   passport = require("passport");
 
@@ -20,7 +20,11 @@ const httpServer = http.createServer(app);
 
 const io = new Server(httpServer);
 
-const SECRET_KEY = "171916265321163164519213115144";
+const productRouter = new ProductRouter(),
+  cartRouter = new CartRouter(),
+  sessionRouter = new SessionRouter(),
+  viewRouter = new ViewRouter(),
+  messageRouter = new MessageRouter();
 
 //Configuro handlebars
 app.engine("handlebars", handlebars.engine());
@@ -30,28 +34,22 @@ app.set("view engine", "handlebars");
 //Configuro carpeta public
 app.use(express.static(__dirname + "/public"));
 
-//Configuro middlewares de session
-app.use(
-  session({
-    secret: SECRET_KEY,
-    resave: true,
-    saveUninitialized: true,
-  })
-);
+//Configuro middlewares de scookies
+app.use(cookieparser());
 
 // Agrego middleware de passport
 intilializePassport();
 app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.session());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/products", routerProducts);
-app.use("/api/carts", routerCarts);
-app.use("/", routerViews);
-app.use("/api/chat", routerChat);
-app.use("/api/sessions", routerSessions);
+app.use("/api/products", productRouter.getRouter);
+app.use("/api/carts", cartRouter.getRouter);
+app.use("/", viewRouter.getRouter);
+app.use("/api/chat", messageRouter.getRouter);
+app.use("/api/sessions", sessionRouter.getRouter);
 
 //Implemento el socket del lado del server
 

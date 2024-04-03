@@ -1,56 +1,52 @@
-const Cart = require("../models/cart.model.js"),
-  ProductManager = require("../managers/product_manager.js");
-
-const productManager = new ProductManager();
+const Cart = require("../models/cart.model.js");
 
 class CartManager {
   constructor() {}
 
-  addCart = async (body) => {
-    try {
-      //Verifico que se haya pasado el parámetro
-      if (!body) {
-        throw new Error("Body not provided");
-      }
-
-      await Cart.create(body);
-
-      return { status: true, payload: null, error: null };
-    } catch (err) {
-      console.error(err);
-      return { status: false, payload: null, error: err };
-    }
-  };
-
-  getCartProducts = async (cid) => {
+  getCartById = async (cid) => {
     try {
       //Verifico que se haya pasado el parámetro
       if (!cid) {
         throw new Error("No cid provided");
       }
-
       const cart = await Cart.find({ _id: cid });
 
-      //Verifico que el carrito exista
+      //Verifico que el producto exista
       if (!cart) {
         throw new Error("Cart not found");
       }
 
-      return { status: true, payload: cart[0].products, error: null };
+      return { status: true, payload: cart[0] };
     } catch (err) {
       console.error(err);
-      return { status: false, payload: null, error: err };
+      return { status: false, error: err };
     }
   };
 
-  addProductToCart = async (cid, pid, quantity = 1) => {
+  addCart = async (cart) => {
+    try {
+      //Verifico que se haya pasado el parámetro
+      if (!cart) {
+        throw new Error("Cart not provided");
+      }
+
+      const createdCart = await Cart.create(cart);
+
+      return { status: true, payload: createdCart };
+    } catch (err) {
+      console.error(err);
+      return { status: false, error: err };
+    }
+  };
+
+  addProductToCart = async (cart, product, quantity = 1) => {
     try {
       //Verifico que se hayan pasado los parámetros
-      if (!cid) {
-        throw new Error("No cid provided");
+      if (!cart) {
+        throw new Error("Cart not provided");
       }
-      if (!pid) {
-        throw new Error("No pid provided");
+      if (!product) {
+        throw new Error("Product not provided");
       }
       if (typeof quantity !== "number")
         throw new TypeError("Product's quantity must be a number");
@@ -59,81 +55,74 @@ class CartManager {
           "Product's quantity must not be neither 0 nor a negative number"
         );
 
-      const cart = await Cart.find({ _id: cid });
-
-      //Verifico que el carrito exista
-      if (!cart) {
-        throw new Error("Cart not found");
-      }
-
       //Verifico que la cantidad agregada no sobrepase el stock del producto
-      const product = await productManager.getProductById(pid);
-
-      if (!product) {
-        throw new Error("Product not found");
-      }
       if (quantity > product.stock)
         throw new RangeError(
           `Product's quantity cannot be greater than it's stock \n inserted quantity: ${quantity} - product's stock: ${product.stock}`
         );
 
-      cart[0].products.push({ product: pid, quantity });
+      const newcart = await Cart.find(cart);
 
-      await Cart.updateOne({ _id: cid }, cart[0]);
+      newcart[0].products.push({
+        product: product._id,
+        quantity,
+      });
+      await Cart.updateOne(cart, newcart[0]);
 
-      return { status: true, payload: cart, error: null };
+      return { status: true, payload: newcart[0] };
     } catch (err) {
       console.error(err);
-      return { status: false, payload: null, error: err };
+      return { status: false, error: err };
     }
   };
 
-  deleteProduct = async (cid, pid) => {
-    try {
-      //Verifico que se hayan pasado los parámetros
-      if (!cid) {
-        throw new Error("No cid provided");
-      }
-      if (!pid) {
-        throw new Error("No pid provided");
-      }
-
-      await Cart.updateOne(
-        { _id: cid },
-        { $pull: { products: { product: pid } } }
-      );
-
-      return { status: true, payload: null, error: null };
-    } catch (err) {
-      console.error(err);
-      return { status: false, payload: null, error: err };
-    }
-  };
-
-  deleteAllProducts = async (cid) => {
+  deleteAllProducts = async (cart) => {
     try {
       //Verifico que se haya pasado el parámetro
-      if (!cid) {
-        throw new Error("No cid provided");
+      if (!cart) {
+        throw new Error("Cart not provided");
       }
 
-      await Cart.updateOne({ _id: cid }, { $set: { products: [] } });
+      await Cart.updateOne(cart, {
+        $set: { products: [] },
+      });
 
-      return { status: true, payload: null, error: null };
+      return { status: true, payload: "Products deleted successfully" };
     } catch (err) {
       console.error(err);
-      return { status: false, payload: null, error: err };
+      return { status: false, error: err };
     }
   };
 
-  updateProductQuantity = async (cid, pid, quantity = undefined) => {
+  deleteProduct = async (cart, product) => {
     try {
       //Verifico que se hayan pasado los parámetros
-      if (!cid) {
-        throw new Error("No cid provided");
+      if (!cart) {
+        throw new Error("Cart not provided");
       }
-      if (!pid) {
-        throw new Error("No pid provided");
+      if (!product) {
+        throw new Error("Product not provided");
+      }
+
+      await Cart.updateOne(cart, {
+        $pull: { products: { product: product._id } },
+      });
+
+      return { status: true, payload: "Product deleted successfully" };
+    } catch (err) {
+      console.error(err);
+      return { status: false, error: err };
+    }
+  };
+
+  updateProductQuantity = async (cart, product, quantity = undefined) => {
+    try {
+      //Verifico que se hayan pasado los parámetros
+      if (!cart) {
+        throw new Error("Cart not provided");
+      }
+      if (!product) {
+        throw new Error("Product not provided");
       }
       if (quantity === undefined) {
         throw new Error("No new quantity provided");
@@ -146,37 +135,39 @@ class CartManager {
           "Product's quantity must not be neither 0 nor a negative number"
         );
 
-      const cart = await Cart.find({ _id: cid });
-
-      //Verifico que el carrito exista
-      if (!cart) {
-        throw new Error("Cart not found");
-      }
+      const newcart = await Cart.find(cart);
 
       //Aumento la cantidad del producto con el pid específico
-      const product = cart[0].products.find((p) => p.product._id == pid);
+      const productToUpdate = newcart[0].products.find(
+        (p) => p.product._id === product._id
+      );
 
-      if (quantity > product.stock)
+      console.log(productToUpdate);
+
+      if (quantity > productToUpdate.stock)
         throw new RangeError(
           `Product's new quantity cannot be greater than it's stock \n inserted quantity: ${quantity} - product's stock: ${product.stock}`
         );
 
-      product.quantity = quantity;
+      productToUpdate.quantity = quantity;
 
-      await Cart.updateOne({ _id: cid }, cart);
+      await Cart.updateOne(cart, newcart[0]);
 
-      return { status: true, payload: null, error: null };
+      return {
+        status: true,
+        payload: "Product's quantity updated successfully",
+      };
     } catch (err) {
       console.error(err);
-      return { status: false, payload: null, error: err };
+      return { status: false, error: err };
     }
   };
 
-  updateCart = async (cid, arr) => {
+  updateCart = async (cart, arr) => {
     try {
       //Verifico que se hayan pasado los parámetros
-      if (!cid) {
-        throw new Error("No cid provided");
+      if (!cart) {
+        throw new Error("Cart not provided");
       }
       if (!arr) {
         throw new Error("No array provided");
@@ -186,15 +177,14 @@ class CartManager {
         throw new TypeError("Body must be an array");
       }
 
-      await Cart.updateOne(
-        { _id: cid },
-        { $addToSet: { products: { $each: arr } } }
-      );
+      await Cart.updateOne(cart, {
+        $addToSet: { products: { $each: arr } },
+      });
 
-      return { status: true, payload: null, error: null };
+      return { status: true, payload: "Cart updated successfully" };
     } catch (err) {
       console.error(err);
-      return { status: false, payload: null, error: err };
+      return { status: false, error: err };
     }
   };
 }

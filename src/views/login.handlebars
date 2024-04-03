@@ -1,9 +1,20 @@
 <main>
   <section>
     <h1>Iniciar sesión</h1>
-    <form method="post" action="http://localhost:8080/api/sessions/login">
-      <input type="email" name="email" placeholder="email" required />
+    <form
+      id="login-form"
+      method="post"
+      action="http://localhost:8080/api/sessions/login"
+    >
       <input
+        id="login-form__email"
+        type="email"
+        name="email"
+        placeholder="email"
+        required
+      />
+      <input
+        id="login-form__password"
         type="password"
         name="password"
         placeholder="Contraseña"

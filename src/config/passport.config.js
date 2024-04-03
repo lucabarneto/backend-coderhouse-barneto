@@ -1,10 +1,23 @@
 const UserManager = require("../dao/db/managers/user_manager.js"),
   bcrypt = require("../utils/bcrypt.js"),
+  jwt = require("../utils/jwt.js"),
   passport = require("passport"),
   LocalStrategy = require("passport-local").Strategy,
-  GithubStrategy = require("passport-github2").Strategy;
+  GithubStrategy = require("passport-github2").Strategy,
+  JwtStrategy = require("passport-jwt").Strategy,
+  ExtractJwt = require("passport-jwt").ExtractJwt;
 
 const userManager = new UserManager();
+
+const cookieExtractor = (req) => {
+  let token = null;
+
+  if (req && req.cookies) {
+    token = req.cookies["authCookie"];
+  }
+
+  return token;
+};
 
 const intilializePassport = () => {
   passport.use(
@@ -15,7 +28,7 @@ const intilializePassport = () => {
         try {
           let { firstName, lastName, email, tel } = req.body;
 
-          const user = await userManager.getUser(username, password);
+          const user = await userManager.getUser(username);
           if (user.status) {
             return done(
               "An account already exists with the following email: " + username
@@ -32,8 +45,8 @@ const intilializePassport = () => {
 
           const result = await userManager.saveUser(userData);
           if (result.status) {
-            delete result.password;
-            return done(null, result);
+            delete result.payload.password;
+            return done(null, result.payload);
           } else {
             return done(result.error);
           }
@@ -50,7 +63,7 @@ const intilializePassport = () => {
       { usernameField: "email" },
       async (username, password, done) => {
         try {
-          const user = await userManager.getUser(username, password);
+          const user = await userManager.getUser(username);
           if (!user.status)
             return done("A user with the email " + username + " doesn't exist");
 
@@ -106,13 +119,24 @@ const intilializePassport = () => {
     )
   ); // Fin github Strategy
 
-  passport.serializeUser(function (user, done) {
-    done(null, user);
-  });
+  passport.use(
+    "jwt",
+    new JwtStrategy(
+      {
+        jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
+        secretOrKey: "171916265321163164519213115144",
+      },
+      async (jwt_payload, done) => {
+        try {
+          if (!jwt_payload) return done("No payload from jwt");
 
-  passport.deserializeUser(function (user, done) {
-    done(null, user);
-  });
+          return done(null, jwt_payload.user);
+        } catch (err) {
+          return done("An error has occurred: " + err);
+        }
+      }
+    )
+  ); //Fin jwt Strategy
 };
 
 module.exports = intilializePassport;

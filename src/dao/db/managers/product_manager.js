@@ -3,6 +3,28 @@ const Product = require("../models/product.model.js");
 class ProductManager {
   constructor() {}
 
+  //Obtiene un producto
+  getProductById = async (pid) => {
+    try {
+      //Verifico que se haya pasado el parámetro
+      if (!pid) {
+        throw new Error("No pid provided");
+      }
+      const product = await Product.find({ _id: pid });
+
+      //Verifico que el producto exista
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      return { status: true, payload: product[0] };
+    } catch (err) {
+      console.error(err);
+      return { status: false, error: err };
+    }
+  };
+
+  //Obtiene todos los productos
   getProducts = async (limit = 10, page = 1, sort = 0, queries) => {
     try {
       //Valido que los parámetros pasados sean números
@@ -56,81 +78,64 @@ class ProductManager {
         sort: isSorted,
       });
 
-      return { status: true, payload: paginated, error: null };
+      return { status: true, payload: paginated };
     } catch (err) {
       console.error(err);
-      return { status: false, payload: null, error: err };
+      return { status: false, error: err };
     }
   };
 
-  getProductById = async (pid) => {
+  //Añade un producto
+  addProduct = async (product) => {
     try {
       //Verifico que se haya pasado el parámetro
-      if (!pid) {
-        throw new Error("No pid provided");
-      }
-      const product = await Product.findById(pid);
-
-      //Verifico que el producto exista
       if (!product) {
-        throw new Error("Product not found");
+        throw new Error("Product not provided");
       }
 
-      return { status: true, payload: product, error: null };
+      const createdProduct = await Product.create(product);
+
+      return { status: true, payload: createdProduct };
     } catch (err) {
       console.error(err);
-      return { status: false, payload: null, error: err };
+      return { status: false, error: err };
     }
   };
 
-  addProduct = async (body) => {
-    try {
-      //Verifico que se haya pasado el parámetro
-      if (!body) {
-        throw new Error("Body not provided");
-      }
-
-      await Product.create(body);
-
-      return { status: true, payload: null, error: null };
-    } catch (err) {
-      console.error(err);
-      return { status: false, payload: null, error: err };
-    }
-  };
-
-  updateProduct = async (pid, body) => {
+  //Actualiza un producto
+  updateProduct = async (product, body) => {
     try {
       //Verifico que se hayan pasado los parámetros
-      if (!pid) {
-        throw new Error("No pid provided");
+      if (!product) {
+        throw new Error("Product not provided");
       }
       if (!body) {
         throw new Error("Body not provided");
       }
 
-      await Product.updateOne({ _id: pid }, body);
+      await Product.updateOne(product, body);
 
-      return { status: true, payload: null, error: null };
+      return { status: true, payload: "Product updated successfully" };
     } catch (err) {
       console.error(err);
-      return { status: false, payload: null, error: err };
+      return { status: false, error: err };
     }
   };
 
-  deleteProduct = async (pid) => {
+  //Elimina un producto
+  deleteProduct = async (product) => {
     try {
       //Verifico que se haya pasado el parámetro
-      if (!pid) {
-        throw new Error("No pid provided");
+      if (!product) {
+        throw new Error("Product not provided");
       }
 
-      await Product.deleteOne({ _id: pid });
+      await Product.deleteOne(product);
 
-      return { status: true, payload: null, error: null };
+      return { status: true, payload: "Product deleted successfully" };
     } catch (err) {
       console.error(err);
-      return { status: false, payload: null, error: err };
+      return { status: false, error: err };
     }
   };
 }

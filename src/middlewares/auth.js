@@ -1,25 +1,25 @@
-const jwt = require("../utils/jwt.js");
+const passport = require("passport");
 
-const auth = (req, res, next) => {
-  try {
-    let tokenHeader = req.headers["authorization"];
-    if (!tokenHeader) {
-      throw new Error("Unauthenticated user");
-    }
+const passportCall = (strategy, options = {}) => {
+  if (!strategy) return console.warn("No strategy provided");
+  if (typeof strategy !== "string")
+    return console.error("Argument 'strategy' must be a string");
+  if (!(options instanceof Object))
+    return console.error("Argument 'options' must be an object");
 
-    let token = tokenHeader.split(" ")[1];
+  return async (res, req, next) => {
+    passport.authenticate(strategy, options, (err, user, info) => {
+      if (err) return next(err);
 
-    let user = jwt.validateToken(token);
-    if (!user) {
-      throw new Error("Invalid Token");
-    }
+      if (!user)
+        return res
+          .status(401)
+          .send({ error: info.messages ? info.messages : info.toString() });
 
-    req.user = user;
-    next();
-  } catch (err) {
-    console.error(err);
-    return res.status(400).send("An error has occurred: " + err);
-  }
+      req.user = user;
+      next();
+    })(req, res, next);
+  };
 };
 
-module.exports = auth;
+module.exports = passportCall;

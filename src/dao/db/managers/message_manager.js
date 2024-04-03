@@ -3,19 +3,19 @@ const Message = require("../models/message.model.js");
 class MessageManager {
   constructor() {}
 
-  saveMessage = async (body) => {
+  saveMessage = async (message) => {
     try {
       //Verifico que se haya pasado el parámetro
-      if (!body) {
-        throw new Error("Body not provided");
+      if (!message) {
+        throw new Error("Message not provided");
       }
 
-      const message = await Message.create(body);
+      const newMessage = await Message.create(message);
 
-      return { status: true, payload: message, error: null };
+      return { status: true, payload: newMessage };
     } catch (err) {
       console.error(err);
-      return { status: false, payload: null, error: err };
+      return { status: false, error: err };
     }
   };
 }

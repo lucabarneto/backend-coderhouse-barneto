@@ -53,3 +53,23 @@ socket.on("new message", (data) => {
     <div><strong>${data.user}:</strong> ${data.message}</div>
     `;
 });
+
+/*:::::Login:::::*/
+// const $loginForm = d.getElementById("login-form");
+
+// $loginForm.addEventListener("submit", (e) => {
+//   e.preventDefault();
+
+//   const userData = {
+//     email: d.getElementById("login-form__email").value,
+//     password: d.getElementById("login-form__password").value,
+//   };
+
+//   fetch("http://localhost:8080/api/sessions/login", {
+//     method: "POST",
+//     body: JSON.stringify(userData),
+//     headers: {
+//       "Content-Type": "application/json; charset=UTF-8",
+//     },
+//   });
+// });
