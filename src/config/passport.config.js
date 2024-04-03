@@ -1,13 +1,15 @@
 const UserManager = require("../dao/db/managers/user_manager.js"),
-  bcrypt = require("../utils/bcrypt.js"),
-  jwt = require("../utils/jwt.js"),
-  passport = require("passport"),
-  LocalStrategy = require("passport-local").Strategy,
-  GithubStrategy = require("passport-github2").Strategy,
-  JwtStrategy = require("passport-jwt").Strategy,
-  ExtractJwt = require("passport-jwt").ExtractJwt;
+  CartManager = require("../dao/db/managers/cart_manager.js");
+(bcrypt = require("../utils/bcrypt.js")),
+  (jwt = require("../utils/jwt.js")),
+  (passport = require("passport")),
+  (LocalStrategy = require("passport-local").Strategy),
+  (GithubStrategy = require("passport-github2").Strategy),
+  (JwtStrategy = require("passport-jwt").Strategy),
+  (ExtractJwt = require("passport-jwt").ExtractJwt);
 
-const userManager = new UserManager();
+const userManager = new UserManager(),
+  cartManager = new CartManager();
 
 const cookieExtractor = (req) => {
   let token = null;
@@ -35,17 +37,19 @@ const intilializePassport = () => {
             );
           }
 
+          const userCart = await cartManager.addCart();
+
           const userData = {
             firstName,
             lastName,
             email,
             tel,
             password: bcrypt.createHash(password),
+            cart: userCart.payload._id,
           };
 
           const result = await userManager.saveUser(userData);
           if (result.status) {
-            delete result.payload.password;
             return done(null, result.payload);
           } else {
             return done(result.error);
@@ -70,9 +74,14 @@ const intilializePassport = () => {
           let checkPassword = bcrypt.validatePassword(user.payload, password);
           if (!checkPassword) return done("Password is incorrect");
 
+          for (const key in user.payload) {
+            if (key === "password" || key === "tel" || key === "cart")
+              delete key;
+          }
+
           return done(null, user.payload);
         } catch (err) {
-          return done("An error has ocurred: " + err);
+          return done(err.message);
         }
       }
     )
@@ -93,12 +102,15 @@ const intilializePassport = () => {
           const user = await userManager.getUser(email);
 
           if (!user.status) {
+            const userCart = await cartManager.addCart();
+
             const githubUser = {
               firstName: name,
               lastName: "",
               email,
               tel: 1111111111,
               password: "",
+              cart: userCart.payload._id,
               github: profile,
             };
 

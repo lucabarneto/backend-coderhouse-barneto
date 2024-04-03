@@ -1,7 +1,7 @@
 //Importo las dependencias
 const Router = require("./custom_router.js"),
   ProductManager = require("../dao/db/managers/product_manager.js"),
-  passportCall = require("../middlewares/auth.js");
+  passport = require("passport");
 
 //Guardo las dependencias en constantes
 const productManager = new ProductManager();
@@ -63,8 +63,8 @@ class ViewRouter extends Router {
     //Renderiza la sección del perfil del usuario
     this.get(
       "/profile",
-      ["USER"],
-      passportCall("jwt", { session: false }),
+      ["PUBLIC"],
+      passport.authenticate("jwt", { session: false }),
       (req, res) => {
         res.render("profile", req.user);
       }

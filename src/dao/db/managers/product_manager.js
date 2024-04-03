@@ -20,7 +20,7 @@ class ProductManager {
       return { status: true, payload: product[0] };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err };
+      return { status: false, error: err.message };
     }
   };
 
@@ -64,10 +64,11 @@ class ProductManager {
 
       const products = await Product.find();
 
-      //Verifico que el producto exista
+      //Verifico que los productos existan
       if (!products) {
         throw new Error("Products not found");
       }
+
       //Valido que el valor de page exista dentro de los valores de la paginación
       if (page > Math.ceil(products.length / limit))
         throw new RangeError("Page doesn't exist");
@@ -81,7 +82,7 @@ class ProductManager {
       return { status: true, payload: paginated };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err };
+      return { status: false, error: err.message };
     }
   };
 
@@ -98,7 +99,7 @@ class ProductManager {
       return { status: true, payload: createdProduct };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err };
+      return { status: false, error: err.message };
     }
   };
 
@@ -118,7 +119,7 @@ class ProductManager {
       return { status: true, payload: "Product updated successfully" };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err };
+      return { status: false, error: err.message };
     }
   };
 
@@ -135,7 +136,7 @@ class ProductManager {
       return { status: true, payload: "Product deleted successfully" };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err };
+      return { status: false, error: err.message };
     }
   };
 }

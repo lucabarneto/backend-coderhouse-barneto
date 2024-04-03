@@ -3,6 +3,7 @@ const Cart = require("../models/cart.model.js");
 class CartManager {
   constructor() {}
 
+  //Obtiene un cart
   getCartById = async (cid) => {
     try {
       //Verifico que se haya pasado el parámetro
@@ -19,26 +20,23 @@ class CartManager {
       return { status: true, payload: cart[0] };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err };
+      return { status: false, error: err.message };
     }
   };
 
-  addCart = async (cart) => {
+  //Añade un cart
+  addCart = async (cart = {}) => {
     try {
-      //Verifico que se haya pasado el parámetro
-      if (!cart) {
-        throw new Error("Cart not provided");
-      }
-
       const createdCart = await Cart.create(cart);
 
       return { status: true, payload: createdCart };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err };
+      return { status: false, error: err.message };
     }
   };
 
+  //Añade un producto a un cart
   addProductToCart = async (cart, product, quantity = 1) => {
     try {
       //Verifico que se hayan pasado los parámetros
@@ -72,10 +70,11 @@ class CartManager {
       return { status: true, payload: newcart[0] };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err };
+      return { status: false, error: err.message };
     }
   };
 
+  //Elimina todos los productos del cart
   deleteAllProducts = async (cart) => {
     try {
       //Verifico que se haya pasado el parámetro
@@ -90,10 +89,11 @@ class CartManager {
       return { status: true, payload: "Products deleted successfully" };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err };
+      return { status: false, error: err.message };
     }
   };
 
+  //Elimina un producto de cart
   deleteProduct = async (cart, product) => {
     try {
       //Verifico que se hayan pasado los parámetros
@@ -111,10 +111,11 @@ class CartManager {
       return { status: true, payload: "Product deleted successfully" };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err };
+      return { status: false, error: err.message };
     }
   };
 
+  //Actualiza un producto
   updateProductQuantity = async (cart, product, quantity = undefined) => {
     try {
       //Verifico que se hayan pasado los parámetros
@@ -139,10 +140,8 @@ class CartManager {
 
       //Aumento la cantidad del producto con el pid específico
       const productToUpdate = newcart[0].products.find(
-        (p) => p.product._id === product._id
+        (p) => p.product._id.toString() === product._id.toString()
       );
-
-      console.log(productToUpdate);
 
       if (quantity > productToUpdate.stock)
         throw new RangeError(
@@ -159,10 +158,11 @@ class CartManager {
       };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err };
+      return { status: false, error: err.message };
     }
   };
 
+  //Actualiza el carrito
   updateCart = async (cart, arr) => {
     try {
       //Verifico que se hayan pasado los parámetros
@@ -177,6 +177,15 @@ class CartManager {
         throw new TypeError("Body must be an array");
       }
 
+      for (const object of arr) {
+        for (const key in object) {
+          if (key !== "product" && key !== "quantity")
+            throw new Error(
+              "Products passed inside the array must follow the pattern: {product: 'id', quantity: number}"
+            );
+        }
+      }
+
       await Cart.updateOne(cart, {
         $addToSet: { products: { $each: arr } },
       });
@@ -184,7 +193,7 @@ class CartManager {
       return { status: true, payload: "Cart updated successfully" };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err };
+      return { status: false, error: err.message };
     }
   };
 }

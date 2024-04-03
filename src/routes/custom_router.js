@@ -1,5 +1,4 @@
-const express = require("express"),
-  passportCall = require("../middlewares/auth.js");
+const express = require("express");
 
 class Router {
   constructor() {
@@ -88,7 +87,7 @@ class Router {
         if (user.role !== "user" && user.role !== "admin")
           return res.sendAuthorizationError("Unauthorized");
 
-        if (policies.lenght === 1 && policies[0] === "ADMIN") {
+        if (policies.length === 1 && policies[0] === "ADMIN") {
           if (user.role !== "admin")
             return res.sendAuthorizationError("Unauthorized");
         }
@@ -136,14 +135,6 @@ class Router {
       this.applyCallbacks(callbacks)
     );
   }
-
-  // param(param, ...callbacks) {
-  //   this.router.param(
-  //     param,
-  //     // this.generateCustomRespones,
-  //     this.applyCallbacks(callbacks)
-  //   );
-  // }
 }
 
 module.exports = Router;

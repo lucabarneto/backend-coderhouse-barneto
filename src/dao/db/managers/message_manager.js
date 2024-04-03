@@ -15,7 +15,7 @@ class MessageManager {
       return { status: true, payload: newMessage };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err };
+      return { status: false, error: err.message };
     }
   };
 }
