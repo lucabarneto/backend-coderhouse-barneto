@@ -1,6 +1,6 @@
 const User = require("../models/user.model.js");
 
-class UserManager {
+class UserService {
   constructor() {}
 
   //Guarda un carrito en la db
@@ -36,4 +36,4 @@ class UserManager {
   };
 }
 
-module.exports = UserManager;
+module.exports = UserService;

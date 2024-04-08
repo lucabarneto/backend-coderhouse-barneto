@@ -1,128 +1,42 @@
 //Importo las dependencias
 const Router = require("./custom_router.js"),
-  ProductManager = require("../dao/db/managers/product_manager.js"),
+  ViewController = require("../controllers/view_controller.js"),
   passport = require("passport");
 
 //Guardo las dependencias en constantes
-const productManager = new ProductManager();
+const viewController = new ViewController();
 
 class ViewRouter extends Router {
   init() {
     //Muestra todos los productos
-    this.get("/", ["PUBLIC"], async (req, res) => {
-      try {
-        const products = await productManager.getProducts();
-
-        if (products.status) {
-          console.log(products.payload.docs);
-          return res.render("home", {
-            products: products.payload.docs,
-          });
-        } else {
-          return res.sendUserError(products.error);
-        }
-      } catch (err) {
-        console.error(err);
-        return res.sendServerError(err);
-      }
-    });
+    this.get("/", ["PUBLIC"], viewController.renderProducts);
 
     //Muestra todos los productos en tiempo real
-    this.get("/realtimeproducts", ["PUBLIC"], async (req, res) => {
-      try {
-        const products = await productManager.getProducts();
-
-        if (products.status) {
-          return res.render("realTimeProducts", {
-            products: products.payload.docs,
-          });
-        } else {
-          return res.sendUserError(products.error);
-        }
-      } catch (err) {
-        console.error(err);
-        return res.sendServerError(err);
-      }
-    });
+    this.get("/realtimeproducts", ["PUBLIC"], viewController.renderProductsRT);
 
     //Muestra el chat
-    this.get("/chat", ["USER", "ADMIN"], (req, res) => {
-      res.render("chat");
-    });
+    this.get("/chat", ["USER", "ADMIN"], viewController.renderChat);
 
     //Renderiza el login
-    this.get("/login", ["PUBLIC"], (req, res) => {
-      res.render("login");
-    });
+    this.get("/login", ["PUBLIC"], viewController.renderLogin);
+
+    //Página por si falla el login
+    this.get("/faillogin", ["PUBLIC"], viewController.renderLoginFail);
 
     //Renderiza el registro
-    this.get("/register", ["PUBLIC"], (req, res) => {
-      res.render("register");
-    });
+    this.get("/register", ["PUBLIC"], viewController.renderRegister);
+
+    //Página por si falla el registro
+    this.get("/failregister", ["PUBLIC"], viewController.renderRegisterFail);
 
     //Renderiza la sección del perfil del usuario
     this.get(
       "/profile",
       ["PUBLIC"],
       passport.authenticate("jwt", { session: false }),
-      (req, res) => {
-        res.render("profile", req.user);
-      }
+      viewController.renderProfile
     );
   }
 }
 
 module.exports = ViewRouter;
-
-// routerViews.get("/", async (req, res) => {
-//   try {
-//     const products = await productManager.getProducts();
-
-//     console.log(products.payload.docs);
-//     res.render("home", {
-//       products: products.payload.docs,
-//     });
-//   } catch (err) {
-//     console.log(err);
-//     res.status(404).send("Page not found");
-//   }
-// });
-
-// routerViews.get("/realtimeproducts", async (req, res) => {
-//   try {
-//     const products = await productManager.getProducts();
-//     res.render("realTimeProducts", {
-//       products: products.payload.docs,
-//     });
-//   } catch (err) {
-//     console.log(err);
-//     res.status(404).send("Page not found");
-//   }
-// });
-
-// //Renderiza la sección del chat
-// routerViews.get("/chat", ["USER"], (req, res) => {
-//   res.render("chat");
-// });
-
-// //Renderiza el login
-// routerViews.get("/login", (req, res) => {
-//   res.render("login");
-// });
-
-// //Renderiza el registro
-// routerViews.get("/register", (req, res) => {
-//   res.render("register");
-// });
-
-// //Renderiza la sección del perfil del usuario
-// routerViews.get(
-//   "/profile",
-//   passport.authenticate("jwt", { session: false }),
-//   (req, res) => {
-//     res.render("profile", req.user);
-//   }
-// );
-
-// // exporto routerViews
-// module.exports = routerViews;

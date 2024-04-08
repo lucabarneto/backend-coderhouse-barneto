@@ -1,6 +1,6 @@
 const Message = require("../models/message.model.js");
 
-class MessageManager {
+class MessageService {
   constructor() {}
 
   saveMessage = async (message) => {
@@ -20,4 +20,4 @@ class MessageManager {
   };
 }
 
-module.exports = MessageManager;
+module.exports = MessageService;

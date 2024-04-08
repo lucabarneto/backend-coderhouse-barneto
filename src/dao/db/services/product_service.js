@@ -1,6 +1,6 @@
 const Product = require("../models/product.model.js");
 
-class ProductManager {
+class ProductService {
   constructor() {}
 
   //Obtiene un producto
@@ -141,4 +141,4 @@ class ProductManager {
   };
 }
 
-module.exports = ProductManager;
+module.exports = ProductService;

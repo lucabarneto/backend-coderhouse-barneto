@@ -1,12 +1,12 @@
-const UserManager = require("../dao/db/managers/user_manager.js"),
-  CartManager = require("../dao/db/managers/cart_manager.js");
-(bcrypt = require("../utils/bcrypt.js")),
-  (jwt = require("../utils/jwt.js")),
-  (passport = require("passport")),
-  (LocalStrategy = require("passport-local").Strategy),
-  (GithubStrategy = require("passport-github2").Strategy),
-  (JwtStrategy = require("passport-jwt").Strategy),
-  (ExtractJwt = require("passport-jwt").ExtractJwt);
+const UserManager = require("../dao/db/services/user_service.js"),
+  CartManager = require("../dao/db/services/cart_service.js"),
+  bcrypt = require("../utils/bcrypt.js"),
+  config = require("../config/config.js"),
+  passport = require("passport"),
+  LocalStrategy = require("passport-local").Strategy,
+  GithubStrategy = require("passport-github2").Strategy,
+  JwtStrategy = require("passport-jwt").Strategy,
+  ExtractJwt = require("passport-jwt").ExtractJwt;
 
 const userManager = new UserManager(),
   cartManager = new CartManager();
@@ -46,6 +46,11 @@ const intilializePassport = () => {
             tel,
             password: bcrypt.createHash(password),
             cart: userCart.payload._id,
+            role:
+              username === config.admin.email &&
+              password === config.admin.password
+                ? "admin"
+                : "user",
           };
 
           const result = await userManager.saveUser(userData);
@@ -91,9 +96,9 @@ const intilializePassport = () => {
     "github",
     new GithubStrategy(
       {
-        clientID: "Iv1.838f112f9c4e13a5",
-        clientSecret: "6e4fe51857e76252a337e71e22ad70fdaa20268f",
-        callbackURL: "http://localhost:8080/api/sessions/githubcallback",
+        clientID: config.github.clientID,
+        clientSecret: config.github.clientSecret,
+        callbackURL: config.github.callbackUrl,
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
@@ -111,6 +116,7 @@ const intilializePassport = () => {
               tel: 1111111111,
               password: "",
               cart: userCart.payload._id,
+              role: "user",
               github: profile,
             };
 
@@ -136,7 +142,7 @@ const intilializePassport = () => {
     new JwtStrategy(
       {
         jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
-        secretOrKey: "171916265321163164519213115144",
+        secretOrKey: config.secretKey,
       },
       async (jwt_payload, done) => {
         try {

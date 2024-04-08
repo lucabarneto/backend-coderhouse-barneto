@@ -1,7 +1,11 @@
 const Cart = require("../models/cart.model.js");
 
-class CartManager {
+class CartService {
   constructor() {}
+
+  validateParameter = (...param) => {
+    if (!param) throw new Error(`${param} not provided`);
+  };
 
   //Obtiene un cart
   getCartById = async (cid) => {
@@ -198,4 +202,4 @@ class CartManager {
   };
 }
 
-module.exports = CartManager;
+module.exports = CartService;
