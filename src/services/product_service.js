@@ -1,4 +1,6 @@
-const Product = require("../models/product.model.js");
+const ProductDAO = require("../dao/mongo/product.mongo");
+
+const productDAO = new ProductDAO();
 
 class ProductService {
   constructor() {}
@@ -10,17 +12,16 @@ class ProductService {
       if (!pid) {
         throw new Error("No pid provided");
       }
-      const product = await Product.find({ _id: pid });
+      const product = await productDAO.getById(pid);
 
-      //Verifico que el producto exista
-      if (!product) {
-        throw new Error("Product not found");
+      if (product.status) {
+        return { status: true, payload: product.payload };
+      } else {
+        throw new Error(product.error);
       }
-
-      return { status: true, payload: product[0] };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err.message };
+      return { status: false, error: err.message ? err.message : err };
     }
   };
 
@@ -62,27 +63,30 @@ class ProductService {
       const isSorted = {};
       if (sort !== 0) isSorted.price = sort;
 
-      const products = await Product.find();
+      const products = await productDAO.get();
 
       //Verifico que los productos existan
-      if (!products) {
-        throw new Error("Products not found");
+      if (!products.status) {
+        throw new Error(products.error);
       }
 
       //Valido que el valor de page exista dentro de los valores de la paginación
       if (page > Math.ceil(products.length / limit))
         throw new RangeError("Page doesn't exist");
 
-      const paginated = await Product.paginate(queries, {
+      const paginated = await productDAO.paginate(queries, {
         limit,
         page,
         sort: isSorted,
       });
-
-      return { status: true, payload: paginated };
+      if (paginated.status) {
+        return { status: true, payload: paginated.payload };
+      } else {
+        throw new Error(paginated.error);
+      }
     } catch (err) {
       console.error(err);
-      return { status: false, error: err.message };
+      return { status: false, error: err.message ? err.message : err };
     }
   };
 
@@ -94,12 +98,16 @@ class ProductService {
         throw new Error("Product not provided");
       }
 
-      const createdProduct = await Product.create(product);
+      const createdProduct = await productDAO.create(product);
 
-      return { status: true, payload: createdProduct };
+      if (createdProduct.status) {
+        return { status: true, payload: createdProduct.payload };
+      } else {
+        throw new Error(createdProduct.error);
+      }
     } catch (err) {
       console.error(err);
-      return { status: false, error: err.message };
+      return { status: false, error: err.message ? err.message : err };
     }
   };
 
@@ -114,12 +122,16 @@ class ProductService {
         throw new Error("Body not provided");
       }
 
-      await Product.updateOne(product, body);
+      const update = await productDAO.update(product, body);
 
-      return { status: true, payload: "Product updated successfully" };
+      if (update.status) {
+        return { status: true, payload: update.payload };
+      } else {
+        throw new Error(update.error);
+      }
     } catch (err) {
       console.error(err);
-      return { status: false, error: err.message };
+      return { status: false, error: err.message ? err.message : err };
     }
   };
 
@@ -131,12 +143,16 @@ class ProductService {
         throw new Error("Product not provided");
       }
 
-      await Product.deleteOne(product);
+      const deleted = await productDAO.delete(product);
 
-      return { status: true, payload: "Product deleted successfully" };
+      if (deleted.status) {
+        return { status: true, payload: deleted.payload };
+      } else {
+        throw new Error(deleted.error);
+      }
     } catch (err) {
       console.error(err);
-      return { status: false, error: err.message };
+      return { status: false, error: err.message ? err.message : err };
     }
   };
 }

@@ -1,11 +1,9 @@
-const Cart = require("../models/cart.model.js");
+const CartDAO = require("..//dao/mongo/cart.mongo");
+
+const cartDAO = new CartDAO();
 
 class CartService {
   constructor() {}
-
-  validateParameter = (...param) => {
-    if (!param) throw new Error(`${param} not provided`);
-  };
 
   //Obtiene un cart
   getCartById = async (cid) => {
@@ -14,29 +12,32 @@ class CartService {
       if (!cid) {
         throw new Error("No cid provided");
       }
-      const cart = await Cart.find({ _id: cid });
+      const cart = await cartDAO.getById(cid);
 
-      //Verifico que el producto exista
-      if (!cart) {
-        throw new Error("Cart not found");
+      if (cart.status) {
+        return { status: true, payload: cart.payload };
+      } else {
+        throw new Error(cart.error);
       }
-
-      return { status: true, payload: cart[0] };
     } catch (err) {
       console.error(err);
-      return { status: false, error: err.message };
+      return { status: false, error: err.message ? err.message : err };
     }
   };
 
   //Añade un cart
   addCart = async (cart = {}) => {
     try {
-      const createdCart = await Cart.create(cart);
+      const createdCart = await cartDAO.create(cart);
 
-      return { status: true, payload: createdCart };
+      if (createdCart.status) {
+        return { status: true, payload: createdCart.payload };
+      } else {
+        throw new Error(createdCart.error);
+      }
     } catch (err) {
       console.error(err);
-      return { status: false, error: err.message };
+      return { status: false, error: err.message ? err.message : err };
     }
   };
 
@@ -63,18 +64,25 @@ class CartService {
           `Product's quantity cannot be greater than it's stock \n inserted quantity: ${quantity} - product's stock: ${product.stock}`
         );
 
-      const newcart = await Cart.find(cart);
+      const newcart = await cartDAO.get(cart);
 
-      newcart[0].products.push({
+      if (!newcart.status) throw new Error(newcart.error);
+
+      newcart.payload.products.push({
         product: product._id,
         quantity,
       });
-      await Cart.updateOne(cart, newcart[0]);
 
-      return { status: true, payload: newcart[0] };
+      const update = await cartDAO.update(cart, newcart.payload);
+
+      if (update.status) {
+        return { status: true, payload: update.payload };
+      } else {
+        throw new Error(update.error);
+      }
     } catch (err) {
       console.error(err);
-      return { status: false, error: err.message };
+      return { status: false, error: err.message ? err.message : err };
     }
   };
 
@@ -86,14 +94,18 @@ class CartService {
         throw new Error("Cart not provided");
       }
 
-      await Cart.updateOne(cart, {
+      const update = await cartDAO.update(cart, {
         $set: { products: [] },
       });
 
-      return { status: true, payload: "Products deleted successfully" };
+      if (update.status) {
+        return { status: true, payload: update.payload };
+      } else {
+        throw new Error(update.error);
+      }
     } catch (err) {
       console.error(err);
-      return { status: false, error: err.message };
+      return { status: false, error: err.message ? err.message : err };
     }
   };
 
@@ -108,14 +120,18 @@ class CartService {
         throw new Error("Product not provided");
       }
 
-      await Cart.updateOne(cart, {
+      const update = await cartDAO.update(cart, {
         $pull: { products: { product: product._id } },
       });
 
-      return { status: true, payload: "Product deleted successfully" };
+      if (update.status) {
+        return { status: true, payload: update.payload };
+      } else {
+        throw new Error(update.error);
+      }
     } catch (err) {
       console.error(err);
-      return { status: false, error: err.message };
+      return { status: false, error: err.message ? err.message : err };
     }
   };
 
@@ -140,10 +156,12 @@ class CartService {
           "Product's quantity must not be neither 0 nor a negative number"
         );
 
-      const newcart = await Cart.find(cart);
+      const newcart = await cartDAO.get(cart);
+
+      if (!newcart.status) throw new Error(newcart.error);
 
       //Aumento la cantidad del producto con el pid específico
-      const productToUpdate = newcart[0].products.find(
+      const productToUpdate = newcart.payload.products.find(
         (p) => p.product._id.toString() === product._id.toString()
       );
 
@@ -154,15 +172,16 @@ class CartService {
 
       productToUpdate.quantity = quantity;
 
-      await Cart.updateOne(cart, newcart[0]);
+      const update = await cartDAO.update(cart, newcart.payload);
 
-      return {
-        status: true,
-        payload: "Product's quantity updated successfully",
-      };
+      if (update.status) {
+        return { status: true, payload: update.payload };
+      } else {
+        throw new Error(update.error);
+      }
     } catch (err) {
       console.error(err);
-      return { status: false, error: err.message };
+      return { status: false, error: err.message ? err.message : err };
     }
   };
 
@@ -190,14 +209,18 @@ class CartService {
         }
       }
 
-      await Cart.updateOne(cart, {
+      const update = await cartDAO.update(cart, {
         $addToSet: { products: { $each: arr } },
       });
 
-      return { status: true, payload: "Cart updated successfully" };
+      if (update.status) {
+        return { status: true, payload: update.payload };
+      } else {
+        throw new Error(update.error);
+      }
     } catch (err) {
       console.error(err);
-      return { status: false, error: err.message };
+      return { status: false, error: err.message ? err.message : err };
     }
   };
 }

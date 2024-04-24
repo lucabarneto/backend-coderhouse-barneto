@@ -1,5 +1,5 @@
-const UserManager = require("../dao/db/services/user_service.js"),
-  CartManager = require("../dao/db/services/cart_service.js"),
+const UserService = require("../services/user_service.js"),
+  CartService = require("../services/cart_service.js"),
   bcrypt = require("../utils/bcrypt.js"),
   config = require("../config/config.js"),
   passport = require("passport"),
@@ -8,8 +8,8 @@ const UserManager = require("../dao/db/services/user_service.js"),
   JwtStrategy = require("passport-jwt").Strategy,
   ExtractJwt = require("passport-jwt").ExtractJwt;
 
-const userManager = new UserManager(),
-  cartManager = new CartManager();
+const userService = new UserService(),
+  cartService = new CartService();
 
 const cookieExtractor = (req) => {
   let token = null;
@@ -30,14 +30,14 @@ const intilializePassport = () => {
         try {
           let { firstName, lastName, email, tel } = req.body;
 
-          const user = await userManager.getUser(username);
+          const user = await userService.getUser(username);
           if (user.status) {
             return done(
               "An account already exists with the following email: " + username
             );
           }
 
-          const userCart = await cartManager.addCart();
+          const userCart = await cartService.addCart();
 
           const userData = {
             firstName,
@@ -53,7 +53,7 @@ const intilializePassport = () => {
                 : "user",
           };
 
-          const result = await userManager.saveUser(userData);
+          const result = await userService.saveUser(userData);
           if (result.status) {
             return done(null, result.payload);
           } else {
@@ -72,19 +72,20 @@ const intilializePassport = () => {
       { usernameField: "email" },
       async (username, password, done) => {
         try {
-          const user = await userManager.getUser(username);
+          const user = await userService.getUser(username);
           if (!user.status)
             return done("A user with the email " + username + " doesn't exist");
 
           let checkPassword = bcrypt.validatePassword(user.payload, password);
           if (!checkPassword) return done("Password is incorrect");
 
-          for (const key in user.payload) {
-            if (key === "password" || key === "tel" || key === "cart")
-              delete key;
-          }
+          const userDTO = {
+            name: `${user.payload.firstName} ${user.payload.lastName}`,
+            email: username,
+            role: user.payload.role,
+          };
 
-          return done(null, user.payload);
+          return done(null, userDTO);
         } catch (err) {
           return done(err.message);
         }
@@ -104,10 +105,16 @@ const intilializePassport = () => {
         try {
           let { name, email } = profile._json;
 
-          const user = await userManager.getUser(email);
+          const userDTO = {
+            name,
+            email,
+            role: "user",
+          };
+
+          const user = await userService.getUser(email);
 
           if (!user.status) {
-            const userCart = await cartManager.addCart();
+            const userCart = await cartService.addCart();
 
             const githubUser = {
               firstName: name,
@@ -120,15 +127,15 @@ const intilializePassport = () => {
               github: profile,
             };
 
-            const result = await userManager.saveUser(githubUser);
+            const result = await userService.saveUser(githubUser);
 
             if (result.status) {
-              return done(null, result.payload);
+              return done(null, userDTO);
             } else {
               return done(result.error);
             }
           } else {
-            return done(null, user.payload);
+            return done(null, userDTO);
           }
         } catch (err) {
           return done("An error has occurred: " + err);

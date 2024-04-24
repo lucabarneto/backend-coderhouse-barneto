@@ -1,5 +1,5 @@
 const mongoose = require("mongoose"),
-  config = require("../../config/config.js");
+  config = require("./config.js");
 
 class MongoConnect {
   static #instance;
