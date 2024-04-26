@@ -1,10 +1,10 @@
 <main>
-  <h1>Bienvenido, {{firstName}} {{lastName}}</h1>
+  <h1>Bienvenido, {{name}}</h1>
   <div>
     <h2>Tus datos de perfil:</h2>
     <ul>
+      <li>Nombre: <strong>{{name}}</strong></li>
       <li>Email: <strong>{{email}}</strong></li>
-      <li>Tel: <strong>{{tel}}</strong></li>
     </ul>
   </div>
   <form method="post" action="http://localhost:8080/api/sessions/logout">

@@ -1,5 +1,7 @@
 const Router = require("./custom_router.js"),
-  CartController = require("../controllers/cart_controller.js");
+  CartController = require("../controllers/cart_controller.js"),
+  authenticate = require("../middleware/authentication.js"),
+  authorize = require("../middleware/authorization.js");
 
 const cartController = new CartController();
 
@@ -11,27 +13,55 @@ class CartRouter extends Router {
     //Manipulo el pid pasado como parámetro
     this.router.param("pid", cartController.handlePid);
 
-    this.post("/", ["PUBLIC"], cartController.createCart);
+    this.post(
+      "/",
+      ["USER"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      cartController.createCart
+    );
 
-    this.get("/:cid", ["PUBLIC"], cartController.getProducts);
+    this.get("/:cid", ["USER"], cartController.getProducts);
 
     this.post(
       "/:cid/products/:pid",
-      ["PUBLIC"],
+      ["USER"],
+      authenticate("jwt", { session: false }),
+      authorize,
       cartController.addProductToCart
     );
 
-    this.delete("/:cid", ["PUBLIC"], cartController.deleteAllProducts);
+    this.delete(
+      "/:cid",
+      ["USER"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      cartController.deleteAllProducts
+    );
 
     this.delete(
       "/:cid/products/:pid",
-      ["PUBLIC"],
+      ["USER"],
+      authenticate("jwt", { session: false }),
+      authorize,
       cartController.deleteProduct
     );
 
-    this.put("/:cid/products/:pid", ["PUBLIC"], cartController.updateProduct);
+    this.put(
+      "/:cid/products/:pid",
+      ["USER"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      cartController.updateProduct
+    );
 
-    this.put("/:cid", ["PUBLIC"], cartController.InsertProducts);
+    this.put(
+      "/:cid",
+      ["USER"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      cartController.InsertProducts
+    );
   }
 }
 

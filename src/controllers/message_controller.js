@@ -1,4 +1,4 @@
-const MessageService = require("../dao/db/services/message_service.js");
+const MessageService = require("../services/message_service.js");
 
 const messageService = new MessageService();
 

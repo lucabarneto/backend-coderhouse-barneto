@@ -5,10 +5,15 @@ class UserMongo {
 
   get = async (user) => {
     try {
-      const found = await User.find({ user });
-      return { status: true, payload: found };
+      const found = await User.find({ email: user });
+
+      if (found.length !== 0) {
+        return { status: true, payload: found[0] };
+      } else {
+        return { status: false, payload: null };
+      }
     } catch (err) {
-      return { status: false, error: err.message };
+      console.error(err);
     }
   };
 

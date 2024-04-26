@@ -1,5 +1,5 @@
-const CartService = require("../dao/db/services/cart_service.js"),
-  ProductService = require("../dao/db/services/product_service.js");
+const CartService = require("../services/cart_service.js"),
+  ProductService = require("../services/product_service.js");
 
 const cartService = new CartService(),
   productService = new ProductService();

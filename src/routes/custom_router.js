@@ -60,39 +60,24 @@ class Router {
 
     for (const policy of policies) {
       if (typeof policy !== "string")
-        return console.error("Policy's data type must be string");
+        return console.error(`Policy '${policy} must be a string'`);
       if (policy.match(/^[A-Z]+$/) === null)
-        return console.error("Policies must be written in upper case");
+        return console.error(
+          `Policy '${policy} must be written in upper case'`
+        );
       if (policy !== "PUBLIC" && policy !== "USER" && policy !== "ADMIN")
         return console.error("Incorrect policy: " + policy);
     }
 
     return (req, res, next) => {
       try {
+        let policy = [];
+
         if (policies[0] === "PUBLIC") return next();
+        if (policies.includes("USER")) policy.push("user");
+        if (policies.includes("ADMIN")) policy.push("admin");
 
-        let tokenHeader = req.headers["authorization"];
-        if (!tokenHeader) {
-          return res.sendAuthenticationError("Unauthenticated");
-        }
-
-        let token = tokenHeader.split(" ")[1];
-
-        let user = jwt.validateToken(token);
-
-        if (!user) {
-          return res.sendAuthenticationError("Invalid Token");
-        }
-
-        if (user.role !== "user" && user.role !== "admin")
-          return res.sendAuthorizationError("Unauthorized");
-
-        if (policies.length === 1 && policies[0] === "ADMIN") {
-          if (user.role !== "admin")
-            return res.sendAuthorizationError("Unauthorized");
-        }
-
-        req.user = user;
+        req.policy = policy;
         next();
       } catch (err) {
         console.error("An error has occurred: ", err);

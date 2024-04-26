@@ -1,6 +1,8 @@
 //Importo las dependencias
 const Router = require("./custom_router.js"),
-  ProductController = require("../controllers/product_controller.js");
+  ProductController = require("../controllers/product_controller.js"),
+  authenticate = require("../middleware/authentication.js"),
+  authorize = require("../middleware/authorization.js");
 
 const productController = new ProductController();
 
@@ -9,15 +11,45 @@ class ProductRouter extends Router {
     //Manipulo el pid pasado como parámetro
     this.router.param("pid", productController.handlePid);
 
-    this.get("/", ["PUBLIC"], productController.getProducts);
+    this.get(
+      "/",
+      ["ADMIN"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      productController.getProducts
+    );
 
-    this.get("/:pid", ["PUBLIC"], productController.getProductById);
+    this.get(
+      "/:pid",
+      ["ADMIN"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      productController.getProductById
+    );
 
-    this.post("/", ["PUBLIC"], productController.addProduct);
+    this.post(
+      "/",
+      ["ADMIN"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      productController.addProduct
+    );
 
-    this.put("/:pid", ["PUBLIC"], productController.updateProduct);
+    this.put(
+      "/:pid",
+      ["ADMIN"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      productController.updateProduct
+    );
 
-    this.delete("/:pid", ["PUBLIC"], productController.deleteProduct);
+    this.delete(
+      "/:pid",
+      ["ADMIN"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      productController.deleteProduct
+    );
   }
 }
 

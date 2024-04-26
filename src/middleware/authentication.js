@@ -1,6 +1,6 @@
 const passport = require("passport");
 
-const passportCall = (strategy, options = {}) => {
+const authenticate = (strategy, options = {}) => {
   // Validaciones de los parámetros
   if (!strategy) return console.warn("No strategy provided");
   if (typeof strategy !== "string")
@@ -9,14 +9,14 @@ const passportCall = (strategy, options = {}) => {
     return console.error("Argument 'options' must be an object");
 
   //Devuelvo a passport.authenticate
-  return async (res, req, next) => {
+  return async (req, res, next) => {
     passport.authenticate(strategy, options, function (err, user, info) {
       if (err) return next(err);
 
       if (!user)
-        return res
-          .status(401)
-          .send(info.messages ? info.messages : info.toString());
+        return res.sendAuthenticationError(
+          info.messages ? info.messages : info.toString()
+        );
 
       req.user = user;
       next();
@@ -24,4 +24,4 @@ const passportCall = (strategy, options = {}) => {
   };
 };
 
-module.exports = passportCall;
+module.exports = authenticate;

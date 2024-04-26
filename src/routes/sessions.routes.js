@@ -1,6 +1,6 @@
 const Router = require("./custom_router.js"),
   SessionController = require("../controllers/session_controller.js"),
-  passport = require("passport");
+  authenticate = require("../middleware/authentication.js");
 
 const sessionController = new SessionController();
 
@@ -9,7 +9,7 @@ class SessionRouter extends Router {
     this.post(
       "/register",
       ["PUBLIC"],
-      passport.authenticate("register", {
+      authenticate("register", {
         failureRedirect: "/failregister",
         session: false,
       }),
@@ -19,7 +19,7 @@ class SessionRouter extends Router {
     this.post(
       "/login",
       ["PUBLIC"],
-      passport.authenticate("login", {
+      authenticate("login", {
         failureRedirect: "/faillogin",
         session: false,
       }),
@@ -29,14 +29,14 @@ class SessionRouter extends Router {
     this.get(
       "/github",
       ["PUBLIC"],
-      passport.authenticate("github", { session: false }),
+      authenticate("github", { session: false }),
       sessionController.handleGithub
     );
 
     this.get(
       "/githubcallback",
       ["PUBLIC"],
-      passport.authenticate("github", { session: false }),
+      authenticate("github", { session: false }),
       sessionController.logUser
     );
   }

@@ -1,7 +1,8 @@
 //Importo las dependencias
 const Router = require("./custom_router.js"),
   ViewController = require("../controllers/view_controller.js"),
-  passport = require("passport");
+  authenticate = require("../middleware/authentication.js"),
+  authorize = require("../middleware/authorization.js");
 
 //Guardo las dependencias en constantes
 const viewController = new ViewController();
@@ -15,7 +16,13 @@ class ViewRouter extends Router {
     this.get("/realtimeproducts", ["PUBLIC"], viewController.renderProductsRT);
 
     //Muestra el chat
-    this.get("/chat", ["USER", "ADMIN"], viewController.renderChat);
+    this.get(
+      "/chat",
+      ["USER"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      viewController.renderChat
+    );
 
     //Renderiza el login
     this.get("/login", ["PUBLIC"], viewController.renderLogin);
@@ -32,8 +39,8 @@ class ViewRouter extends Router {
     //Renderiza la sección del perfil del usuario
     this.get(
       "/profile",
-      ["PUBLIC"],
-      passport.authenticate("jwt", { session: false }),
+      ["USER"],
+      authenticate("jwt", { session: false }),
       viewController.renderProfile
     );
   }

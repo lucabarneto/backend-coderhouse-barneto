@@ -29,15 +29,9 @@ class UserService {
   getUser = async (email) => {
     try {
       const user = await userDAO.get(email);
-
-      if (user.status) {
-        return { status: true, payload: user.payload[0] };
-      } else {
-        throw new Error(user.error);
-      }
+      return user;
     } catch (err) {
       console.error(err);
-      return { status: false, error: err.message ? err.message : err };
     }
   };
 }

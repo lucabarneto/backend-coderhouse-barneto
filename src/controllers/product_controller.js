@@ -1,4 +1,4 @@
-const ProductService = require("../dao/db/services/product_service.js");
+const ProductService = require("../services/product_service.js");
 
 const productService = new ProductService();
 
