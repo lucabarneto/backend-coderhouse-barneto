@@ -1,8 +1,10 @@
 const CartService = require("../services/cart_service.js"),
-  ProductService = require("../services/product_service.js");
+  ProductService = require("../services/product_service.js"),
+  TicketService = require("../services/ticket.service.js");
 
 const cartService = new CartService(),
-  productService = new ProductService();
+  productService = new ProductService(),
+  ticketService = new TicketService();
 
 class CartController {
   //handlePid y handleCid se emplean sobre el método param del router. Muchas funciones necesitan de una ejecución previa de handlePid y handleCid para funcionar correctamente
@@ -159,6 +161,47 @@ class CartController {
     } catch (err) {
       return res.sendServerError(err.message ? err.message : err);
     }
+  };
+
+  purchase = async (req, res) => {
+    const cart = await cartService.getCart(req.cart);
+
+    let amount = 0,
+      unprocessed = [];
+
+    cart.payload.products.forEach(async (pref) => {
+      const product = await productService.getProductById(pref.product._id);
+
+      if (product.stock >= pref.quantity) {
+        amount += product.price * pref.quantity;
+
+        await productService.updateProduct(product, {
+          $set: { stock: stock - pref.quantity },
+        });
+      } else {
+        unprocessed.push(pref);
+      }
+    });
+
+    if (amount === 0) {
+      return res.sendServerError("No products were processed");
+    }
+
+    let code = Math.round(Math.random() * 10000).toString();
+
+    const ticketData = {
+      code,
+      purchase_datetime: Date.now(),
+      amount,
+      purchaser: req.user.email,
+    };
+
+    const ticket = await ticketService.createTicket(ticketData);
+
+    await cartService.deleteAllProducts(cart);
+    await cartService.updateCart(cart, unprocessed);
+
+    return res.sendSuccess(ticket);
   };
 }
 

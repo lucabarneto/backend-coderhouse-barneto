@@ -31,6 +31,14 @@ class CartRouter extends Router {
       cartController.addProductToCart
     );
 
+    this.post(
+      "/:cid/purchase",
+      ["USER"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      cartController.purchase
+    );
+
     this.delete(
       "/:cid",
       ["USER"],

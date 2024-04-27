@@ -46,6 +46,6 @@ userSchema.pre("find", function () {
   this.populate("cart");
 });
 
-const userModel = mongoose.model(userCollection, userSchema);
+const UserModel = mongoose.model(userCollection, userSchema);
 
-module.exports = userModel;
+module.exports = UserModel;

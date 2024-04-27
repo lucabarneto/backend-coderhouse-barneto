@@ -1,9 +1,14 @@
-const CartDAO = require("..//dao/mongo/cart.mongo");
+const CartDAO = require("../dao/mongo/cart.mongo");
 
 const cartDAO = new CartDAO();
 
 class CartService {
   constructor() {}
+
+  getCart = async (cart) => {
+    const found = await cartDAO.get(cart);
+    return found;
+  };
 
   //Obtiene un cart
   getCartById = async (cid) => {

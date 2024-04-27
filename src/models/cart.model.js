@@ -21,6 +21,6 @@ cartSchema.pre("find", function () {
 
 cartSchema.plugin(paginate);
 
-const cartModel = mongoose.model(cartCollection, cartSchema);
+const CartModel = mongoose.model(cartCollection, cartSchema);
 
-module.exports = cartModel;
+module.exports = CartModel;
