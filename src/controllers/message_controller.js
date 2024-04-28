@@ -7,6 +7,8 @@ class MessageController {
     try {
       const io = require("../app.js");
 
+      if (!req.body) res.sendUserError("Body not provided");
+
       const message = await messageService.saveMessage(req.body);
 
       if (message.status) {

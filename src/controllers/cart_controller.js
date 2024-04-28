@@ -27,7 +27,6 @@ class CartController {
       req.cart = null;
     } else {
       req.cart = cart.payload;
-      req.cid = cid;
     }
 
     next();
@@ -59,18 +58,31 @@ class CartController {
 
   addProductToCart = async (req, res) => {
     try {
+      let quantity = req.body.quantity;
+
       if (!req.cart) {
         return res.sendNotFoundError("Cart not found");
       }
-
       if (!req.product) {
         return res.sendNotFoundError("Product not found");
       }
+      if (typeof quantity !== "number")
+        return res.sendUserError("Product's quantity must be a number");
+      if (quantity <= 0)
+        return res.sendUserError(
+          "Product's quantity must not be neither 0 nor a negative number"
+        );
+
+      //Verifico que la cantidad agregada no sobrepase el stock del producto
+      if (quantity > req.product.stock)
+        return res.sendUserError(
+          `Product's quantity cannot be greater than it's stock \n inserted quantity: ${quantity} - product's stock: ${req.product.stock}`
+        );
 
       const cart = await cartService.addProductToCart(
         req.cart,
         req.product,
-        req.body.quantity
+        quantity
       );
 
       if (cart.status) {
@@ -106,7 +118,6 @@ class CartController {
       if (!req.cart) {
         return res.sendNotFoundError("Cart not found");
       }
-
       if (!req.product) {
         return res.sendNotFoundError("Product not found");
       }
@@ -125,18 +136,33 @@ class CartController {
 
   updateProduct = async (req, res) => {
     try {
+      let quantity = req.body.quantity || undefined;
+
       if (!req.cart) {
         return res.sendNotFoundError("Cart not found");
       }
-
       if (!req.product) {
         return res.sendNotFoundError("Product not found");
       }
+      if (quantity === undefined) {
+        return res.sendUserError("No new quantity provided");
+      }
+      if (typeof quantity !== "number") {
+        return res.sendUserError("Product's quantity must be a number");
+      }
+      if (quantity <= 0)
+        return res.sendUserError(
+          "Product's quantity must not be neither 0 nor a negative number"
+        );
+      if (quantity > req.product.stock)
+        return res.sendUserError(
+          `Product's new quantity cannot be greater than it's stock \n inserted quantity: ${quantity} - product's stock: ${product.stock}`
+        );
 
       const cart = await cartService.updateProductQuantity(
         req.cart,
         req.product,
-        req.body.quantity
+        quantity
       );
 
       if (cart.status) {
@@ -151,6 +177,24 @@ class CartController {
 
   InsertProducts = async (req, res) => {
     try {
+      if (!req.cart) {
+        return res.sendServerError("Cart not provided");
+      }
+      if (!req.body) {
+        return res.sendServerError("No body provided");
+      }
+      if (!(req.body instanceof Array)) {
+        return res.sendServerError("Body must be an array");
+      }
+      for (const object of req.body) {
+        for (const key in object) {
+          if (key !== "product" && key !== "quantity")
+            return res.sendUserError(
+              "Products passed inside the array must follow the pattern: {product: 'id', quantity: number}"
+            );
+        }
+      }
+
       const cart = await cartService.updateCart(req.cart, req.body);
 
       if (cart.status) {

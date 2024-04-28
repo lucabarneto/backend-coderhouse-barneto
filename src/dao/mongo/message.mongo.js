@@ -3,10 +3,10 @@ const Message = require("../../models/message.model");
 class MessageMongo {
   constructor() {}
 
-  create = async (message) => {
+  create = async (data) => {
     try {
-      const created = await Message.create(message);
-      return { status: true, payload: created };
+      const message = await Message.create(data);
+      return { status: true, payload: message };
     } catch (err) {
       return { status: false, error: err.message };
     }

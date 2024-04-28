@@ -5,23 +5,12 @@ const messageDAO = new MessageDAO();
 class MessageService {
   constructor() {}
 
-  saveMessage = async (message) => {
+  saveMessage = async (data) => {
     try {
-      //Verifico que se haya pasado el parámetro
-      if (!message) {
-        throw new Error("Message not provided");
-      }
-
-      const newMessage = await messageDAO.create(message);
-
-      if (newMessage.status) {
-        return { status: true, payload: newMessage.payload };
-      } else {
-        throw new Error(newMessage.error);
-      }
+      const message = await messageDAO.create(data);
+      return message;
     } catch (err) {
       console.error(err);
-      return { status: false, error: err.message ? err.message : err };
     }
   };
 }

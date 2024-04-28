@@ -21,27 +21,27 @@ class ProductMongo {
     }
   };
 
-  create = async (product) => {
+  create = async (data) => {
     try {
-      const created = await Product.create(product);
-      return { status: true, payload: created };
+      const product = await Product.create(data);
+      return { status: true, payload: product };
     } catch (err) {
       return { status: false, error: err.message };
     }
   };
 
-  update = async (product, update) => {
+  update = async (data, update) => {
     try {
-      await Product.updateOne(product, update);
+      await Product.updateOne(data, update);
       return { status: true, payload: "Product updated successfully" };
     } catch (err) {
       return { status: false, error: err.message };
     }
   };
 
-  delete = async (product) => {
+  delete = async (data) => {
     try {
-      await Product.deleteOne(product);
+      await Product.deleteOne(data);
       return { status: true, payload: "Product deleted successfully" };
     } catch (err) {
       return { status: false, error: err.message };
@@ -50,8 +50,8 @@ class ProductMongo {
 
   paginate = async (queries, options) => {
     try {
-      const paginated = await Product.paginate(queries, options);
-      return { status: true, payload: paginated };
+      const products = await Product.paginate(queries, options);
+      return { status: true, payload: products };
     } catch (err) {
       return { status: false, error: err.message };
     }

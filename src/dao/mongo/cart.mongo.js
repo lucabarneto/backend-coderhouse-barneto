@@ -3,10 +3,10 @@ const Cart = require("../../models/cart.model");
 class CartMongo {
   constructor() {}
 
-  get = async (cart) => {
+  get = async (data) => {
     try {
-      const found = await Cart.find(cart);
-      return { status: true, payload: found[0] };
+      const cart = await Cart.find(data);
+      return { status: true, payload: cart[0] };
     } catch (err) {
       return { status: false, error: err.message };
     }
@@ -21,27 +21,27 @@ class CartMongo {
     }
   };
 
-  create = async (cart) => {
+  create = async (data) => {
     try {
-      const created = await Cart.create(cart);
-      return { status: true, payload: created };
+      const cart = await Cart.create(data);
+      return { status: true, payload: cart };
     } catch (err) {
       return { status: false, error: err.message };
     }
   };
 
-  update = async (cart, update) => {
+  update = async (data, update) => {
     try {
-      await Cart.updateOne(cart, update);
+      await Cart.updateOne(data, update);
       return { status: true, payload: "Cart updated successfully" };
     } catch (err) {
       return { status: false, error: err.message };
     }
   };
 
-  delete = async (cart) => {
+  delete = async (data) => {
     try {
-      await Cart.deleteOne(cart);
+      await Cart.deleteOne(data);
       return { status: true, payload: "Cart deleted successfully" };
     } catch (err) {
       return { status: false, error: err.message };
