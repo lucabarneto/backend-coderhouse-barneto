@@ -7,9 +7,6 @@ class TicketService {
 
   createTicket = async (data) => {
     try {
-      if (!data) throw new Error("Body not provided");
-      if (!(data instanceof Object)) throw new Error("Body must be an object");
-
       let ticket = await ticketDAO.create(data);
       return ticket;
     } catch (err) {

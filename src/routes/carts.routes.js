@@ -26,24 +26,24 @@ class CartRouter extends Router {
     this.post(
       "/:cid/products/:pid",
       ["USER"],
-      authenticate("jwt", { session: false }),
-      authorize,
+      // authenticate("jwt", { session: false }),
+      // authorize,
       cartController.addProductToCart
     );
 
     this.post(
       "/:cid/purchase",
       ["USER"],
-      authenticate("jwt", { session: false }),
-      authorize,
+      // authenticate("jwt", { session: false }),
+      // authorize,
       cartController.purchase
     );
 
     this.delete(
       "/:cid",
       ["USER"],
-      authenticate("jwt", { session: false }),
-      authorize,
+      // authenticate("jwt", { session: false }),
+      // authorize,
       cartController.deleteAllProducts
     );
 

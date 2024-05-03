@@ -208,19 +208,24 @@ class CartController {
   };
 
   purchase = async (req, res) => {
-    const cart = await cartService.getCart(req.cart);
+    const cart = await cartService.getCart(req.cart),
+      products = await productService.getProducts();
+
+    console.log();
 
     let amount = 0,
       unprocessed = [];
 
     cart.payload.products.forEach(async (pref) => {
-      const product = await productService.getProductById(pref.product._id);
+      const product = products.payload.find(
+        (p) => pref.product._id.toString() === p._id.toString()
+      );
 
       if (product.stock >= pref.quantity) {
         amount += product.price * pref.quantity;
 
         await productService.updateProduct(product, {
-          $set: { stock: stock - pref.quantity },
+          $set: { stock: product.stock - pref.quantity },
         });
       } else {
         unprocessed.push(pref);
@@ -237,15 +242,15 @@ class CartController {
       code,
       purchase_datetime: Date.now(),
       amount,
-      purchaser: req.user.email,
+      purchaser: "example@email.com",
     };
 
+    await cartService.deleteAllProducts(cart.payload);
+
+    await cartService.updateCart({ _id: cart.payload._id }, unprocessed);
+
     const ticket = await ticketService.createTicket(ticketData);
-
-    await cartService.deleteAllProducts(cart);
-    await cartService.updateCart(cart, unprocessed);
-
-    return res.sendSuccess(ticket);
+    return res.sendSuccess(ticket.payload);
   };
 }
 

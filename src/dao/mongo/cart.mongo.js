@@ -8,14 +8,14 @@ class CartMongo {
       const cart = await Cart.find(data);
       return { status: true, payload: cart[0] };
     } catch (err) {
-      return { status: false, error: err.message };
+      return { status: false, error: err.message, details: null };
     }
   };
 
   getById = async (id) => {
     try {
       const cart = await Cart.find({ _id: id });
-      return { status: true, payload: cart[0] };
+      return { status: true, payload: cart[0], details: null };
     } catch (err) {
       return { status: false, error: err.message };
     }
@@ -24,7 +24,7 @@ class CartMongo {
   create = async (data) => {
     try {
       const cart = await Cart.create(data);
-      return { status: true, payload: cart };
+      return { status: true, payload: cart, details: null };
     } catch (err) {
       return { status: false, error: err.message };
     }
@@ -32,8 +32,12 @@ class CartMongo {
 
   update = async (data, update) => {
     try {
-      await Cart.updateOne(data, update);
-      return { status: true, payload: "Cart updated successfully" };
+      const cart = await Cart.updateOne(data, update);
+      return {
+        status: true,
+        payload: "Cart updated successfully",
+        details: cart,
+      };
     } catch (err) {
       return { status: false, error: err.message };
     }
@@ -41,8 +45,12 @@ class CartMongo {
 
   delete = async (data) => {
     try {
-      await Cart.deleteOne(data);
-      return { status: true, payload: "Cart deleted successfully" };
+      const cart = await Cart.deleteOne(data);
+      return {
+        status: true,
+        payload: "Cart deleted successfully",
+        details: cart,
+      };
     } catch (err) {
       return { status: false, error: err.message };
     }
