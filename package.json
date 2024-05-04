@@ -27,5 +27,8 @@
   "keywords": [],
   "author": "Luca Barneto",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.1"
+  }
 }

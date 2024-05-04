@@ -1,4 +1,5 @@
-const ProductService = require("../services/product_service.js");
+const ProductService = require("../services/product_service.js"),
+  faker = require("../utils/faker.js");
 
 const productService = new ProductService();
 
@@ -153,6 +154,11 @@ class productController {
     } catch (err) {
       return res.sendServerError(err.message ? err.message : err);
     }
+  };
+
+  createMockProducts = (req, res) => {
+    let products = faker.generateMockProducts(100);
+    return res.sendSuccess(products);
   };
 }
 
