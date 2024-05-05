@@ -1,4 +1,7 @@
 const ProductService = require("../services/product_service.js"),
+  CustomError = require("../services/errors/custom_error.js"),
+  EErrors = require("../services/errors/enum_error.js"),
+  infoError = require("../services/errors/info_error.js"),
   faker = require("../utils/faker.js");
 
 const productService = new ProductService();
@@ -6,15 +9,24 @@ const productService = new ProductService();
 class productController {
   //handlePid se emplea sobre el método param del router. Muchas funciones necesitan de una ejecución previa de handlePid para funcionar correctamente
   handlePid = async (req, res, next, pid) => {
-    const product = await productService.getProductById(pid);
+    try {
+      const product = await productService.getProductById(pid);
 
-    if (!product.status) {
-      req.product = null;
-    } else {
-      req.product = product.payload;
+      if (!product.status) {
+        CustomError.createCustomError({
+          name: "Incorrect ID Error",
+          cause: infoError.notFoundIDErrorInfo(pid, "products"),
+          message: "There was an error while searching for the given id",
+          code: EErrors.INVALID_ID_ERROR,
+        });
+      } else {
+        req.product = product.payload;
+      }
+
+      next();
+    } catch (err) {
+      CustomError.handleError(err, res);
     }
-
-    next();
   };
 
   getProducts = async (req, res) => {
@@ -24,58 +36,53 @@ class productController {
         sort = req.query.sort || 0,
         queries = req.query;
 
-      //Valido que los parámetros pasados sean números
-      if (limit.toString().match(/[^0-9]/))
-        return res.sendUserError("Limit must be a number");
-      if (page.toString().match(/[^0-9]/))
-        return res.sendUserError("Page must be a number");
-      if (sort.toString().match(/[^0-9-]/))
-        return res.sendUserError("Sorting order must be a number");
+      const products = await productService.getProducts();
 
-      limit = parseInt(limit);
-      page = parseInt(page);
-      sort = parseInt(sort);
+      if (!products.status) {
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.databaseErrorInfo("getProducts", products.error),
+          message: "There was an error trying to consult the database",
+          code: EErrors.DATABASE_ERROR,
+        });
+      }
 
-      //Valido que los parámetros pasados estén dentro del rango establecido
-      if (limit <= 0)
-        return res.sendUserError(
-          "Limit must not be neither 0 nor a negative number"
-        );
-      if (page <= 0)
-        return res.sendUserError(
-          "Page must not be neither 0 nor a negative number"
-        );
-      if (sort !== 1 && sort !== -1 && sort !== 0)
-        return res.sendUserError(
-          "Sorting order must be either 1 or -1. Skipping sorting order is also a valid option"
-        );
+      if (
+        limit.toString().match(/\d/) === null ||
+        page.toString().match(/\d/) === null ||
+        sort.toString().match(/\d/) === null ||
+        limit <= 0 ||
+        page <= 0 ||
+        page > Math.ceil(products.length / limit) ||
+        (sort !== 1 && sort !== -1 && sort !== 0)
+      ) {
+        let errorOpts = {
+          limit,
+          page,
+          sort,
+          plength: products.payload.length,
+        };
+
+        CustomError.createCustomError({
+          name: "Incorrect pagination Error",
+          cause: infoError.productPaginationErrorInfo(errorOpts),
+          message: "There was an error trying to paginate products",
+          code: EErrors.INVALID_PARAM_ERROR,
+        });
+      }
 
       //Me quedo con los filtros en el objeto queries
       for (const q in queries) {
         if (q !== "category" && q !== "stock") delete queries[q];
       }
 
-      const products = await productService.getProducts(
-        limit,
-        page,
-        sort,
-        queries
-      );
-
-      if (!products.status) {
-        return res.sendUserError(products.error);
-      }
-
-      if (page > Math.ceil(products.length / limit))
-        res.sendUserError("Page doesn't exist");
-
       //Si se proveyó un valor para sort se coloca ese valor
       const isSorted = {};
-      if (sort !== 0) isSorted.price = sort;
+      if (sort !== 0) isSorted.price = parseInt(sort);
 
       const paginated = await productService.paginateProducts(queries, {
-        limit,
-        page,
+        limit: parseInt(limit),
+        page: parseInt(page),
         sort: isSorted,
       });
 
@@ -85,24 +92,23 @@ class productController {
         return res.sendUserError(paginated.error);
       }
     } catch (err) {
-      return res.sendServerError(err);
+      CustomError.handleError(err, res);
     }
   };
 
   getProductById = async (req, res) => {
-    try {
-      return req.product
-        ? res.sendSuccess(req.product)
-        : res.sendNotFoundError("Product not found");
-    } catch (err) {
-      return res.sendServerError(err.message ? err.message : err);
-    }
+    return req.product;
   };
 
   addProduct = async (req, res) => {
     try {
       if (!req.body) {
-        return res.sendUserError("Body not provided");
+        CustomError.createCustomError({
+          name: "Param not provided",
+          cause: infoError.notProvidedParamErrorInfo("addProduct", [req.body]),
+          message: "There was an error reading certain parameters",
+          code: EErrors.INVALID_PARAM_ERROR,
+        });
       }
 
       const product = await productService.addProduct(req.body);
@@ -110,20 +116,29 @@ class productController {
       if (product.status) {
         return res.sendCreatedSuccess(product.payload);
       } else {
-        return res.sendUserError(product.error);
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.databaseErrorInfo("addProduct", product.error),
+          message: "There was an error trying to consult the database",
+          code: EErrors.DATABASE_ERROR,
+        });
       }
     } catch (err) {
-      return res.sendServerError(err.message ? err.message : err);
+      CustomError.handleError(err, res);
     }
   };
 
   updateProduct = async (req, res) => {
     try {
-      if (!req.product) {
-        return res.sendNotFoundError("Product not found");
-      }
       if (!req.body) {
-        return res.sendUserError("Body not provided");
+        CustomError.createCustomError({
+          name: "Param not provided",
+          cause: infoError.notProvidedParamErrorInfo("updateProduct", [
+            req.body,
+          ]),
+          message: "There was an error reading certain parameters",
+          code: EErrors.INVALID_PARAM_ERROR,
+        });
       }
 
       const product = await productService.updateProduct(req.product, req.body);
@@ -131,28 +146,34 @@ class productController {
       if (product.status) {
         return res.sendCreatedSuccess(product.payload);
       } else {
-        return res.sendUserError(product.error);
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.databaseErrorInfo("updateProduct", product.error),
+          message: "There was an error trying to consult the database",
+          code: EErrors.DATABASE_ERROR,
+        });
       }
     } catch (err) {
-      return res.sendServerError(err.message ? err.message : err);
+      CustomError.handleError(err, res);
     }
   };
 
   deleteProduct = async (req, res) => {
     try {
-      if (!req.product) {
-        return res.sendNotFoundError("Product not found");
-      }
-
       const product = await productService.deleteProduct(req.product);
 
       if (product.status) {
         return res.sendSuccess(product.payload);
       } else {
-        return res.sendUserError(product.error);
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.databaseErrorInfo("deleteProduct", product.error),
+          message: "There was an error trying to consult the database",
+          code: EErrors.DATABASE_ERROR,
+        });
       }
     } catch (err) {
-      return res.sendServerError(err.message ? err.message : err);
+      CustomError.handleError(err, res);
     }
   };
 

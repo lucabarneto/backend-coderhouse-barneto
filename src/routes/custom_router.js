@@ -35,6 +35,11 @@ class Router {
     res.sendUserError = (error) =>
       res.status(400).send({ status: "error", status_code: 400, error });
 
+    res.sendUnhandledError = () =>
+      res
+        .status(400)
+        .send({ status: "error", status_code: 400, error: "Unhandled Error" });
+
     res.sendAuthenticationError = (error) =>
       res.status(401).send({ status: "error", status_code: 401, error });
 

@@ -11,7 +11,8 @@ const express = require("express"),
   intilializePassport = require("./config/passport.config.js"),
   handlebars = require("express-handlebars"),
   passport = require("passport"),
-  config = require("./config/config.js");
+  config = require("./config/config.js"),
+  compression = require("express-compression");
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use(passport.initialize());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(compression());
 
 app.use("/api/products", productRouter.getRouter);
 app.use("/api/carts", cartRouter.getRouter);

@@ -1,6 +1,9 @@
 const CartService = require("../services/cart_service.js"),
   ProductService = require("../services/product_service.js"),
-  TicketService = require("../services/ticket.service.js");
+  TicketService = require("../services/ticket.service.js"),
+  CustomError = require("../services/errors/custom_error.js"),
+  EErrors = require("../services/errors/enum_error.js"),
+  infoError = require("../services/errors/info_error.js");
 
 const cartService = new CartService(),
   productService = new ProductService(),
@@ -9,27 +12,45 @@ const cartService = new CartService(),
 class CartController {
   //handlePid y handleCid se emplean sobre el método param del router. Muchas funciones necesitan de una ejecución previa de handlePid y handleCid para funcionar correctamente
   handlePid = async (req, res, next, pid) => {
-    const product = await productService.getProductById(pid);
+    try {
+      const product = await productService.getProductById(pid);
 
-    if (!product.status) {
-      req.product = null;
-    } else {
-      req.product = product.payload;
+      if (!product.status) {
+        CustomError.createCustomError({
+          name: "Incorrect ID Error",
+          cause: infoError.notFoundIDErrorInfo(pid, "products"),
+          message: "There was an error while searching for the given id",
+          code: EErrors.INVALID_ID_ERROR,
+        });
+      } else {
+        req.product = product.payload;
+      }
+
+      next();
+    } catch (err) {
+      CustomError.handleError(err, res);
     }
-
-    next();
   };
 
   handleCid = async (req, res, next, cid) => {
-    const cart = await cartService.getCartById(cid);
+    try {
+      const cart = await cartService.getCartById(cid);
 
-    if (!cart.status) {
-      req.cart = null;
-    } else {
-      req.cart = cart.payload;
+      if (!cart.status) {
+        CustomError.createCustomError({
+          name: "Incorrect ID Error",
+          cause: infoError.notFoundIDErrorInfo(cid, "carts"),
+          message: "There was an error while searching for the given id",
+          code: EErrors.INVALID_ID_ERROR,
+        });
+      } else {
+        req.cart = cart.payload;
+      }
+
+      next();
+    } catch (err) {
+      CustomError.handleError(err, res);
     }
-
-    next();
   };
 
   createCart = async (req, res) => {
@@ -39,45 +60,42 @@ class CartController {
       if (cart.status) {
         return res.sendCreatedSuccess(cart.payload);
       } else {
-        return res.sendUserError(cart.error);
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.databaseErrorInfo("createCart", cart.error),
+          message: "There was an error trying to consult the database",
+          code: EErrors.DATABASE_ERROR,
+        });
       }
     } catch (err) {
-      return res.sendServerError(err.message ? err.message : err);
+      CustomError.handleError(err, res);
     }
   };
 
   getProducts = async (req, res) => {
-    try {
-      return req.cart
-        ? res.sendSuccess(req.cart.products)
-        : res.sendNotFoundError("Cart not found");
-    } catch (err) {
-      return res.sendServerError(err.message ? err.message : err);
-    }
+    return req.cart.products;
   };
 
   addProductToCart = async (req, res) => {
     try {
       let quantity = req.body.quantity;
 
-      if (!req.cart) {
-        return res.sendNotFoundError("Cart not found");
+      if (
+        !quantity ||
+        typeof quantity !== "number" ||
+        quantity <= 0 ||
+        quantity > req.product.stock
+      ) {
+        CustomError.createCustomError({
+          name: "Invalid quantity error",
+          cause: infoError.productQuantityErrorInfo(
+            quantity,
+            req.product.stock
+          ),
+          message: "There was an error in the product's quantity provided",
+          code: EErrors.INVALID_PARAM_ERROR,
+        });
       }
-      if (!req.product) {
-        return res.sendNotFoundError("Product not found");
-      }
-      if (typeof quantity !== "number")
-        return res.sendUserError("Product's quantity must be a number");
-      if (quantity <= 0)
-        return res.sendUserError(
-          "Product's quantity must not be neither 0 nor a negative number"
-        );
-
-      //Verifico que la cantidad agregada no sobrepase el stock del producto
-      if (quantity > req.product.stock)
-        return res.sendUserError(
-          `Product's quantity cannot be greater than it's stock \n inserted quantity: ${quantity} - product's stock: ${req.product.stock}`
-        );
 
       const cart = await cartService.addProductToCart(
         req.cart,
@@ -88,76 +106,76 @@ class CartController {
       if (cart.status) {
         return res.sendCreatedSuccess(cart.payload);
       } else {
-        return res.sendUserError(cart.error);
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.databaseErrorInfo("addProductToCart", cart.error),
+          message: "There was an error trying to consult the database",
+          code: EErrors.DATABASE_ERROR,
+        });
       }
     } catch (err) {
-      return res.sendServerError(err.message ? err.message : err);
+      CustomError.handleError(err, res);
     }
   };
 
   deleteAllProducts = async (req, res) => {
     try {
-      if (!req.cart) {
-        return res.sendNotFoundError("Cart not found");
-      }
-
       const cart = await cartService.deleteAllProducts(req.cart);
 
       if (cart.status) {
         return res.sendSuccess(cart.payload);
       } else {
-        return res.sendUserError(cart.error);
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.databaseErrorInfo("deleteAllProducts", cart.error),
+          message: "There was an error trying to consult the database",
+          code: EErrors.DATABASE_ERROR,
+        });
       }
     } catch (err) {
-      return res.sendServerError(err.message ? err.message : err);
+      CustomError.handleError(err, res);
     }
   };
 
   deleteProduct = async (req, res) => {
     try {
-      if (!req.cart) {
-        return res.sendNotFoundError("Cart not found");
-      }
-      if (!req.product) {
-        return res.sendNotFoundError("Product not found");
-      }
-
       const cart = await cartService.deleteProduct(req.cart, req.product);
 
       if (cart.status) {
         return res.sendSuccess(cart.payload);
       } else {
-        return res.sendUserError(cart.error);
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.databaseErrorInfo("deleteProduct", cart.error),
+          message: "There was an error trying to consult the database",
+          code: EErrors.DATABASE_ERROR,
+        });
       }
     } catch (err) {
-      return res.sendServerError(err.message ? err.message : err);
+      CustomError.handleError(err, res);
     }
   };
 
   updateProduct = async (req, res) => {
     try {
-      let quantity = req.body.quantity || undefined;
+      let quantity = req.body.quantity;
 
-      if (!req.cart) {
-        return res.sendNotFoundError("Cart not found");
+      if (
+        !quantity ||
+        typeof quantity !== "number" ||
+        quantity <= 0 ||
+        quantity > req.product.stock
+      ) {
+        CustomError.createCustomError({
+          name: "Invalid quantity error",
+          cause: infoError.productQuantityErrorInfo(
+            quantity,
+            req.product.stock
+          ),
+          message: "There was an error in the product's quantity provided",
+          code: EErrors.INVALID_PARAM_ERROR,
+        });
       }
-      if (!req.product) {
-        return res.sendNotFoundError("Product not found");
-      }
-      if (quantity === undefined) {
-        return res.sendUserError("No new quantity provided");
-      }
-      if (typeof quantity !== "number") {
-        return res.sendUserError("Product's quantity must be a number");
-      }
-      if (quantity <= 0)
-        return res.sendUserError(
-          "Product's quantity must not be neither 0 nor a negative number"
-        );
-      if (quantity > req.product.stock)
-        return res.sendUserError(
-          `Product's new quantity cannot be greater than it's stock \n inserted quantity: ${quantity} - product's stock: ${product.stock}`
-        );
 
       const cart = await cartService.updateProductQuantity(
         req.cart,
@@ -168,30 +186,37 @@ class CartController {
       if (cart.status) {
         return res.sendCreatedSuccess(cart.payload);
       } else {
-        return res.sendUserError(cart.error);
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.databaseErrorInfo("updateProduct", cart.error),
+          message: "There was an error trying to consult the database",
+          code: EErrors.DATABASE_ERROR,
+        });
       }
     } catch (err) {
-      return res.sendServerError(err.message ? err.message : err);
+      CustomError.handleError(err, res);
     }
   };
 
   InsertProducts = async (req, res) => {
     try {
-      if (!req.cart) {
-        return res.sendServerError("Cart not provided");
-      }
-      if (!req.body) {
-        return res.sendServerError("No body provided");
-      }
       if (!(req.body instanceof Array)) {
-        return res.sendServerError("Body must be an array");
+        CustomError.createCustomError({
+          name: "Products to insert Error",
+          cause: infoError.productsInsertedErrorInfo(),
+          message: "There was an error in the product's array",
+          code: EErrors.INVALID_PARAM_ERROR,
+        });
       }
       for (const object of req.body) {
         for (const key in object) {
           if (key !== "product" && key !== "quantity")
-            return res.sendUserError(
-              "Products passed inside the array must follow the pattern: {product: 'id', quantity: number}"
-            );
+            CustomError.createCustomError({
+              name: "Products to insert Error",
+              cause: infoError.productsInsertedErrorInfo(),
+              message: "There was an error in the product's array",
+              code: EErrors.INVALID_PARAM_ERROR,
+            });
         }
       }
 
@@ -200,57 +225,93 @@ class CartController {
       if (cart.status) {
         return res.sendCreatedSuccess(cart.payload);
       } else {
-        return res.sendUserError(cart.error);
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.databaseErrorInfo("insertProducts", cart.error),
+          message: "There was an error trying to consult the database",
+          code: EErrors.DATABASE_ERROR,
+        });
       }
     } catch (err) {
-      return res.sendServerError(err.message ? err.message : err);
+      CustomError.handleError(err, res);
     }
   };
 
   purchase = async (req, res) => {
-    const cart = await cartService.getCart(req.cart),
-      products = await productService.getProducts();
+    try {
+      const cart = await cartService.getCart(req.cart),
+        products = await productService.getProducts();
 
-    console.log();
-
-    let amount = 0,
-      unprocessed = [];
-
-    cart.payload.products.forEach(async (pref) => {
-      const product = products.payload.find(
-        (p) => pref.product._id.toString() === p._id.toString()
-      );
-
-      if (product.stock >= pref.quantity) {
-        amount += product.price * pref.quantity;
-
-        await productService.updateProduct(product, {
-          $set: { stock: product.stock - pref.quantity },
+      if (!cart.status || !products.status) {
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.databaseErrorInfo(
+            "purchase",
+            cart.error ? cart.error : products.error
+          ),
+          message: "There was an error trying to consult the database",
+          code: EErrors.DATABASE_ERROR,
         });
-      } else {
-        unprocessed.push(pref);
       }
-    });
 
-    if (amount === 0) {
-      return res.sendServerError("No products were processed");
+      let amount = 0,
+        unprocessed = [];
+
+      cart.payload.products.forEach(async (pref) => {
+        const product = products.payload.find(
+          (p) => pref.product._id.toString() === p._id.toString()
+        );
+
+        if (product.stock >= pref.quantity) {
+          amount += product.price * pref.quantity;
+
+          const update = await productService.updateProduct(product, {
+            $set: { stock: product.stock - pref.quantity },
+          });
+
+          if (!update.status) {
+            CustomError.createCustomError({
+              name: "Database error",
+              cause: infoError.databaseErrorInfo(
+                "insertProducts",
+                update.error
+              ),
+              message: "There was an error trying to consult the database",
+              code: EErrors.DATABASE_ERROR,
+            });
+          }
+        } else {
+          unprocessed.push(pref);
+        }
+      });
+
+      if (amount === 0) {
+        CustomError.createCustomError({
+          name: "No products processed error",
+          cause: infoError.noProductsProcessedErrorInfo(),
+          message: "There was an error processing products",
+          code: EErrors.DATABASE_ERROR,
+        });
+      }
+
+      let code = Math.round(Math.random() * 10000).toString();
+
+      const ticketData = {
+        code,
+        purchase_datetime: Date.now(),
+        amount,
+        purchaser: req.user.email,
+      };
+
+      await cartService.deleteAllProducts(cart.payload);
+
+      await cartService.updateCart({ _id: cart.payload._id }, unprocessed);
+
+      const ticket = await ticketService.createTicket(ticketData);
+      return res.sendSuccess(ticket.payload);
+    } catch (err) {
+      CustomError.handleError(err, res);
     }
-
-    let code = Math.round(Math.random() * 10000).toString();
-
-    const ticketData = {
-      code,
-      purchase_datetime: Date.now(),
-      amount,
-      purchaser: "example@email.com",
-    };
-
-    await cartService.deleteAllProducts(cart.payload);
-
-    await cartService.updateCart({ _id: cart.payload._id }, unprocessed);
-
-    const ticket = await ticketService.createTicket(ticketData);
-    return res.sendSuccess(ticket.payload);
   };
 }
 

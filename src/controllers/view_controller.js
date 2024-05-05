@@ -1,4 +1,7 @@
-const ProductService = require("../services/product_service.js");
+const ProductService = require("../services/product_service.js"),
+  CustomError = require("../services/errors/custom_error.js"),
+  infoError = require("../services/errors/info_error.js"),
+  EErrors = require("../services/errors/enum_error.js");
 
 const productService = new ProductService();
 
@@ -13,11 +16,15 @@ class ViewController {
           products: products.payload.docs,
         });
       } else {
-        return res.sendUserError(products.error);
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.databaseErrorInfo("renderProducts", products.error),
+          message: "There was an error trying to consult the database",
+          code: EErrors.DATABASE_ERROR,
+        });
       }
     } catch (err) {
-      console.error(err);
-      return res.sendServerError(err);
+      CustomError.handleError(err, res);
     }
   };
 
@@ -30,11 +37,18 @@ class ViewController {
           products: products.payload.docs,
         });
       } else {
-        return res.sendUserError(products.error);
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.databaseErrorInfo(
+            "renderProductsRT",
+            products.error
+          ),
+          message: "There was an error trying to consult the database",
+          code: EErrors.DATABASE_ERROR,
+        });
       }
     } catch (err) {
-      console.error(err);
-      return res.sendServerError(err);
+      CustomError.handleError(err, res);
     }
   };
 
