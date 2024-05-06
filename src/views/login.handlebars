@@ -1,11 +1,7 @@
 <main>
   <section>
     <h1>Iniciar sesión</h1>
-    <form
-      id="login-form"
-      method="post"
-      action="http://localhost:8080/api/sessions/login"
-    >
+    <form id="login-form" method="post" action="/api/sessions/login">
       <input
         id="login-form__email"
         type="email"
@@ -26,12 +22,11 @@
     <div>
       <div>
         ¿No tienes un usuario?
-        <a href="http://localhost:8080/register"> Registrate!</a>
+        <a href="/register"> Registrate!</a>
       </div>
       <br />
       <div>
-        <a href="http://localhost:8080/api/sessions/github">Inicia sesión con
-          Github</a>
+        <a href="/api/sessions/github">Inicia sesión con Github</a>
       </div>
     </div>
 

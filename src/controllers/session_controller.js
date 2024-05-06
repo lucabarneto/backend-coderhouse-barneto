@@ -3,7 +3,7 @@ const jwt = require("../utils/jwt.js");
 class SessionController {
   registerUser = (req, res) => {
     try {
-      return res.sendRedirect("http://localhost:8080/login");
+      return res.sendRedirect("/login");
     } catch (err) {
       return res.sendServerError(err.message);
     }
@@ -18,7 +18,7 @@ class SessionController {
         httpOnly: true,
       });
 
-      return res.sendRedirect("http://localhost:8080/profile");
+      return res.sendRedirect("/profile");
     } catch (err) {
       return res.sendServerError(err.message);
     }
