@@ -14,24 +14,24 @@ class ProductRouter extends Router {
     this.get(
       "/",
       ["ADMIN"],
-      // authenticate("jwt", { session: false }),
-      // authorize,
+      authenticate("jwt", { session: false }),
+      authorize,
       productController.getProducts
     );
 
     this.get(
       "/mockingproducts",
       ["ADMIN"],
-      // authenticate("jwt", { session: false }),
-      // authorize,
+      authenticate("jwt", { session: false }),
+      authorize,
       productController.createMockProducts
     );
 
     this.get(
       "/:pid",
       ["ADMIN"],
-      // authenticate("jwt", { session: false }),
-      // authorize,
+      authenticate("jwt", { session: false }),
+      authorize,
       productController.getProductById
     );
 
