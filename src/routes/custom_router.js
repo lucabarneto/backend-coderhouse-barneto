@@ -78,9 +78,11 @@ class Router {
       try {
         let policy = [];
 
-        if (policies[0] === "PUBLIC") return next();
         if (policies.includes("USER")) policy.push("user");
+
         if (policies.includes("ADMIN")) policy.push("admin");
+
+        if (policies.includes("PUBLIC")) policy.push("public");
 
         req.policy = policy;
         next();

@@ -18,10 +18,14 @@ class SessionController {
         httpOnly: true,
       });
 
-      return res.sendRedirect("/profile");
+      return res.sendRedirect("/");
     } catch (err) {
       return res.sendServerError(err.message);
     }
+  };
+
+  logUserOut = (req, res) => {
+    res.clearCookie("authCookie").redirect("/login");
   };
 
   handleGithub = (req, res) => {};

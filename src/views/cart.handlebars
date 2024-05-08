@@ -1,0 +1,98 @@
+<header class="home-header">
+  <div id="home-btn" class="logo">
+    <i class="fa-solid fa-camera-retro"></i>
+    <p>E-commerce</p>
+  </div>
+  <nav>
+    <ul type="none">
+      <li><button class="icon-button" id="user-btn"><i
+            class="fa-solid fa-user"
+          ></i></button></li>
+      <li><button
+          class="icon-button selected"
+          id="cart-btn"
+          data-cart={{profile.cart._id}}
+        ><i class="fa-solid fa-cart-shopping"></i></button></li>
+    </ul>
+  </nav>
+</header>
+<main class="cart-view">
+  <section class="cart-products">
+    <div>
+      <h1>Tu Carrito: </h1>
+      <form id="clear-cart-form">
+        <button
+          id="clear-cart-button"
+          type="submit"
+          class="secondary-button"
+          data-cart={{profile.cart._id}}
+        >
+          Vaciar carrito
+        </button>
+      </form>
+    </div>
+    {{#each cart.products}}
+      <article class="cart-product">
+        <img
+          src="/img/img-placeholder-144w.jpg"
+          alt="Un ícono de una imagen en fondo gris"
+        />
+        <div class="product-info">
+          <p><strong>{{this.product.title}}</strong></p>
+          <p>${{this.product.price}}</p>
+          <p><small>Cantidad: {{this.quantity}}</small> </p>
+          <button
+            class="text-button edit-quantity-button"
+            data-quantity={{this.quantity}}
+            data-stock={{this.product.stock}}
+            data-product={{this.product._id}}
+          >Editar</button>
+        </div>
+      </article>
+    {{/each}}
+    <dialog id="edit-quantity-modal">
+      <h2>Editar producto</h2>
+      <form id="edit-quantity-form" data-cart={{profile.cart._id}}>
+        <label for="edit-quantity-input">Cantidad Nueva</label>
+        <input id="edit-quantity-input" name="quantity" type="number" min="0" />
+      </form>
+      <div>
+        <button
+          id="edit-quantity-cancel"
+          class="secondary-button"
+        >Cancelar</button>
+        <button
+          class="primary-button submit"
+          type="submit"
+          form="edit-quantity-form"
+        >Editar</button>
+      </div>
+    </dialog>
+  </section>
+  <aside class="cart-purchase">
+    <h2>Detalles de la compra:</h2>
+    <ul type="none">
+      {{#each cart.products}}
+        <li>
+          <p
+            class="cart-purchase-info"
+            data-quantity={{this.quantity}}
+            data-price={{this.product.price}}
+          >
+            <em>
+              {{this.quantity}}X
+            </em>
+            {{this.product.title}}
+            - ${{this.product.price}}
+          </p>
+        </li>
+      {{/each}}
+      <li id="cart-total-amount"></li>
+    </ul>
+    <form id="purchase-form" data-cart={{profile.cart._id}}>
+      <button type="submit" class="primary-button submit">Realizar compra</button>
+    </form>
+  </aside>
+
+  <script src="/js/index.js"></script>
+</main>

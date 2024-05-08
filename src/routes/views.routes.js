@@ -10,7 +10,13 @@ const viewController = new ViewController();
 class ViewRouter extends Router {
   init() {
     //Muestra todos los productos
-    this.get("/", ["PUBLIC"], viewController.renderProducts);
+    this.get(
+      "/",
+      ["PUBLIC", "USER"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      viewController.renderProducts
+    );
 
     //Muestra todos los productos en tiempo real
     this.get("/realtimeproducts", ["PUBLIC"], viewController.renderProductsRT);
@@ -41,7 +47,32 @@ class ViewRouter extends Router {
       "/profile",
       ["USER"],
       authenticate("jwt", { session: false }),
+      authorize,
       viewController.renderProfile
+    );
+
+    this.get(
+      "/product/:id",
+      ["PUBLIC", "USER"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      viewController.renderProduct
+    );
+
+    this.get(
+      "/cart/:id",
+      ["USER"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      viewController.renderCart
+    );
+
+    this.get(
+      "/ticket/:id",
+      ["USER"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      viewController.renderTicket
     );
   }
 }

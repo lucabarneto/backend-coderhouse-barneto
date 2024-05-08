@@ -1,0 +1,59 @@
+<header class="home-header">
+  <div id="home-btn" class="logo">
+    <i class="fa-solid fa-camera-retro"></i>
+    <p>E-commerce</p>
+  </div>
+  <nav>
+    <ul type="none">
+      {{#if profile}}
+        <li><button id="user-btn" class="icon-button"><i
+              class="fa-solid fa-user"
+            ></i></button></li>
+        <li><button
+            id="cart-btn"
+            class="icon-button"
+            data-cart={{profile.cart._id}}
+          ><i class="fa-solid fa-cart-shopping"></i></button></li>
+      {{else}}
+        <li><button class="primary-button" id="login-btn">Iniciar Sesión</button></li>
+      {{/if}}
+    </ul>
+  </nav>
+</header>
+<main class="product-view">
+  <figure>
+    <img
+      src="/img/img-placeholder-424w.jpg"
+      alt="Un ícono de una imagen en fondo gris"
+    />
+    <figcaption>Imágen del producto</figcaption>
+  </figure>
+  <section class="product-details">
+    <hgroup>
+      <h1>{{product.title}} - ${{product.price}}</h1>
+      <p>{{product.description}}</p>
+    </hgroup>
+    <div>
+      <div class="counter">
+        <button id="-">-</button>
+        <span id="product-quantity" data-stock={{product.stock}}><strong
+          >1</strong></span>
+        <button id="+">+</button>
+      </div>
+      <form id="add-to-cart-form">
+        <button
+          type="submit"
+          id="add-to-cart"
+          class="primary-button"
+          data-cart={{profile.cart._id}}
+          data-product={{product._id}}
+        >
+          Agregar al carrito
+        </button>
+      </form>
+
+    </div>
+    <p>Quedan {{product.stock}} unidades disponibles</p>
+  </section>
+  <script src="/js/index.js"></script>
+</main>

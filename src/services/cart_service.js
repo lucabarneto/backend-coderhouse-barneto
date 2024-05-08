@@ -75,7 +75,7 @@ class CartService {
   };
 
   //Actualiza un producto
-  updateProductQuantity = async (data, product, quantity) => {
+  updateProductQuantity = async (data, product, quantity, state) => {
     try {
       const cart = await cartDAO.get(data);
 
@@ -86,7 +86,11 @@ class CartService {
         (p) => p.product._id.toString() === product._id.toString()
       );
 
-      productToUpdate.quantity = quantity;
+      if (state === "add") {
+        productToUpdate.quantity += quantity;
+      } else if (state === "edit") {
+        productToUpdate.quantity = quantity;
+      }
 
       const update = await cartDAO.update(data, cart.payload);
       return update;

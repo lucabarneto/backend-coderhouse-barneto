@@ -1,6 +1,7 @@
 const Router = require("./custom_router.js"),
   SessionController = require("../controllers/session_controller.js"),
-  authenticate = require("../middleware/authentication.js");
+  authenticate = require("../middleware/authentication.js"),
+  authorize = require("../middleware/authorization.js");
 
 const sessionController = new SessionController();
 
@@ -24,6 +25,16 @@ class SessionRouter extends Router {
         session: false,
       }),
       sessionController.logUser
+    );
+
+    this.get(
+      "/logout",
+      ["USER"],
+      authenticate("jwt", {
+        session: false,
+      }),
+      authorize,
+      sessionController.logUserOut
     );
 
     this.get(

@@ -1,18 +1,53 @@
 <main>
-  <section>
+  <section class="auth">
     <h1>Registrarse</h1>
-    <form method="post" action="/api/sessions/register">
-      <input type="text" name="firstName" placeholder="Nombre" required />
-      <input type="text" name="lastName" placeholder="Apellido" required />
-      <input type="email" name="email" placeholder="Email" required />
-      <input type="tel" name="tel" placeholder="Tel." required />
+    <form id="register-form" method="post" action="/api/sessions/register">
+      <label for="register-form__firstname">Nombre</label>
       <input
-        type="password"
-        name="password"
-        placeholder="Contraseña"
+        id="register-form__firstname"
+        type="text"
+        name="firstName"
+        class="input"
+        placeholder="Escribe aquí..."
         required
       />
-      <input type="submit" value="Registrarse" />
+      <label for="register-form__lastname">Apellido</label>
+      <input
+        id="register-form__lastname"
+        type="text"
+        name="lastName"
+        class="input"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <label for="register-form__email">Email</label>
+      <input
+        id="register-form__email"
+        type="email"
+        name="email"
+        class="input"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <label for="register-form__tel">Teléfono</label>
+      <input
+        id="register-form__tel"
+        type="tel"
+        name="tel"
+        class="input"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <label for="register-form__password">Constraseña</label>
+      <input
+        id="register-form__password"
+        type="password"
+        name="password"
+        class="input"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <input type="submit" class="primary-button submit" value="Registrarse" />
     </form>
   </section>
 </main>

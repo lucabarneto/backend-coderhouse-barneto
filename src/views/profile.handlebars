@@ -1,3 +1,19 @@
+<header class="home-header">
+  <div id="home-btn" class="logo">
+    <i class="fa-solid fa-camera-retro"></i>
+    <p>E-commerce</p>
+  </div>
+  <nav>
+    <ul type="none">
+      <li><button class="icon-button selected" id="user-btn"><i
+            class="fa-solid fa-user"
+          ></i></button></li>
+      <li><button class="icon-button" id="cart-btn" data-cart={{cart._id}}><i
+            class="fa-solid fa-cart-shopping"
+          ></i></button></li>
+    </ul>
+  </nav>
+</header>
 <main>
   <h1>Bienvenido, {{name}}</h1>
   <div>
@@ -8,5 +24,11 @@
     </ul>
   </div>
 
-  <div>La página <strong>products</strong> se encuentra en construcción!</div>
+  <form action="/api/sessions/logout" method="get">
+    <button type="submit" class="primary-button">
+      Cerrar Sesión
+    </button>
+  </form>
+
+  <script src="/js/index.js"></script>
 </main>

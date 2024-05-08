@@ -1,5 +1,8 @@
 const authorize = (req, res, next) => {
-  console.log(req.user);
+  if (!req.user)
+    return req.policy.includes("public")
+      ? next()
+      : res.sendAuthenticationError(req.info);
 
   req.policy.includes(req.user.role)
     ? next()

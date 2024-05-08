@@ -12,12 +12,12 @@ class TicketMongo {
     }
   };
 
-  get = async (data) => {
+  getById = async (data) => {
     try {
-      const ticket = await Ticket.find(data);
+      const ticket = await Ticket.findById(data);
 
       if (ticket.length !== 0) {
-        return { status: true, payload: ticket[0] };
+        return { status: true, payload: ticket };
       } else {
         return { status: false, payload: null };
       }

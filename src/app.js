@@ -27,7 +27,17 @@ const productRouter = new ProductRouter(),
   messageRouter = new MessageRouter();
 
 //Configuro handlebars
-app.engine("handlebars", handlebars.engine());
+app.engine(
+  "handlebars",
+  handlebars.engine({
+    defaultLayout: "main",
+    extname: "handlebars",
+    runtimeOptions: {
+      allowProtoPropertiesByDefault: true,
+      allowProtoMethodsByDefault: true,
+    },
+  })
+);
 app.set("views", __dirname + "/views");
 app.set("view engine", "handlebars");
 

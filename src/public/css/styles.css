@@ -11,7 +11,11 @@ html {
 }
 
 body {
-  margin: 0;
+  background-color: rgb(244, 244, 244);
+}
+
+main {
+  padding: 2.5rem 5.5rem;
 }
 
 /* ::::Forms:::: */
@@ -20,24 +24,33 @@ body {
   border-radius: 0.75rem;
   border: thin solid lightgrey;
   margin-right: 1rem;
+  padding: 0 1rem;
+}
+
+label {
+  font-size: 1.25rem;
 }
 
 .input::placeholder {
   color: gray;
 }
 
+.input:focus {
+  border-color: blueviolet;
+}
+
 .submit {
   height: 2.5rem;
   border-radius: 0.75rem;
   border: none;
-  background-color: blue;
+  background-color: blueviolet;
   color: white;
   font-weight: 700;
   padding: 0 1.5rem;
 }
 
 .submit:hover {
-  background-color: darkblue;
+  background-color: rgb(70, 23, 152);
   cursor: pointer;
 }
 
@@ -60,16 +73,338 @@ body {
   background-color: white;
   position: absolute;
   bottom: 0;
-  border-top: medium solid blue;
+  border-top: medium solid blueviolet;
 }
 
 #input-message {
   width: 100%;
 }
 
+/* ::::Login:::: */
+
+.auth {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  width: 33vw;
+  max-width: 476px;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.auth form {
+  width: 100%;
+}
+
+.auth input {
+  display: block;
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+  width: inherit;
+}
+
+.auth .submit {
+  margin: 0 auto;
+}
+
+.external-app-btn {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  width: 100%;
+  height: 3.5rem;
+  border-radius: 0.75rem;
+  background-color: white;
+  color: gray;
+  border: thin solid lightgrey;
+  margin-bottom: 2rem;
+}
+
+.external-app-btn:hover {
+  color: black;
+  border-color: black;
+  cursor: pointer;
+}
+
+.external-app-btn .fa-brands {
+  font-size: 32px;
+}
+
+/* :::: Home :::: */
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 23px 7.5rem;
+  height: 5.5rem;
+  border-bottom: 2px solid blueviolet;
+  background-color: white;
+}
+
+.home-header ul {
+  margin: 0;
+  padding: 0;
+}
+
+.home-header ul li {
+  display: inline;
+  margin-right: 0.5rem;
+}
+
+.logo {
+  color: blueviolet;
+  padding: 0.5rem 0;
+}
+
+.logo:hover {
+  cursor: pointer;
+}
+
+.logo p {
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: inline;
+}
+
+.fa-camera-retro {
+  font-size: 1.5rem;
+}
+
+.home-title {
+  margin-bottom: 2.5rem;
+  color: blueviolet;
+}
+
+.icon-button {
+  height: 3.5rem;
+  padding: 1rem;
+  font-size: 1.5rem;
+  color: blueviolet;
+  background-color: white;
+  border: none;
+  border-radius: 2.5rem;
+}
+
+.icon-button:hover {
+  color: white;
+  background-color: blueviolet;
+  cursor: pointer;
+}
+
+/* :::: Products :::: */
+
+.products {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  justify-items: center;
+  align-items: center;
+}
+
+.product {
+  width: 13.5rem;
+  background-color: white;
+  border-radius: 1.5rem;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.product-info {
+  padding: 0.75rem;
+}
+
+.product-info p:first-child {
+  margin-top: 0;
+}
+
+.product-info p:last-child {
+  margin-bottom: 0;
+}
+
+.product:hover {
+  cursor: pointer;
+  box-shadow: 0 0.5rem 0.5rem gray;
+}
+
+.product-view {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-start;
+}
+
+.product-details hgroup {
+  margin-bottom: 4rem;
+}
+
+.product-details > div {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.product-details > p {
+  text-align: center;
+  color: grey;
+}
+
+.counter {
+  margin-right: 1rem;
+  background-color: rgb(244, 244, 244);
+  border: thin solid blueviolet;
+  color: blueviolet;
+  height: 2.5rem;
+  width: 12.5rem;
+  border-radius: 2.5rem;
+  font-size: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.5rem;
+}
+
+.counter button {
+  text-decoration: none;
+  border: none;
+  background-color: rgb(244, 244, 244);
+  color: blueviolet;
+  font-size: 2rem;
+  height: 2rem;
+  padding: 0 0.5rem;
+}
+
+.counter button:hover {
+  cursor: pointer;
+  color: rgb(70, 23, 152);
+}
+
+.counter button:disabled {
+  color: grey;
+  pointer-events: none;
+}
+
+.counter input {
+  background: none;
+  height: fit-content;
+  width: inherit;
+}
+
+/* :::: Purchase :::: */
+
+.cart-purchase {
+  background-color: white;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+}
+
+.cart-purchase ul {
+  margin-bottom: 2rem;
+}
+
+.cart-products {
+  width: 50vw;
+}
+
+.cart-products > div {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-products > div h1 {
+  margin: 0;
+}
+
+.cart-products > div form {
+  margin: 0;
+}
+
+.cart-product {
+  background-color: white;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  margin-right: 2rem;
+  width: 100%;
+}
+
+.cart-view {
+  display: flex;
+  justify-content: space-between;
+}
+
 /* Helper classes */
 
-.disabled {
+.primary-button {
+  background-color: blueviolet;
+  color: white;
+  height: 2.5rem;
+  text-decoration: none;
+  font-weight: 700;
+  border: none;
+  border-radius: 2.5rem;
+  padding: 12px 0;
+  width: 200px;
+  max-width: 200px;
+}
+
+.primary-button:hover {
+  background-color: rgb(70, 23, 152);
+  cursor: pointer;
+}
+
+.primary-button:disabled {
   background-color: gray;
+  pointer-events: none;
+}
+
+.secondary-button {
+  background: none;
+  color: blueviolet;
+  height: 2.5rem;
+  text-decoration: none;
+  font-weight: 700;
+  border: thin solid #ffffff00;
+  border-radius: 2.5rem;
+  padding: 10px 0;
+  width: 200px;
+  max-width: 200px;
+}
+
+.secondary-button:hover {
+  border: thin solid blueviolet;
+  cursor: pointer;
+}
+
+.text-button {
+  border: none;
+  background: none;
+  color: blueviolet;
+  font-size: 1rem;
+  padding: 0;
+}
+
+.text-button:hover {
+  color: rgb(70, 23, 152);
+  cursor: pointer;
+}
+
+.disabled {
+  color: grey;
+  pointer-events: none;
+  border-color: grey;
+}
+
+.selected {
+  background-color: rgb(244, 244, 244);
   pointer-events: none;
 }

@@ -13,12 +13,13 @@ const authenticate = (strategy, options = {}) => {
     passport.authenticate(strategy, options, function (err, user, info) {
       if (err) return next(err);
 
-      if (!user)
-        return res.sendAuthenticationError(
-          info.messages ? info.messages : info.toString()
-        );
+      if (!user) {
+        req.user = null;
+        req.info = info.messages ? info.messages : info.toString();
+      } else {
+        req.user = user;
+      }
 
-      req.user = user;
       next();
     })(req, res, next);
   };

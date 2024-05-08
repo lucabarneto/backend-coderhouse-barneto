@@ -13,6 +13,15 @@ class TicketService {
       console.error(err);
     }
   };
+
+  getTicketById = async (data) => {
+    try {
+      let ticket = await ticketDAO.getById(data);
+      return ticket;
+    } catch (err) {
+      console.error(err);
+    }
+  };
 }
 
 module.exports = TicketService;

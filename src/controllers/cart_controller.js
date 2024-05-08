@@ -11,7 +11,7 @@ const cartService = new CartService(),
 
 class CartController {
   //handlePid y handleCid se emplean sobre el método param del router. Muchas funciones necesitan de una ejecución previa de handlePid y handleCid para funcionar correctamente
-  handlePid = async (req, res, next, pid) => {
+  handlePid = async function (req, res, next, pid) {
     try {
       const product = await productService.getProductById(pid);
 
@@ -32,7 +32,7 @@ class CartController {
     }
   };
 
-  handleCid = async (req, res, next, cid) => {
+  handleCid = async function (req, res, next, cid) {
     try {
       const cart = await cartService.getCartById(cid);
 
@@ -53,7 +53,7 @@ class CartController {
     }
   };
 
-  createCart = async (req, res) => {
+  createCart = async function (req, res) {
     try {
       const cart = await cartService.addCart(req.body);
 
@@ -72,11 +72,11 @@ class CartController {
     }
   };
 
-  getProducts = async (req, res) => {
+  getProducts = async function (req, res) {
     return req.cart.products;
   };
 
-  addProductToCart = async (req, res) => {
+  addProductToCart = async function (req, res) {
     try {
       let quantity = req.body.quantity;
 
@@ -95,6 +95,15 @@ class CartController {
           message: "There was an error in the product's quantity provided",
           code: EErrors.INVALID_PARAM_ERROR,
         });
+      }
+
+      let checkExistingProduct = req.cart.products.some(
+        (pr) => pr.product._id.toString() == req.product._id.toString()
+      );
+
+      // Envío un "error" para que el cliente haga un fetch con método PUT
+      if (checkExistingProduct) {
+        return res.send({ status: "error" });
       }
 
       const cart = await cartService.addProductToCart(
@@ -118,7 +127,7 @@ class CartController {
     }
   };
 
-  deleteAllProducts = async (req, res) => {
+  deleteAllProducts = async function (req, res) {
     try {
       const cart = await cartService.deleteAllProducts(req.cart);
 
@@ -137,7 +146,7 @@ class CartController {
     }
   };
 
-  deleteProduct = async (req, res) => {
+  deleteProduct = async function (req, res) {
     try {
       const cart = await cartService.deleteProduct(req.cart, req.product);
 
@@ -156,9 +165,10 @@ class CartController {
     }
   };
 
-  updateProduct = async (req, res) => {
+  updateProduct = async function (req, res) {
     try {
-      let quantity = req.body.quantity;
+      let quantity = req.body.quantity,
+        state = req.body.state;
 
       if (
         !quantity ||
@@ -180,7 +190,8 @@ class CartController {
       const cart = await cartService.updateProductQuantity(
         req.cart,
         req.product,
-        quantity
+        quantity,
+        state
       );
 
       if (cart.status) {
@@ -198,7 +209,7 @@ class CartController {
     }
   };
 
-  InsertProducts = async (req, res) => {
+  InsertProducts = async function (req, res) {
     try {
       if (!(req.body instanceof Array)) {
         CustomError.createCustomError({
@@ -237,7 +248,7 @@ class CartController {
     }
   };
 
-  purchase = async (req, res) => {
+  purchase = async function (req, res) {
     try {
       const cart = await cartService.getCart(req.cart),
         products = await productService.getProducts();
@@ -257,7 +268,7 @@ class CartController {
       let amount = 0,
         unprocessed = [];
 
-      cart.payload.products.forEach(async (pref) => {
+      cart.payload.products.forEach(async function (pref) {
         const product = products.payload.find(
           (p) => pref.product._id.toString() === p._id.toString()
         );

@@ -1,12 +1,43 @@
-<section>
-  <h1>Mostrando todos los productos:</h1>
-  <ul>
-    {{#each products}}
-      <li>
-        <div>{{this.title}}</div>
-        <div>${{this.price}} - categoría:{{this.category}}</div>
-      </li>
-    {{/each}}
-  </ul>
+<header class="home-header">
+  <div id="home-btn" class="logo">
+    <i class="fa-solid fa-camera-retro"></i>
+    <p>E-commerce</p>
+  </div>
+  <nav>
+    <ul type="none">
+      {{#if profile}}
+        <li><button id="user-btn" class="icon-button"><i
+              class="fa-solid fa-user"
+            ></i></button></li>
+        <li><button
+            id="cart-btn"
+            class="icon-button"
+            data-cart={{profile.cart._id}}
+          ><i class="fa-solid fa-cart-shopping"></i></button></li>
+      {{else}}
+        <li><button class="primary-button" id="login-btn">Iniciar Sesión</button></li>
+      {{/if}}
+    </ul>
+  </nav>
+</header>
+<main>
+  <h1 class="home-title">Mostrando todos los productos:</h1>
 
-</section>
+  <section class="products">
+    {{#each products}}
+      <article class="product" data-id={{this._id}}>
+        <img
+          src="/img/img-placeholder-216w.jpg"
+          alt="Un ícono de una imagen en fondo gris"
+        />
+        <div class="product-info">
+          <p><strong>{{this.title}}</strong></p>
+          <p>${{this.price}}</p>
+          <p><small>{{this.stock}} unidades disponibles</small></p>
+        </div>
+      </article>
+    {{/each}}
+  </section>
+
+  <script src="/js/index.js"></script>
+</main>

@@ -83,6 +83,7 @@ const intilializePassport = () => {
             name: `${user.payload.firstName} ${user.payload.lastName}`,
             email: username,
             role: user.payload.role,
+            cart: user.payload.cart,
           };
 
           return done(null, userDTO);
