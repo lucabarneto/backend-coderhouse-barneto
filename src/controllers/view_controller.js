@@ -100,10 +100,10 @@ class ViewController {
         });
       } else {
         CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.databaseErrorInfo("renderProduct", product.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.DATABASE_ERROR,
+          name: "Incorrect ID Error",
+          cause: infoError.notFoundIDErrorInfo(pid, "products"),
+          message: "There was an error while searching for the given id",
+          code: EErrors.INVALID_ID_ERROR,
         });
       }
     } catch (err) {

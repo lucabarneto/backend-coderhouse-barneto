@@ -2,6 +2,9 @@ const EErrors = {
   INVALID_PARAM_ERROR: 1,
   INVALID_ID_ERROR: 2,
   DATABASE_ERROR: 3,
+  SERVER_ERROR: 4,
+  UNAUTHENTICATED_USER_ERROR: 5,
+  FORBIDDEN_ERROR: 6,
 };
 
 module.exports = EErrors;

@@ -25,6 +25,15 @@ class CustomError {
       case EErrors.DATABASE_ERROR:
         res.sendServerError(err.name);
         break;
+      case EErrors.SERVER_ERROR:
+        res.sendServerError(err.name);
+        break;
+      case EErrors.UNAUTHENTICATED_USER_ERROR:
+        res.sendRedirect("/login");
+        break;
+      case EErrors.FORBIDDEN_ERROR:
+        res.sendAuthorizationError(err.name);
+        break;
       default:
         res.sendUnhandledError();
         break;

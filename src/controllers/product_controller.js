@@ -89,7 +89,12 @@ class productController {
       if (paginated.status) {
         return res.sendCreatedSuccess(paginated.payload);
       } else {
-        return res.sendUserError(paginated.error);
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.databaseErrorInfo("getProducts", paginated.error),
+          message: "There was an error trying to consult the database",
+          code: EErrors.DATABASE_ERROR,
+        });
       }
     } catch (err) {
       CustomError.handleError(err, res);

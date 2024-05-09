@@ -1,12 +1,25 @@
-const authorize = (req, res, next) => {
-  if (!req.user)
-    return req.policy.includes("public")
-      ? next()
-      : res.sendAuthenticationError(req.info);
+const CustomError = require("../services/errors/custom_error.js"),
+  infoError = require("../services/errors/info_error.js"),
+  EErrors = require("../services/errors/enum_error.js");
 
-  req.policy.includes(req.user.role)
-    ? next()
-    : res.sendAuthorizationError("User is unauthorized to enter this page");
+const authorize = (req, res, next) => {
+  try {
+    if (!req.user) return next();
+
+    req.policy.includes(req.user.role)
+      ? next()
+      : CustomError.createCustomError({
+          name: "Authorization error",
+          cause: infoError.notAuthorizedErrorInfo({
+            userRole: req.user.role,
+            policy: req.policy,
+          }),
+          message: "User was unauthorized to enter this page",
+          code: EErrors.FORBIDDEN_ERROR,
+        });
+  } catch (err) {
+    CustomError.handleError(err, res);
+  }
 };
 
 module.exports = authorize;

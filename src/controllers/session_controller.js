@@ -20,6 +20,7 @@ class SessionController {
 
       return res.sendRedirect("/");
     } catch (err) {
+      console.log(err);
       return res.sendServerError(err.message);
     }
   };
