@@ -104,24 +104,24 @@ const intilializePassport = () => {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          let { name, email } = profile._json;
+          let { name, email, login, html_url } = profile._json;
 
           const userDTO = {
-            name,
-            email,
+            name: name || login,
+            email: email || html_url,
             role: "user",
           };
 
-          const user = await userService.getUser(email);
+          const user = await userService.getUser(email || html_url);
 
           if (!user.status) {
             const userCart = await cartService.addCart();
 
             const githubUser = {
-              firstName: name,
+              firstName: name || login,
               lastName: "",
-              email,
-              tel: 1111111111,
+              email: email || html_url,
+              tel: 0,
               password: "",
               cart: userCart.payload._id,
               role: "user",
@@ -131,11 +131,15 @@ const intilializePassport = () => {
             const result = await userService.saveUser(githubUser);
 
             if (result.status) {
+              userDTO.cart = userCart.payload;
+
               return done(null, userDTO);
             } else {
               return done(result.error);
             }
           } else {
+            userDTO.cart = user.payload.cart;
+
             return done(null, userDTO);
           }
         } catch (err) {
