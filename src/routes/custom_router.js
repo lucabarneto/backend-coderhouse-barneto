@@ -1,4 +1,7 @@
-const express = require("express");
+const express = require("express"),
+  CustomError = require("../services/errors/custom_error.js"),
+  infoError = require("../services/errors/info_error.js"),
+  EErrors = require("../services/errors/enum_error.js");
 
 class Router {
   constructor() {
@@ -55,23 +58,29 @@ class Router {
     next();
   }
 
-  handlePolicies(policies = undefined) {
-    if (policies === undefined)
-      return console.error("No policy array provided");
-    if (!(policies instanceof Array))
-      return console.error("Policies must be inside an array");
-    if (policies.length === 0)
-      return console.error("No policy provided inside the array");
+  handlePolicies(policies = []) {
+    if (!(policies instanceof Array) || policies.length === 0) {
+      CustomError.createCustomError({
+        name: "Incorrect policies error",
+        cause: infoError.incorrectPolicyErrorInfo(policies),
+        message: "There was an error in the given policies for the endpoint",
+        code: EErrors.INVALID_PARAM_ERROR,
+      });
+    }
 
     for (const policy of policies) {
-      if (typeof policy !== "string")
-        return console.error(`Policy '${policy} must be a string'`);
-      if (policy.match(/^[A-Z]+$/) === null)
-        return console.error(
-          `Policy '${policy} must be written in upper case'`
-        );
-      if (policy !== "PUBLIC" && policy !== "USER" && policy !== "ADMIN")
-        return console.error("Incorrect policy: " + policy);
+      if (
+        typeof policy !== "string" ||
+        policy.match(/^[A-Z]+$/) === null ||
+        (policy !== "PUBLIC" && policy !== "USER" && policy !== "ADMIN")
+      ) {
+        CustomError.createCustomError({
+          name: "Incorrect policies error",
+          cause: infoError.incorrectPolicyErrorInfo(policies),
+          message: "There was an error in the given policies for the endpoint",
+          code: EErrors.INVALID_PARAM_ERROR,
+        });
+      }
     }
 
     return (req, res, next) => {
@@ -87,7 +96,7 @@ class Router {
         req.policy = policy;
         next();
       } catch (err) {
-        console.error("An error has occurred: ", err);
+        return { status: false, error: err };
       }
     };
   }

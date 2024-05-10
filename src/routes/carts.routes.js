@@ -36,7 +36,7 @@ class CartRouter extends Router {
       ["USER"],
       authenticate("jwt", { session: false }),
       authorize,
-      cartController.purchase
+      cartController.purchaseProducts
     );
 
     this.delete(

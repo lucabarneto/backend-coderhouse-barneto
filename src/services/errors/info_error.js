@@ -3,9 +3,9 @@ const infoError = {
     `ERROR: The given ID was not found in the database's ${collection} collection.
     ID searched: ${id}.`,
 
-  notProvidedParamErrorInfo: (controller, method, params) =>
-    `ERROR: One or more parameters were not provided in the ${controller} controller's following function: ${method}().
-    Unprovided parameters: ${params.join(" - ")}.`,
+  notProvidedParamErrorInfo: (service, method, params) =>
+    `ERROR: One or more parameters were not provided in the ${service} service's following function: ${method}().
+    Unprovided parameters: ${JSON.stringify(params.join(" - "))}.`,
 
   productQuantityErrorInfo: (
     quantity,
@@ -52,6 +52,11 @@ const infoError = {
     `ERROR: Access to the page was forbidden for the user.
       * user role: ${data.userRole}.
       * required user role: ${data.policy}.`,
+
+  incorrectPolicyErrorInfo: (policies) =>
+    `ERROR: One or more policies were invalid. Policies are required and must be inside an Array. Each policy must be written in upper case
+      * List of allowed policies: PUBLIC, USER, ADMIN
+      * Received policies: ${JSON.stringify(policies.join(" - "))}`,
 };
 
 module.exports = infoError;
