@@ -4,15 +4,17 @@ const express = require("express"),
   ViewRouter = require("./routes/views.routes"),
   MessageRouter = require("./routes/chat.routes.js"),
   SessionRouter = require("./routes/sessions.routes.js"),
-  http = require("http"),
-  { Server } = require("socket.io"),
-  Database = require("./config/connection.config.js"),
-  cookieparser = require("cookie-parser"),
-  intilializePassport = require("./config/passport.config.js"),
-  handlebars = require("express-handlebars"),
-  passport = require("passport"),
-  config = require("./config/config.js"),
-  compression = require("express-compression");
+  PerformanceRouter = require("./routes/performance.routes.js");
+(http = require("http")),
+  ({ Server } = require("socket.io")),
+  (Database = require("./config/connection.config.js")),
+  (cookieparser = require("cookie-parser")),
+  (intilializePassport = require("./config/passport.config.js")),
+  (handlebars = require("express-handlebars")),
+  (passport = require("passport")),
+  (config = require("./config/config.js")),
+  (compression = require("express-compression")),
+  (addLogger = require("./middleware/logger.js"));
 
 const app = express();
 
@@ -24,7 +26,11 @@ const productRouter = new ProductRouter(),
   cartRouter = new CartRouter(),
   sessionRouter = new SessionRouter(),
   viewRouter = new ViewRouter(),
-  messageRouter = new MessageRouter();
+  messageRouter = new MessageRouter(),
+  performanceRouter = new PerformanceRouter();
+
+//Configuro Logger
+app.use(addLogger);
 
 //Configuro handlebars
 app.engine(
@@ -53,6 +59,7 @@ app.use(passport.initialize());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(compression());
 
 app.use("/api/products", productRouter.getRouter);
@@ -60,11 +67,13 @@ app.use("/api/carts", cartRouter.getRouter);
 app.use("/", viewRouter.getRouter);
 app.use("/api/chat", messageRouter.getRouter);
 app.use("/api/sessions", sessionRouter.getRouter);
+app.use("/api/performance", performanceRouter.getRouter);
 
 //Implemento el socket del lado del server
 
 //Creo el .listen
 httpServer.listen(Number(config.port), () => {
+  console.log(`Working on ${config.mode.toUpperCase()} environment`);
   console.log("Server running on port", config.port);
   //Me conecto a la base de datos
   Database.getInstance();

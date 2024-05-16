@@ -20,7 +20,7 @@ class CartController {
         throw product.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -35,7 +35,7 @@ class CartController {
         throw cart.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -49,7 +49,7 @@ class CartController {
         throw cart.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -75,7 +75,7 @@ class CartController {
         return res.send({ status: "error" });
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -89,7 +89,7 @@ class CartController {
         throw cart.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -103,7 +103,7 @@ class CartController {
         throw cart.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -125,7 +125,7 @@ class CartController {
         throw cart.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -139,7 +139,7 @@ class CartController {
         throw cart.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -153,7 +153,7 @@ class CartController {
         throw ticket.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 }

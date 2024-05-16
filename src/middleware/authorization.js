@@ -18,7 +18,7 @@ const authorize = (req, res, next) => {
           code: EErrors.FORBIDDEN_ERROR,
         });
   } catch (err) {
-    CustomError.handleError(err, res);
+    CustomError.handleError(err, req, res);
   }
 };
 

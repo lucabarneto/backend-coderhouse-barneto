@@ -42,11 +42,11 @@ const authenticate = (strategy, options = {}) => {
           next();
         })(req, res, next);
       } catch (err) {
-        CustomError.handleError(err, res);
+        CustomError.handleError(err, req, res);
       }
     };
   } catch (err) {
-    CustomError.handleError(err, res);
+    CustomError.handleError(err, req, res);
   }
 };
 

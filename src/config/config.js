@@ -1,8 +1,22 @@
-const dotenv = require("dotenv");
+const dotenv = require("dotenv"),
+  { Command } = require("commander");
 
-dotenv.config({ path: ".env" });
+const program = new Command();
+
+program
+  .option(
+    "-m, --mode <mode>",
+    "Sets the environment to work with",
+    "development"
+  )
+  .parse();
+
+dotenv.config({
+  path: program.opts().mode === "production" ? "./.env.prod" : "./.env.dev",
+});
 
 const config = {
+  mode: process.env.MODE,
   port: process.env.PORT,
   mongoUrl: process.env.MONGO_URL,
   secretKey: process.env.SECRET_KEY,

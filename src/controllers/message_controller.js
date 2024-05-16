@@ -17,7 +17,7 @@ class MessageController {
         throw message.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 }

@@ -21,7 +21,7 @@ class ViewController {
         throw products.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -37,7 +37,7 @@ class ViewController {
         throw products.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -87,7 +87,7 @@ class ViewController {
         throw product.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -105,7 +105,7 @@ class ViewController {
         throw cart.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -121,7 +121,7 @@ class ViewController {
         throw ticket.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 }

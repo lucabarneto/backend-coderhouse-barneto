@@ -17,7 +17,7 @@ class productController {
         throw product.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -41,7 +41,7 @@ class productController {
         throw products.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -59,7 +59,7 @@ class productController {
         throw product.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -73,7 +73,7 @@ class productController {
         throw product.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -87,7 +87,7 @@ class productController {
         throw product.error;
       }
     } catch (err) {
-      CustomError.handleError(err, res);
+      CustomError.handleError(err, req, res);
     }
   };
 
