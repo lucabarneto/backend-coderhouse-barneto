@@ -32,6 +32,11 @@ const productSchema = new mongoose.Schema({
     require: true,
     enum: ["Anime", "Paisajes", "Sci-Fi", "Abstracto", "Retratos"],
   },
+  owner: {
+    type: String,
+    require: true,
+    default: "admin",
+  },
 });
 
 productSchema.plugin(paginate);

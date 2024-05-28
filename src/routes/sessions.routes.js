@@ -29,7 +29,7 @@ class SessionRouter extends Router {
 
     this.get(
       "/logout",
-      ["USER"],
+      ["USER", "PREMIUM"],
       authenticate("jwt", {
         session: false,
       }),
@@ -49,6 +49,16 @@ class SessionRouter extends Router {
       ["PUBLIC"],
       authenticate("github", { session: false }),
       sessionController.logUser
+    );
+
+    this.put(
+      "/premium/:uid",
+      ["USER", "PREMIUM"],
+      authenticate("jwt", {
+        session: false,
+      }),
+      authorize,
+      sessionController.updateUserRole
     );
   }
 }

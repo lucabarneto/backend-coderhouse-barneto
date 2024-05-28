@@ -21,7 +21,8 @@ const $registerBtn = d.getElementById("register"),
   $editQuantityModal = d.getElementById("edit-quantity-modal"),
   $editQuantityCancel = d.getElementById("edit-quantity-cancel"),
   $editQuantityForm = d.getElementById("edit-quantity-form"),
-  $purchaseForm = d.getElementById("purchase-form");
+  $purchaseForm = d.getElementById("purchase-form"),
+  $changeRoleBtn = d.getElementById("change-role-button");
 
 let quantity = 1;
 
@@ -63,7 +64,7 @@ if ($cartTotalAmount) {
   }
 }
 
-d.addEventListener("click", (e) => {
+d.addEventListener("click", async (e) => {
   if (e.target === $registerBtn) location.assign("/register");
 
   if (e.target === $githubBtn) location.assign("/api/sessions/github");
@@ -110,6 +111,17 @@ d.addEventListener("click", (e) => {
 
   if (e.target === $editQuantityCancel) {
     $editQuantityModal.close();
+  }
+
+  if (e.target === $changeRoleBtn) {
+    let res = await fetch(
+      `/api/sessions/premium/${$changeRoleBtn.dataset.id}`,
+      {
+        method: "put",
+      }
+    );
+
+    location.reload();
   }
 });
 

@@ -12,7 +12,7 @@ class ViewRouter extends Router {
     //Muestra todos los productos
     this.get(
       "/",
-      ["PUBLIC", "USER", "ADMIN"],
+      ["PUBLIC", "USER", "ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       viewController.renderProducts
@@ -24,7 +24,7 @@ class ViewRouter extends Router {
     //Muestra el chat
     this.get(
       "/chat",
-      ["USER"],
+      ["USER", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       viewController.renderChat
@@ -45,7 +45,7 @@ class ViewRouter extends Router {
     //Renderiza la sección del perfil del usuario
     this.get(
       "/profile",
-      ["USER", "ADMIN"],
+      ["USER", "ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       viewController.renderProfile
@@ -53,7 +53,7 @@ class ViewRouter extends Router {
 
     this.get(
       "/product/:id",
-      ["PUBLIC", "USER", "ADMIN"],
+      ["PUBLIC", "USER", "ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       viewController.renderProduct
@@ -61,7 +61,7 @@ class ViewRouter extends Router {
 
     this.get(
       "/cart/:id",
-      ["USER", "ADMIN"],
+      ["USER", "ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       viewController.renderCart
@@ -69,7 +69,7 @@ class ViewRouter extends Router {
 
     this.get(
       "/ticket/:id",
-      ["USER", "ADMIN"],
+      ["USER", "ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       viewController.renderTicket

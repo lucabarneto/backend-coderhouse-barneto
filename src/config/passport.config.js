@@ -30,7 +30,7 @@ const intilializePassport = () => {
         try {
           let { firstName, lastName, email, tel } = req.body;
 
-          const user = await userService.getUser(username);
+          const user = await userService.getUserByEmail(username);
           if (user.status) {
             return done(
               "An account already exists with the following email: " + username
@@ -72,7 +72,7 @@ const intilializePassport = () => {
       { usernameField: "email" },
       async (username, password, done) => {
         try {
-          const user = await userService.getUser(username);
+          const user = await userService.getUserByEmail(username);
           if (!user.status)
             return done("A user with the email " + username + " doesn't exist");
 
@@ -80,6 +80,7 @@ const intilializePassport = () => {
           if (!checkPassword) return done("Password is incorrect");
 
           const userDTO = {
+            _id: user.payload._id,
             name: `${user.payload.firstName} ${user.payload.lastName}`,
             email: username,
             role: user.payload.role,
@@ -112,7 +113,7 @@ const intilializePassport = () => {
             role: "user",
           };
 
-          const user = await userService.getUser(email || html_url);
+          const user = await userService.getUserByEmail(email || html_url);
 
           if (!user.status) {
             const userCart = await cartService.addCart();

@@ -72,7 +72,10 @@ class Router {
       if (
         typeof policy !== "string" ||
         policy.match(/^[A-Z]+$/) === null ||
-        (policy !== "PUBLIC" && policy !== "USER" && policy !== "ADMIN")
+        (policy !== "PUBLIC" &&
+          policy !== "USER" &&
+          policy !== "ADMIN" &&
+          policy !== "PREMIUM")
       ) {
         CustomError.createCustomError({
           name: "Incorrect policies error",
@@ -90,6 +93,8 @@ class Router {
         if (policies.includes("USER")) policy.push("user");
 
         if (policies.includes("ADMIN")) policy.push("admin");
+
+        if (policies.includes("PREMIUM")) policy.push("premium");
 
         if (policies.includes("PUBLIC")) policy.push("public");
 
