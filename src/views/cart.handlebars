@@ -13,6 +13,13 @@
           id="cart-btn"
           data-cart={{profile.cart._id}}
         ><i class="fa-solid fa-cart-shopping"></i></button></li>
+      {{#ifEqual profile.role "premium"}}
+        <li><button
+            id="control-btn"
+            class="icon-button"
+            data-user={{profile._id}}
+          ><i class="fa-solid fa-gear"></i></button></li>
+      {{/ifEqual}}
     </ul>
   </nav>
 </header>

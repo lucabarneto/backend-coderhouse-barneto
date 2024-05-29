@@ -1,0 +1,125 @@
+<header class="home-header">
+  <div id="home-btn" class="logo">
+    <i class="fa-solid fa-camera-retro"></i>
+    <p>E-commerce</p>
+  </div>
+  <nav>
+    <ul type="none">
+      <li><button class="icon-button" id="user-btn"><i
+            class="fa-solid fa-user"
+          ></i></button></li>
+      <li><button
+          class="icon-button"
+          id="cart-btn"
+          data-cart={{profile.cart._id}}
+        ><i class="fa-solid fa-cart-shopping"></i></button></li>
+      <li><button id="control-btn" class="icon-button selected"><i
+            class="fa-solid fa-gear"
+          ></i></button></li>
+    </ul>
+  </nav>
+</header>
+<main class="control-view">
+  <section class="add-product">
+    <h2>Agregar producto</h2>
+    <form id="add-product-form">
+      <label for="add-product-name">Nombre</label>
+      <input
+        type="text"
+        id="add-product-name"
+        name="name"
+        class="input"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <label for="add-product-price">Precio</label>
+      <input
+        type="number"
+        id="add-product-price"
+        name="price"
+        class="input"
+        min="1"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <label for="add-product-code">Código</label>
+      <input
+        type="number"
+        id="add-product-code"
+        name="code"
+        class="input"
+        min="1"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <label for="add-product-stock">Stock</label>
+      <input
+        type="number"
+        id="add-product-stock"
+        name="stock"
+        class="input"
+        min="1"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <label for="add-product-category">Categoría</label>
+      <input
+        type="text"
+        id="add-product-category"
+        name="category"
+        list="product-categories"
+        class="input"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <datalist id="product-categories">
+        <option>Anime</option>
+        <option>Paisajes</option>
+        <option>Abstracto</option>
+        <option>Retratos</option>
+        <option>Sci-Fi</option>
+      </datalist>
+      <input
+        type="hidden"
+        name="owner"
+        value={{profile._id}}
+        data-role={{profile.role}}
+      />
+      <button type="submit" name="submit" class="primary-button submit">Agregar
+        Producto</button>
+    </form>
+  </section>
+  <section class="user-products">
+    <h2>Tus productos</h2>
+    {{#each products}}
+      <article class="cart-product">
+        <img
+          src="/img/img-placeholder-144w.jpg"
+          alt="Un ícono de una imagen en fondo gris"
+        />
+        <div class="product-info">
+          <p><strong>{{this.title}}</strong></p>
+          <p>Precio: ${{this.price}}</p>
+          <p>Stock: {{this.stock}} unidades</p>
+          <p>Categoría: {{this.category}}</p>
+        </div>
+        <div class="product-buttons">
+          <button
+            class="icon-button delete-product-button"
+            data-product={{this._id}}
+          ><i class="fa-solid fa-trash"></i></button>
+          <button
+            class="icon-button edit-product-button"
+            data-product={{this._id}}
+            data-title="{{this.title}}"
+            data-price={{this.price}}
+            data-stock={{this.stock}}
+            data-category={{this.category}}
+            data-code={{this.code}}
+          ><i class="fa-solid fa-pen-to-square"></i></button>
+        </div>
+      </article>
+    {{/each}}
+  </section>
+  <script src="/js/index.js"></script>
+</main>

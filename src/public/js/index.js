@@ -22,7 +22,11 @@ const $registerBtn = d.getElementById("register"),
   $editQuantityCancel = d.getElementById("edit-quantity-cancel"),
   $editQuantityForm = d.getElementById("edit-quantity-form"),
   $purchaseForm = d.getElementById("purchase-form"),
-  $changeRoleBtn = d.getElementById("change-role-button");
+  $changeRoleBtn = d.getElementById("change-role-button"),
+  $controlBtn = d.getElementById("control-btn"),
+  $addProductForm = d.getElementById("add-product-form"),
+  $deleteProductBtn = d.querySelectorAll(".delete-product-button"),
+  $editProductBtn = d.querySelectorAll(".edit-product-button");
 
 let quantity = 1;
 
@@ -51,6 +55,11 @@ if ($addToCartBtn) {
   $loginBtn
     ? ($addToCartBtn.disabled = true)
     : ($addToCartBtn.disabled = false);
+
+  if ($premiumBtn)
+    $addToCartBtn.dataset.owner === $premiumBtn.dataset.user
+      ? ($addToCartBtn.disabled = true)
+      : ($addToCartBtn.disabled = false);
 
   handleQuantity(quantity);
 }
@@ -114,15 +123,73 @@ d.addEventListener("click", async (e) => {
   }
 
   if (e.target === $changeRoleBtn) {
-    let res = await fetch(
-      `/api/sessions/premium/${$changeRoleBtn.dataset.id}`,
-      {
-        method: "put",
-      }
-    );
+    await fetch(`/api/sessions/premium/${$changeRoleBtn.dataset.id}`, {
+      method: "put",
+    });
 
     location.reload();
   }
+
+  if (e.target === $controlBtn || e.target.matches(`#control-btn *`))
+    location.assign("/control");
+
+  $deleteProductBtn.forEach(async (btn) => {
+    if (e.target === btn || e.target.matches(`.delete-product-button *`)) {
+      let res = await fetch(`/api/products/${btn.dataset.product}`, {
+          method: "delete",
+        }),
+        json = await res.json();
+
+      return json.status === "success"
+        ? location.reload()
+        : console.error(json.error);
+    }
+  });
+
+  $deleteProductBtn.forEach(async (btn) => {
+    if (e.target === btn || e.target.matches(`.delete-product-button *`)) {
+      let res = await fetch(`/api/products/${btn.dataset.product}`, {
+          method: "delete",
+        }),
+        json = await res.json();
+
+      return json.status === "success"
+        ? location.reload()
+        : console.error(json.error);
+    }
+  });
+
+  $editProductBtn.forEach(async (btn) => {
+    if (e.target === btn || e.target.matches(`.edit-product-button *`)) {
+      if (btn.querySelector("i").classList.contains("fa-pen-to-square")) {
+        d.querySelector(".add-product").querySelector("h2").textContent =
+          "Editar Producto";
+        $addProductForm.name.value = btn.dataset.title;
+        $addProductForm.price.value = btn.dataset.price;
+        $addProductForm.code.value = btn.dataset.code;
+        $addProductForm.stock.value = btn.dataset.stock;
+        $addProductForm.category.value = btn.dataset.category;
+        $addProductForm.submit.textContent = "Editar producto";
+
+        $addProductForm.submit.dataset.product = btn.dataset.product;
+
+        btn.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+      } else {
+        d.querySelector(".add-product").querySelector("h2").textContent =
+          "Agregar producto";
+        $addProductForm.name.value = "";
+        $addProductForm.price.value = "";
+        $addProductForm.code.value = "";
+        $addProductForm.stock.value = "";
+        $addProductForm.category.value = "";
+        $addProductForm.submit.textContent = "Agregar producto";
+
+        $addProductForm.submit.removeAttribute("data-product");
+
+        btn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
+      }
+    }
+  });
 });
 
 d.addEventListener("submit", async (e) => {
@@ -222,5 +289,62 @@ d.addEventListener("submit", async (e) => {
       json = await res.json();
 
     location.assign(`/ticket/${json.payload._id}`);
+  }
+
+  if (e.target === $addProductForm) {
+    e.preventDefault();
+
+    if ($addProductForm.submit.dataset.product) {
+      let res = await fetch(
+          `/api/products/${$addProductForm.submit.dataset.product}`,
+          {
+            method: "put",
+            body: JSON.stringify({
+              title: $addProductForm.name.value,
+              price: parseInt($addProductForm.price.value),
+              code: parseInt($addProductForm.code.value),
+              stock: parseInt($addProductForm.stock.value),
+              category: $addProductForm.category.value,
+            }),
+            headers: {
+              "Content-type": "application/json; charset=utf-8",
+            },
+          }
+        ),
+        json = await res.json();
+
+      if (json.status === "success") {
+        location.reload();
+      } else {
+        console.error(json.error);
+      }
+    } else {
+      let res = await fetch("/api/products", {
+          method: "post",
+          body: JSON.stringify({
+            title: $addProductForm.name.value,
+            description: "Aquí va la descripción del producto",
+            price: parseInt($addProductForm.price.value),
+            thumbnails: [],
+            code: parseInt($addProductForm.code.value),
+            stock: parseInt($addProductForm.stock.value),
+            category: $addProductForm.category.value,
+            owner:
+              $addProductForm.owner.dataset.role === "premium"
+                ? $addProductForm.owner.value
+                : "admin",
+          }),
+          headers: {
+            "Content-type": "application/json; charset=utf-8",
+          },
+        }),
+        json = await res.json();
+
+      if (json.status === "success") {
+        location.reload();
+      } else {
+        console.error(json.error);
+      }
+    }
   }
 });

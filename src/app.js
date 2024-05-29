@@ -10,7 +10,7 @@ const express = require("express"),
   Database = require("./config/connection.config.js"),
   cookieparser = require("cookie-parser"),
   intilializePassport = require("./config/passport.config.js"),
-  handlebars = require("express-handlebars"),
+  { create } = require("express-handlebars"),
   passport = require("passport"),
   config = require("./config/config.js"),
   compression = require("express-compression"),
@@ -33,16 +33,25 @@ const productRouter = new ProductRouter(),
 app.use(addLogger);
 
 //Configuro handlebars
+const handlebars = create({
+  helpers: {
+    ifEqual(arg1, arg2, options) {
+      return arg1 === arg2 ? options.fn(this) : options.inverse(this);
+    },
+  },
+});
+
 app.engine(
   "handlebars",
-  handlebars.engine({
-    defaultLayout: "main",
-    extname: "handlebars",
-    runtimeOptions: {
-      allowProtoPropertiesByDefault: true,
-      allowProtoMethodsByDefault: true,
-    },
-  })
+  handlebars.engine
+  // handlebars.engine({
+  //   defaultLayout: "main",
+  //   extname: "handlebars",
+  //   runtimeOptions: {
+  //     allowProtoPropertiesByDefault: true,
+  //     allowProtoMethodsByDefault: true,
+  //   },
+  // })
 );
 app.set("views", __dirname + "/views");
 app.set("view engine", "handlebars");

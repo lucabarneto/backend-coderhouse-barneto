@@ -1,20 +1,23 @@
 const ProductService = require("../services/product_service.js"),
   CartService = require("../services/cart_service.js"),
+  UserService = require("../services/user_service.js"),
   TicketService = require("../services/ticket.service.js"),
   CustomError = require("../services/errors/custom_error.js");
 
 const productService = new ProductService(),
   cartService = new CartService(),
-  ticketService = new TicketService();
+  ticketService = new TicketService(),
+  userService = new UserService();
 
 class ViewController {
   renderProducts = async (req, res) => {
     try {
       const products = await productService.getProducts();
 
+      const productsToJSON = JSON.stringify(products);
       if (products.status) {
         return res.render("home", {
-          products: products.payload.docs,
+          products: JSON.parse(productsToJSON).payload.docs,
           profile: req.user,
         });
       } else {
@@ -29,9 +32,10 @@ class ViewController {
     try {
       const products = await productService.getProducts();
 
+      const productsToJSON = JSON.stringify(products);
       if (products.status) {
         return res.render("realTimeProducts", {
-          products: products.payload.docs,
+          products: JSON.parse(productsToJSON).payload.docs,
         });
       } else {
         throw products.error;
@@ -80,7 +84,7 @@ class ViewController {
 
       if (product.status) {
         return res.render("product", {
-          product: product.payload,
+          product: product.payload.toJSON(),
           profile: req.user,
         });
       } else {
@@ -98,7 +102,7 @@ class ViewController {
 
       if (cart.status) {
         return res.render("cart", {
-          cart: cart.payload,
+          cart: cart.payload.toJSON(),
           profile: req.user,
         });
       } else {
@@ -123,6 +127,19 @@ class ViewController {
     } catch (err) {
       CustomError.handleError(err, req, res);
     }
+  };
+
+  renderControl = async (req, res) => {
+    const products = await productService.getProducts();
+
+    const userProducts = JSON.stringify(
+      products.payload.docs.filter((pr) => pr.owner === req.user._id)
+    );
+
+    return res.render("control", {
+      profile: req.user,
+      products: JSON.parse(userProducts),
+    });
   };
 }
 

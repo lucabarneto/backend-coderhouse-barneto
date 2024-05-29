@@ -337,7 +337,8 @@ label {
   width: 100%;
 }
 
-.cart-view {
+.cart-view,
+.control-view {
   display: flex;
   justify-content: space-between;
 }
@@ -407,4 +408,41 @@ label {
 .selected {
   background-color: rgb(244, 244, 244);
   pointer-events: none;
+}
+
+/* :::: Control :::: */
+
+.add-product,
+.user-products {
+  width: 50%;
+  display: inline-block;
+}
+
+.add-product form {
+  width: calc(100% - 32px);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.add-product form input {
+  margin-bottom: 16px;
+}
+
+.add-product form label {
+  margin-bottom: 8px;
+}
+
+.user-products .cart-product {
+  position: relative;
+}
+
+.product-buttons {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.product-info p {
+  margin: 8px 0;
 }

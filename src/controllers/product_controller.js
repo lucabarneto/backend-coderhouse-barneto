@@ -82,7 +82,7 @@ class productController {
       const product = await productService.deleteProduct(req.product);
 
       if (product.status) {
-        return product.payload;
+        return res.sendSuccess(product.payload);
       } else {
         throw product.error;
       }

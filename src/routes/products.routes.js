@@ -37,7 +37,7 @@ class ProductRouter extends Router {
 
     this.post(
       "/",
-      ["ADMIN"],
+      ["ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       productController.addProduct
@@ -45,7 +45,7 @@ class ProductRouter extends Router {
 
     this.put(
       "/:pid",
-      ["ADMIN"],
+      ["ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       productController.updateProduct
@@ -53,7 +53,7 @@ class ProductRouter extends Router {
 
     this.delete(
       "/:pid",
-      ["ADMIN"],
+      ["ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       productController.deleteProduct

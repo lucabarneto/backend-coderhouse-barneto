@@ -74,6 +74,14 @@ class ViewRouter extends Router {
       authorize,
       viewController.renderTicket
     );
+
+    this.get(
+      "/control",
+      ["ADMIN", "PREMIUM"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      viewController.renderControl
+    );
   }
 }
 
