@@ -446,3 +446,17 @@ label {
 .product-info p {
   margin: 8px 0;
 }
+
+.user-products {
+  height: 542px;
+}
+
+.user-products > div {
+  height: calc(542px - 27.59px);
+  overflow: auto;
+}
+
+.user-products > div .cart-product {
+  width: auto;
+  margin-right: 0;
+}

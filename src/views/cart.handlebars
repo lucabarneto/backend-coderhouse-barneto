@@ -20,6 +20,11 @@
             data-user={{profile._id}}
           ><i class="fa-solid fa-gear"></i></button></li>
       {{/ifEqual}}
+      {{#ifEqual profile.role "admin"}}
+        <li><button id="control-btn" class="icon-button"><i
+              class="fa-solid fa-gear"
+            ></i></button></li>
+      {{/ifEqual}}
     </ul>
   </nav>
 </header>

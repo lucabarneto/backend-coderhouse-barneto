@@ -90,36 +90,43 @@
     </form>
   </section>
   <section class="user-products">
-    <h2>Tus productos</h2>
-    {{#each products}}
-      <article class="cart-product">
-        <img
-          src="/img/img-placeholder-144w.jpg"
-          alt="Un ícono de una imagen en fondo gris"
-        />
-        <div class="product-info">
-          <p><strong>{{this.title}}</strong></p>
-          <p>Precio: ${{this.price}}</p>
-          <p>Stock: {{this.stock}} unidades</p>
-          <p>Categoría: {{this.category}}</p>
-        </div>
-        <div class="product-buttons">
-          <button
-            class="icon-button delete-product-button"
-            data-product={{this._id}}
-          ><i class="fa-solid fa-trash"></i></button>
-          <button
-            class="icon-button edit-product-button"
-            data-product={{this._id}}
-            data-title="{{this.title}}"
-            data-price={{this.price}}
-            data-stock={{this.stock}}
-            data-category={{this.category}}
-            data-code={{this.code}}
-          ><i class="fa-solid fa-pen-to-square"></i></button>
-        </div>
-      </article>
-    {{/each}}
+    {{#ifEqual profile.role "premium"}}
+      <h2>Tus productos</h2>
+    {{else}}
+      <h2>Todos los productos</h2>
+    {{/ifEqual}}
+    <div>
+      {{#each products}}
+        <article class="cart-product">
+          <img
+            src="/img/img-placeholder-144w.jpg"
+            alt="Un ícono de una imagen en fondo gris"
+          />
+          <div class="product-info">
+            <p><strong>{{this.title}}</strong></p>
+            <p>Precio: ${{this.price}}</p>
+            <p>Stock: {{this.stock}} unidades</p>
+            <p>Categoría: {{this.category}}</p>
+          </div>
+          <div class="product-buttons">
+            <button
+              class="icon-button delete-product-button"
+              data-product={{this._id}}
+            ><i class="fa-solid fa-trash"></i></button>
+            <button
+              class="icon-button edit-product-button"
+              data-product={{this._id}}
+              data-title="{{this.title}}"
+              data-price={{this.price}}
+              data-stock={{this.stock}}
+              data-category={{this.category}}
+              data-code={{this.code}}
+            ><i class="fa-solid fa-pen-to-square"></i></button>
+          </div>
+        </article>
+      {{/each}}
+    </div>
+
   </section>
   <script src="/js/index.js"></script>
 </main>

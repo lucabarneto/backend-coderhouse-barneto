@@ -29,7 +29,7 @@ class SessionRouter extends Router {
 
     this.get(
       "/logout",
-      ["USER", "PREMIUM"],
+      ["USER", "ADMIN", "PREMIUM"],
       authenticate("jwt", {
         session: false,
       }),

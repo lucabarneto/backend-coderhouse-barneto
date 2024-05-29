@@ -30,7 +30,6 @@ class SessionController {
   };
 
   logUserOut = (req, res) => {
-    console.log("hola mundo!");
     res.clearCookie("authCookie").redirect("/login");
   };
 

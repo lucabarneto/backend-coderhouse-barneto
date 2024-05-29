@@ -134,20 +134,9 @@ d.addEventListener("click", async (e) => {
     location.assign("/control");
 
   $deleteProductBtn.forEach(async (btn) => {
-    if (e.target === btn || e.target.matches(`.delete-product-button *`)) {
-      let res = await fetch(`/api/products/${btn.dataset.product}`, {
-          method: "delete",
-        }),
-        json = await res.json();
-
-      return json.status === "success"
-        ? location.reload()
-        : console.error(json.error);
-    }
-  });
-
-  $deleteProductBtn.forEach(async (btn) => {
-    if (e.target === btn || e.target.matches(`.delete-product-button *`)) {
+    if (e.target === btn || e.target === btn.querySelector("i")) {
+      console.log(e.target);
+      console.log(btn.dataset.product);
       let res = await fetch(`/api/products/${btn.dataset.product}`, {
           method: "delete",
         }),

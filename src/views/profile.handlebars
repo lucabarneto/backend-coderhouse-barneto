@@ -16,6 +16,11 @@
               class="fa-solid fa-gear"
             ></i></button></li>
       {{/ifEqual}}
+      {{#ifEqual role "admin"}}
+        <li><button id="control-btn" class="icon-button"><i
+              class="fa-solid fa-gear"
+            ></i></button></li>
+      {{/ifEqual}}
     </ul>
   </nav>
 </header>
@@ -28,12 +33,22 @@
       <li>Email: <strong>{{email}}</strong></li>
       <li>Rol:
         <strong>{{role}}</strong>
+        {{#ifEqual role "premium"}}
         -
         <button
           id="change-role-button"
           class="text-button"
           data-id={{_id}}
         >cambiar de rol</button></li>
+        {{/ifEqual}}
+        {{#ifEqual role "user"}}
+        -
+        <button
+          id="change-role-button"
+          class="text-button"
+          data-id={{_id}}
+        >cambiar de rol</button></li>
+        {{/ifEqual}}
     </ul>
   </div>
 

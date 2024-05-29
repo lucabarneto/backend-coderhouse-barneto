@@ -180,7 +180,7 @@ class ProductService {
           cause: infoError.notProvidedParamErrorInfo(
             "Product",
             "deleteProduct",
-            [data]
+            ["data"]
           ),
           message: "There was an error reading certain parameters",
           code: EErrors.INVALID_PARAM_ERROR,

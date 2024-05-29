@@ -136,9 +136,14 @@ class ViewController {
       products.payload.docs.filter((pr) => pr.owner === req.user._id)
     );
 
+    const productsToJSON = JSON.stringify(products);
+
     return res.render("control", {
       profile: req.user,
-      products: JSON.parse(userProducts),
+      products:
+        req.user.role === "premium"
+          ? JSON.parse(userProducts)
+          : JSON.parse(productsToJSON).payload.docs,
     });
   };
 }
