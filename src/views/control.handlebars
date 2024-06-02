@@ -39,6 +39,7 @@
         name="price"
         class="input"
         min="1"
+        pattern="^(?!0)\d+$"
         placeholder="Escribe aquí..."
         required
       />
@@ -47,8 +48,9 @@
         type="number"
         id="add-product-code"
         name="code"
+        title="Debe tener 5 dígitos de longitud"
         class="input"
-        min="1"
+        pattern="^\d{5}$"
         placeholder="Escribe aquí..."
         required
       />
@@ -59,6 +61,7 @@
         name="stock"
         class="input"
         min="1"
+        pattern="^(?!0)\d+$"
         placeholder="Escribe aquí..."
         required
       />

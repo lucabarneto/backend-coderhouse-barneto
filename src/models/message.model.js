@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const messageCollection = "messages";
+const MESSAGE_COLLECTION = "messages";
 
 const messageSchema = new mongoose.Schema({
   user: {
@@ -13,6 +13,6 @@ const messageSchema = new mongoose.Schema({
   },
 });
 
-const MessageModel = mongoose.model(messageCollection, messageSchema);
+const MessageModel = mongoose.model(MESSAGE_COLLECTION, messageSchema);
 
 module.exports = MessageModel;

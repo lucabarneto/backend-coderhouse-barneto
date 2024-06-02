@@ -1,53 +1,50 @@
 const passport = require("passport"),
+  ParamValidation = require("../utils/validations.js"),
   CustomError = require("../services/errors/custom_error.js"),
   infoError = require("../services/errors/info_error.js"),
   EErrors = require("../services/errors/enum_error.js");
 
 const authenticate = (strategy, options = {}) => {
-  try {
-    if (
-      !strategy ||
-      typeof strategy !== "string" ||
-      (strategy !== "login" &&
-        strategy !== "register" &&
-        strategy !== "github" &&
-        strategy !== "jwt") ||
-      !(options instanceof Object)
-    )
-      CustomError.createCustomError({
-        name: "Invalid authentication strategy error",
-        cause: infoError.noAuthStrategyErrorInfo({ strategy, options }),
-        message: "There was an error tryng to authenticate the user",
-        code: EErrors.SERVER_ERROR,
-      });
-    //Devuelvo a passport.authenticate
-    return async (req, res, next) => {
+  return async (req, res, next) => {
+    passport.authenticate(strategy, options, function (err, user, info) {
       try {
-        passport.authenticate(strategy, options, function (err, user, info) {
-          if (err) return next(err);
+        ParamValidation.isProvided("authenticate", ["strategy", strategy]);
+        ParamValidation.validatePattern(
+          "authenticate",
+          /^(login|register|github|jwt)$/,
+          [["strategy", strategy]],
+          infoError.noAuthStrategy({ strategy, options })
+        );
+        ParamValidation.validateDatatype(
+          "authenticate",
+          "object",
+          [["options", options]],
+          infoError.noAuthStrategy({ strategy, options })
+        );
 
-          if (!user) {
-            return req.policy.includes("public")
-              ? next()
-              : CustomError.createCustomError({
-                  name: "Unauthenticated user Error",
-                  cause: infoError.notAuthenticatedErrorInfo(),
-                  message: "There was an error tryng to authenticate the user",
-                  code: EErrors.UNAUTHENTICATED_USER_ERROR,
-                });
-          } else {
-            req.user = user;
-          }
+        if (err) {
+          throw err;
+        }
 
-          next();
-        })(req, res, next);
+        if (!user) {
+          return req.policy.includes("public")
+            ? next()
+            : CustomError.createCustomError({
+                name: "Unauthenticated user Error",
+                cause: infoError.notAuthenticated(),
+                message: "There was an error tryng to authenticate the user",
+                code: EErrors.UNAUTHENTICATED,
+              });
+        } else {
+          req.user = user;
+        }
+
+        next();
       } catch (err) {
         CustomError.handleError(err, req, res);
       }
-    };
-  } catch (err) {
-    CustomError.handleError(err, req, res);
-  }
+    })(req, res, next);
+  };
 };
 
 module.exports = authenticate;

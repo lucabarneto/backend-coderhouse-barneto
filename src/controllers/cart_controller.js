@@ -1,11 +1,9 @@
 const CartService = require("../services/cart_service.js"),
   ProductService = require("../services/product_service.js"),
-  TicketService = require("../services/ticket.service.js"),
   CustomError = require("../services/errors/custom_error.js");
 
 const cartService = new CartService(),
-  productService = new ProductService(),
-  ticketService = new TicketService();
+  productService = new ProductService();
 
 class CartController {
   //handlePid y handleCid se emplean sobre el método param del router. Muchas funciones necesitan de una ejecución previa de handlePid y handleCid para funcionar correctamente
@@ -13,7 +11,7 @@ class CartController {
     try {
       const product = await productService.getProductById(pid);
 
-      if (product.status) {
+      if (product.status === "success") {
         req.product = product.payload;
         next();
       } else {
@@ -28,7 +26,7 @@ class CartController {
     try {
       const cart = await cartService.getCartById(cid);
 
-      if (cart.status) {
+      if (cart.status === "success") {
         req.cart = cart.payload;
         next();
       } else {
@@ -41,9 +39,9 @@ class CartController {
 
   createCart = async (req, res) => {
     try {
-      const cart = await cartService.addCart(req.body);
+      const cart = await cartService.addCart();
 
-      if (cart.status) {
+      if (cart.status === "success") {
         return res.sendCreatedSuccess(cart.payload);
       } else {
         throw cart.error;
@@ -67,12 +65,12 @@ class CartController {
         quantity
       );
 
-      if (cart.status === true) {
+      if (cart.status === "success") {
         return res.sendCreatedSuccess(cart.payload);
-      } else if (cart.status === false) {
-        throw cart.error;
       } else if (cart.status === "error") {
-        return res.send({ status: "error" });
+        throw cart.error;
+      } else if (cart.status === "update") {
+        return res.send({ status: cart.status });
       }
     } catch (err) {
       CustomError.handleError(err, req, res);
@@ -83,7 +81,7 @@ class CartController {
     try {
       const cart = await cartService.deleteAllProducts(req.cart);
 
-      if (cart.status) {
+      if (cart.status === "success") {
         return res.sendSuccess(cart.payload);
       } else {
         throw cart.error;
@@ -97,7 +95,7 @@ class CartController {
     try {
       const cart = await cartService.deleteProduct(req.cart, req.product);
 
-      if (cart.status) {
+      if (cart.status === "success") {
         return res.sendSuccess(cart.payload);
       } else {
         throw cart.error;
@@ -119,7 +117,7 @@ class CartController {
         state
       );
 
-      if (cart.status) {
+      if (cart.status === "success") {
         return res.sendCreatedSuccess(cart.payload);
       } else {
         throw cart.error;
@@ -133,7 +131,7 @@ class CartController {
     try {
       const cart = await cartService.updateCart(req.cart, req.body);
 
-      if (cart.status) {
+      if (cart.status === "success") {
         return res.sendCreatedSuccess(cart.payload);
       } else {
         throw cart.error;
@@ -147,7 +145,7 @@ class CartController {
     try {
       const ticket = await cartService.purchaseProducts(req.cart, req.user);
 
-      if (ticket.status) {
+      if (ticket.status === "success") {
         return res.sendSuccess(ticket.payload);
       } else {
         throw ticket.error;

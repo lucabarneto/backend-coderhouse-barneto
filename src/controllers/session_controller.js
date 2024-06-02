@@ -1,6 +1,6 @@
 const UserService = require("../services/user_service.js"),
   CustomError = require("../services/errors/custom_error.js"),
-  jwt = require("../utils/jwt.js");
+  AccessToken = require("../utils/jwt.js");
 
 const userService = new UserService();
 
@@ -9,13 +9,13 @@ class SessionController {
     try {
       return res.sendRedirect("/login");
     } catch (err) {
-      return res.sendServerError(err.message);
+      CustomError.handleError(err, req, res);
     }
   };
 
   logUser = (req, res) => {
     try {
-      const ACCESS_TOKEN = jwt.generateToken(req.user);
+      const ACCESS_TOKEN = AccessToken.generateToken(req.user);
 
       res.cookie("authCookie", ACCESS_TOKEN, {
         maxAge: 60 * 60 * 1000,
@@ -24,8 +24,7 @@ class SessionController {
 
       return res.sendRedirect("/");
     } catch (err) {
-      console.log("Hubo un error: ", err);
-      return res.sendServerError(err.message);
+      CustomError.handleError(err, req, res);
     }
   };
 
@@ -38,14 +37,12 @@ class SessionController {
   updateUserRole = async (req, res) => {
     try {
       const user = await userService.getUserById(req.params.uid);
+      if (user.status === "error") throw user.error;
 
       const updateRole = await userService.updateUserRole(user.payload);
+      if (updateRole.status === "error") throw updateRole.error;
 
-      if (updateRole.status) {
-        return res.redirect(303, "/api/sessions/logout");
-      } else {
-        throw updateRole.error;
-      }
+      return res.redirect(303, "/api/sessions/logout");
     } catch (err) {
       CustomError.handleError(err, req, res);
     }

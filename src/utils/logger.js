@@ -10,11 +10,11 @@ const customLoggerOptions = {
     debug: 5,
   },
   colors: {
-    fatal: "red",
-    error: "brightRed",
+    fatal: "magenta",
+    error: "red",
     warning: "yellow",
     info: "blue",
-    http: "magenta",
+    http: "green",
     debug: "grey",
   },
 };

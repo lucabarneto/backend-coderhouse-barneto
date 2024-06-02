@@ -10,12 +10,12 @@ const authorize = (req, res, next) => {
       ? next()
       : CustomError.createCustomError({
           name: "Authorization error",
-          cause: infoError.notAuthorizedErrorInfo({
+          cause: infoError.notAuthorized({
             userRole: req.user.role,
             policy: req.policy,
           }),
           message: "User was unauthorized to enter this page",
-          code: EErrors.FORBIDDEN_ERROR,
+          code: EErrors.FORBIDDEN,
         });
   } catch (err) {
     CustomError.handleError(err, req, res);

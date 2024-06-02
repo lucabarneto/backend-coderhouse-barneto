@@ -3,7 +3,7 @@ const EErrors = require("./enum_error.js");
 class CustomError {
   constructor() {}
 
-  static createCustomError = ({ name = "error", cause, message, code = 0 }) => {
+  static createCustomError = ({ name, cause, message, code }) => {
     const error = new Error(message, { cause });
     error.name = name;
     error.code = code;
@@ -13,40 +13,59 @@ class CustomError {
 
   static handleError = (err, req, res) => {
     switch (err.code) {
-      case EErrors.INVALID_PARAM_ERROR:
-        req.logger.warning(
-          `${`${
-            err.cause
-          } - ${new Date().toLocaleString()}`} - ${new Date().toLocaleString()}`
-        );
-        res.sendUserError(err.name);
-        break;
-      case EErrors.INVALID_ID_ERROR:
+      case EErrors.UNPROVIDED_PARAM:
         req.logger.warning(`${err.cause} - ${new Date().toLocaleString()}`);
-        res
-          .status(404)
-          .send({ status: "error", status_code: 404, error: err.name });
+
+        res.sendUserError(err.name, err.message);
         break;
-      case EErrors.DATABASE_ERROR:
+
+      case EErrors.INVALID_PARAM:
         req.logger.error(`${err.cause} - ${new Date().toLocaleString()}`);
-        res.sendServerError(err.name);
+
+        res.sendUserError(err.name, err.message);
         break;
-      case EErrors.SERVER_ERROR:
+
+      case EErrors.NOT_FOUND:
+        req.logger.warning(`${err.cause} - ${new Date().toLocaleString()}`);
+
+        res.status(404).send({
+          status: "error",
+          status_code: 404,
+          error: err.name,
+          message: err.message,
+        });
+        break;
+
+      case EErrors.ALREADY_IN_DATABASE:
         req.logger.error(`${err.cause} - ${new Date().toLocaleString()}`);
-        res.sendServerError(err.name);
+
+        res.sendUserError(err.name, err.message);
         break;
-      case EErrors.UNAUTHENTICATED_USER_ERROR:
+
+      case EErrors.UNAUTHENTICATED:
         req.logger.info(`${err.cause} - ${new Date().toLocaleString()}`);
         res.sendRedirect("/login");
         break;
-      case EErrors.FORBIDDEN_ERROR:
+
+      case EErrors.FORBIDDEN:
         req.logger.info(`${err.cause} - ${new Date().toLocaleString()}`);
+
         res.sendAuthorizationError(err.name);
         break;
+
+      case EErrors.UNHANDLED_DATABASE:
+        req.logger.error(`${err.cause} - ${new Date().toLocaleString()}`);
+
+        res.sendServerError(err.name);
+        break;
+
       default:
         req.logger.fatal(
-          `An unhandled error has occurred - ${new Date().toLocaleString()}`
+          `${
+            err.cause || "An unhandled error has occurred"
+          } - ${new Date().toLocaleString()}`
         );
+
         res.sendUnhandledError();
         break;
     }

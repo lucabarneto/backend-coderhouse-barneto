@@ -1,4 +1,5 @@
 const MessageDAO = require("../dao/mongo/message.mongo.js"),
+  ParamValidation = require("../utils/validations.js"),
   CustomError = require("../services/errors/custom_error.js"),
   infoError = require("../services/errors/info_error.js"),
   EErrors = require("../services/errors/enum_error.js");
@@ -10,31 +11,25 @@ class MessageService {
 
   saveMessage = async (data) => {
     try {
-      if (!data) {
-        CustomError.createCustomError({
-          name: "Param not provided",
-          cause: infoError.notProvidedParamErrorInfo("Message", "addMessage", [
-            data,
-          ]),
-          message: "There was an error reading certain parameters",
-          code: EErrors.INVALID_PARAM_ERROR,
-        });
-      }
+      let { user, message } = data;
+      ParamValidation.isProvided(
+        "saveMessage",
+        ["user", user],
+        ["message", message]
+      );
 
-      const message = await messageDAO.create(data);
-
-      if (message.status) {
-        return message;
-      } else {
+      const result = await messageDAO.create(data);
+      if (result.status === "error")
         CustomError.createCustomError({
           name: "Database error",
-          cause: infoError.databaseErrorInfo("saveMessage", message.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.DATABASE_ERROR,
+          cause: infoError.unhandledDatabase("messageDAO.create", result.error),
+          result: "There was an error trying to consult the database",
+          code: EErrors.UNHANDLED_DATABASE,
         });
-      }
+
+      return result;
     } catch (err) {
-      return { status: false, error: err };
+      return { status: "error", error: err };
     }
   };
 }

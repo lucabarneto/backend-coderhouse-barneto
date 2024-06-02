@@ -1,5 +1,6 @@
 const mongoose = require("mongoose"),
   config = require("./config.js");
+// USAR CUSTOM ERROR
 
 class MongoConnect {
   static #instance;
@@ -12,12 +13,12 @@ class MongoConnect {
 
   static getInstance() {
     if (this.#instance) {
-      console.log("Already connected to DB");
+      console.log("Already connected to DB"); // USAR LOGGER
       return this.#instance;
     }
 
     this.#instance = new MongoConnect();
-    console.log("Connected to DB");
+    console.log("Connected to DB"); // USAR LOGGER
     return this.#instance;
   }
 }

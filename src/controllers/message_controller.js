@@ -10,7 +10,7 @@ class MessageController {
 
       const message = await messageService.saveMessage(req.body);
 
-      if (message.status) {
+      if (message.status === "success") {
         io.sockets.emit("new message", req.body);
         return res.sendCreatedSuccess(req.body);
       } else {

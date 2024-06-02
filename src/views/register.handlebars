@@ -9,6 +9,7 @@
         name="firstName"
         class="input"
         placeholder="Escribe aquí..."
+        pattern="^\S[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]+\S$"
         required
       />
       <label for="register-form__lastname">Apellido</label>
@@ -18,6 +19,7 @@
         name="lastName"
         class="input"
         placeholder="Escribe aquí..."
+        pattern="^\S[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]+\S$"
         required
       />
       <label for="register-form__email">Email</label>
@@ -27,6 +29,7 @@
         name="email"
         class="input"
         placeholder="Escribe aquí..."
+        pattern="^[a-zA-ZñÑ0-9]+(\.[_a-zA-ZñÑ0-9]+)*@[a-zA-ZñÑ0-9-]+(\.[a-zA-ZñÑ0-9-]+)*(\.[a-zA-ZñÑ]{2,15})$"
         required
       />
       <label for="register-form__tel">Teléfono</label>
@@ -45,6 +48,9 @@
         name="password"
         class="input"
         placeholder="Escribe aquí..."
+        minlength="6"
+        pattern="^[a-zA-ZnÑ0-9]+$"
+        title="La contraseña debe tener al menos 6 caracteres, ni debe contener caracteres especiales"
         required
       />
       <input type="submit" class="primary-button submit" value="Registrarse" />

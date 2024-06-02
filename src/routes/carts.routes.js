@@ -15,17 +15,17 @@ class CartRouter extends Router {
 
     this.post(
       "/",
-      ["USER"],
+      ["USER", "ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       cartController.createCart
     );
 
-    this.get("/:cid", ["USER"], cartController.getProducts);
+    this.get("/:cid", ["USER", "ADMIN", "PREMIUM"], cartController.getProducts);
 
     this.post(
       "/:cid/products/:pid",
-      ["USER"],
+      ["USER", "ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       cartController.addProductToCart
@@ -33,7 +33,7 @@ class CartRouter extends Router {
 
     this.post(
       "/:cid/purchase",
-      ["USER"],
+      ["USER", "ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       cartController.purchaseProducts
@@ -41,7 +41,7 @@ class CartRouter extends Router {
 
     this.delete(
       "/:cid",
-      ["USER"],
+      ["USER", "ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       cartController.deleteAllProducts
@@ -49,7 +49,7 @@ class CartRouter extends Router {
 
     this.delete(
       "/:cid/products/:pid",
-      ["USER"],
+      ["USER", "ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       cartController.deleteProduct
@@ -57,7 +57,7 @@ class CartRouter extends Router {
 
     this.put(
       "/:cid/products/:pid",
-      ["USER"],
+      ["USER", "ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       cartController.updateProduct
@@ -65,7 +65,7 @@ class CartRouter extends Router {
 
     this.put(
       "/:cid",
-      ["USER"],
+      ["USER", "ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       cartController.InsertProducts

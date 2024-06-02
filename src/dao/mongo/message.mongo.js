@@ -6,9 +6,9 @@ class MessageMongo {
   create = async (data) => {
     try {
       const message = await Message.create(data);
-      return { status: true, payload: message };
+      return { status: "success", payload: message };
     } catch (err) {
-      return { status: false, error: err.message };
+      return { status: "error", error: err.message };
     }
   };
 }

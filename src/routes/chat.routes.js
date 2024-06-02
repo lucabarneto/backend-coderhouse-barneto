@@ -9,7 +9,7 @@ class MessageRouter extends Router {
   init() {
     this.post(
       "/",
-      ["USER"],
+      ["USER", "ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
       messageController.addMessage

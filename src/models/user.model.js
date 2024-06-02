@@ -1,25 +1,30 @@
 const mongoose = require("mongoose");
 
-const userCollection = "users";
+const USER_COLLECTION = "users";
 
 const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
       require: true,
+      match: /^\S[a-záéíóúüñ\s]+\S$/i,
     },
     lastName: {
       type: String,
       require: true,
+      match: /^\S[a-záéíóúüñ\s]+\S$/i,
     },
     email: {
       type: String,
       require: true,
       unique: true,
+      match:
+        /^(([a-zñ\d]+(.[_a-zñ\d]+)*@[a-zñ\d-]+(.[a-zñ\d-]+)*(.[a-zñ]{2,15}))|(https:\/\/github\.com\/[a-z\d]+))$/i,
     },
     tel: {
       type: Number,
       require: true,
+      match: /^\d+$/,
     },
     password: {
       type: String,
@@ -30,6 +35,7 @@ const userSchema = new mongoose.Schema(
       ref: "carts",
       require: true,
       unique: true,
+      match: /^[a-f\d]{24}$/i,
     },
     role: {
       type: String,
@@ -47,6 +53,6 @@ userSchema.pre("find", function () {
   this.populate("cart");
 });
 
-const UserModel = mongoose.model(userCollection, userSchema);
+const UserModel = mongoose.model(USER_COLLECTION, userSchema);
 
 module.exports = UserModel;

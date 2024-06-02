@@ -56,8 +56,8 @@ if ($addToCartBtn) {
     ? ($addToCartBtn.disabled = true)
     : ($addToCartBtn.disabled = false);
 
-  if ($premiumBtn)
-    $addToCartBtn.dataset.owner === $premiumBtn.dataset.user
+  if ($controlBtn)
+    $addToCartBtn.dataset.owner === $controlBtn.dataset.user
       ? ($addToCartBtn.disabled = true)
       : ($addToCartBtn.disabled = false);
 
@@ -200,7 +200,7 @@ d.addEventListener("submit", async (e) => {
         ),
         json = await res.json();
 
-      if (json.status === "error") {
+      if (json.status === "update") {
         let res2 = await fetch(
             `/api/carts/${$addToCartBtn.dataset.cart}/products/${$addToCartBtn.dataset.product}`,
             {

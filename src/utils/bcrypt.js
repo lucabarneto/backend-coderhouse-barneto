@@ -1,8 +1,15 @@
 const bcrypt = require("bcrypt");
 
-module.exports = {
-  createHash: (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(10)),
+class Encryption {
+  constructor() {}
 
-  validatePassword: (user, password) =>
-    bcrypt.compareSync(password, user.password),
-};
+  static createHash(password) {
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+  }
+
+  static validatePassword(user, password) {
+    return bcrypt.compareSync(password, user.password);
+  }
+}
+
+module.exports = Encryption;

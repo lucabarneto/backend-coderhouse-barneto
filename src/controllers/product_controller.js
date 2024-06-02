@@ -10,7 +10,7 @@ class productController {
     try {
       const product = await productService.getProductById(pid);
 
-      if (product.status) {
+      if (product.status === "success") {
         req.product = product.payload;
         next();
       } else {
@@ -35,7 +35,7 @@ class productController {
         queries
       );
 
-      if (products.status) {
+      if (products.status === "success") {
         return res.sendCreatedSuccess(products.payload);
       } else {
         throw products.error;
@@ -53,7 +53,7 @@ class productController {
     try {
       const product = await productService.addProduct(req.body);
 
-      if (product.status) {
+      if (product.status === "success") {
         return res.sendCreatedSuccess(product.payload);
       } else {
         throw product.error;
@@ -67,7 +67,7 @@ class productController {
     try {
       const product = await productService.updateProduct(req.product, req.body);
 
-      if (product.status) {
+      if (product.status === "success") {
         return res.sendCreatedSuccess(product.payload);
       } else {
         throw product.error;
@@ -81,7 +81,7 @@ class productController {
     try {
       const product = await productService.deleteProduct(req.product);
 
-      if (product.status) {
+      if (product.status === "success") {
         return res.sendSuccess(product.payload);
       } else {
         throw product.error;

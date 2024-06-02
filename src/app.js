@@ -41,18 +41,7 @@ const handlebars = create({
   },
 });
 
-app.engine(
-  "handlebars",
-  handlebars.engine
-  // handlebars.engine({
-  //   defaultLayout: "main",
-  //   extname: "handlebars",
-  //   runtimeOptions: {
-  //     allowProtoPropertiesByDefault: true,
-  //     allowProtoMethodsByDefault: true,
-  //   },
-  // })
-);
+app.engine("handlebars", handlebars.engine);
 app.set("views", __dirname + "/views");
 app.set("view engine", "handlebars");
 
@@ -60,7 +49,7 @@ app.set("view engine", "handlebars");
 app.use(express.static(__dirname + "/public"));
 
 //Configuro middlewares de cookies
-app.use(cookieparser());
+app.use(cookieparser()); // AGREGAR SECRETO
 
 // Agrego middleware de passport
 intilializePassport();
@@ -77,8 +66,6 @@ app.use("/", viewRouter.getRouter);
 app.use("/api/chat", messageRouter.getRouter);
 app.use("/api/sessions", sessionRouter.getRouter);
 app.use("/api/performance", performanceRouter.getRouter);
-
-//Implemento el socket del lado del server
 
 //Creo el .listen
 httpServer.listen(Number(config.port), () => {

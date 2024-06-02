@@ -1,4 +1,5 @@
 const CartDAO = require("../dao/mongo/cart.mongo"),
+  ParamValidation = require("../utils/validations.js"),
   ProductService = require("./product_service.js"),
   TicketService = require("./ticket.service.js"),
   CustomError = require("../services/errors/custom_error.js"),
@@ -12,348 +13,291 @@ const cartDAO = new CartDAO(),
 class CartService {
   constructor() {}
 
-  //Obtiene un cart
+  addCart = async () => {
+    try {
+      const cart = await cartDAO.create();
+
+      if (cart.status === "error")
+        CustomError.createCustomError({
+          name: "Database error",
+          cause: infoError.unhandledDatabase("cartDAO.create", cart.error),
+          message: "There was an error trying to consult the database",
+          code: EErrors.UNHANDLED_DATABASE,
+        });
+
+      return cart;
+    } catch (err) {
+      return { status: "error", error: err };
+    }
+  };
+
   getCartById = async (cid) => {
     try {
-      if (!cid) {
-        CustomError.createCustomError({
-          name: "Param not provided",
-          cause: infoError.notProvidedParamErrorInfo("Cart", "getCartById", [
-            cid,
-          ]),
-          message: "There was an error reading certain parameters",
-          code: EErrors.INVALID_PARAM_ERROR,
-        });
-      }
+      ParamValidation.isProvided("getCartById", ["cid", cid]);
+      ParamValidation.validatePattern("getCartById", /^[a-f\d]{24}$/i, [
+        ["cid", cid],
+      ]);
 
       const cart = await cartDAO.getById(cid);
-
-      if (cart.status) {
-        return cart;
-      } else {
+      if (cart.status === "error")
         CustomError.createCustomError({
-          name: "Incorrect ID Error",
-          cause: infoError.notFoundIDErrorInfo(cid, "carts"),
+          name: "Not Found Error",
+          cause: infoError.idNotFound(cid, "carts"),
           message: "There was an error while searching for the given id",
-          code: EErrors.INVALID_ID_ERROR,
+          code: EErrors.NOT_FOUND,
         });
-      }
+
+      return cart;
     } catch (err) {
-      return { status: false, error: err };
+      return { status: "error", error: err };
     }
   };
 
-  //Añade un cart
-  addCart = async (data = {}) => {
+  addProductToCart = async (cart, product, quantity) => {
     try {
-      const cart = await cartDAO.create(data);
-
-      if (cart.status) {
-        return cart;
-      } else {
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.databaseErrorInfo("addCart", cart.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.DATABASE_ERROR,
-        });
-      }
-    } catch (err) {
-      return { status: false, error: err };
-    }
-  };
-
-  //Añade un producto a un cart
-  addProductToCart = async (data, product, quantity) => {
-    try {
-      if (!data || !product) {
-        CustomError.createCustomError({
-          name: "Param not provided",
-          cause: infoError.notProvidedParamErrorInfo(
-            "Cart",
-            "addProductToCart",
-            [data && product]
-          ),
-          message: "There was an error reading certain parameters",
-          code: EErrors.INVALID_PARAM_ERROR,
-        });
-      }
-
-      if (
-        !quantity ||
-        typeof quantity !== "number" ||
-        quantity <= 0 ||
-        quantity > product.stock
-      ) {
-        CustomError.createCustomError({
-          name: "Invalid quantity error",
-          cause: infoError.productQuantityErrorInfo(quantity, product.stock),
-          message: "There was an error in the product's quantity provided",
-          code: EErrors.INVALID_PARAM_ERROR,
-        });
-      }
-
-      let checkExistingProduct = data.products.some(
-        (pr) => pr.product._id.toString() == product._id.toString()
+      ParamValidation.isProvided(
+        "addProductToCart",
+        ["cart", cart],
+        ["product", product],
+        ["quantity", quantity]
       );
 
-      // Envío un "error" para que el cliente haga un fetch con método PUT
+      ParamValidation.validatePattern(
+        "addProductToCart",
+        /^(?!0)\d+$/,
+        [["quantity", quantity.toString()]],
+        infoError.productQuantity(quantity, product.stock)
+      );
+      ParamValidation.validateComparison(
+        "addProductToCart",
+        parseInt(quantity),
+        ">",
+        0,
+        infoError.productQuantity(quantity, product.stock)
+      );
+      ParamValidation.validateComparison(
+        "addProductToCart",
+        parseInt(quantity),
+        "<=",
+        product.stock,
+        infoError.productQuantity(quantity, product.stock)
+      );
+
+      let checkExistingProduct = cart.products.some(
+        (pr) => pr.product._id.toString() === product._id.toString()
+      );
+      // Envío un error "update" para que el cliente haga un fetch con método PUT
       if (checkExistingProduct) {
-        return { status: "error" };
+        return { status: "update" };
       }
 
-      const cart = await cartDAO.get(data);
-
-      if (!cart.status) {
+      const updateCart = await cartDAO.get(cart);
+      if (updateCart.status === "error")
         CustomError.createCustomError({
           name: "Database error",
-          cause: infoError.databaseErrorInfo("addProductToCart", cart.error),
+          cause: infoError.unhandledDatabase("cartDAO.get", updateCart.error),
           message: "There was an error trying to consult the database",
-          code: EErrors.DATABASE_ERROR,
+          code: EErrors.UNHANDLED_DATABASE,
         });
-      }
 
-      cart.payload.products.push({
+      updateCart.payload.products.push({
         product: product._id,
-        quantity,
+        quantity: parseInt(quantity),
       });
 
-      const update = await cartDAO.update(data, cart.payload);
+      const update = await cartDAO.update(cart, updateCart.payload);
 
-      if (update.status) {
-        return update;
-      } else {
+      if (update.status === "error")
         CustomError.createCustomError({
           name: "Database error",
-          cause: infoError.databaseErrorInfo("addProductToCart", update.error),
+          cause: infoError.unhandledDatabase("cartDAO.update", update.error),
           message: "There was an error trying to consult the database",
-          code: EErrors.DATABASE_ERROR,
+          code: EErrors.UNHANDLED_DATABASE,
         });
-      }
+
+      return update;
     } catch (err) {
-      return { status: false, error: err };
+      return { status: "error", error: err };
     }
   };
 
-  //Elimina todos los productos del cart
-  deleteAllProducts = async (data) => {
+  deleteAllProducts = async (cart) => {
     try {
-      if (!data) {
-        CustomError.createCustomError({
-          name: "Param not provided",
-          cause: infoError.notProvidedParamErrorInfo(
-            "Cart",
-            "deleteAllProducts",
-            [data]
-          ),
-          message: "There was an error reading certain parameters",
-          code: EErrors.INVALID_PARAM_ERROR,
-        });
-      }
+      ParamValidation.isProvided("deleteAllProducts", ["cart", cart]);
 
-      const update = await cartDAO.update(data, {
+      const update = await cartDAO.update(cart, {
         $set: { products: [] },
       });
-
-      if (update.status) {
-        return update;
-      } else {
+      if (update.status === "error")
         CustomError.createCustomError({
           name: "Database error",
-          cause: infoError.databaseErrorInfo("deleteAllProducts", update.error),
+          cause: infoError.unhandledDatabase("cartDAO.update", update.error),
           message: "There was an error trying to consult the database",
-          code: EErrors.DATABASE_ERROR,
+          code: EErrors.UNHANDLED_DATABASE,
         });
-      }
+
+      return update;
     } catch (err) {
-      return { status: false, error: err };
+      return { status: "error", error: err };
     }
   };
 
-  //Elimina un producto de cart
-  deleteProduct = async (data, product) => {
+  deleteProduct = async (cart, product) => {
     try {
-      if (!data || !product) {
-        CustomError.createCustomError({
-          name: "Param not provided",
-          cause: infoError.notProvidedParamErrorInfo("Cart", "deleteProduct", [
-            data && product,
-          ]),
-          message: "There was an error reading certain parameters",
-          code: EErrors.INVALID_PARAM_ERROR,
-        });
-      }
+      ParamValidation.isProvided(
+        "deleteProduct",
+        ["cart", cart],
+        ["product", product]
+      );
 
-      const update = await cartDAO.update(data, {
+      const update = await cartDAO.update(cart, {
         $pull: { products: { product: product._id } },
       });
-
-      if (update.status) {
-        return update;
-      } else {
+      if (update.status === "error")
         CustomError.createCustomError({
           name: "Database error",
-          cause: infoError.databaseErrorInfo("deleteProduct", update.error),
+          cause: infoError.unhandledDatabase("cartDAO.update", update.error),
           message: "There was an error trying to consult the database",
-          code: EErrors.DATABASE_ERROR,
+          code: EErrors.UNHANDLED_DATABASE,
         });
-      }
+
+      return update;
     } catch (err) {
-      return { status: false, error: err };
+      return { status: "error", error: err };
     }
   };
 
-  //Actualiza un producto
-  updateProduct = async (data, product, quantity, state) => {
+  updateProduct = async (cart, product, quantity, state) => {
     try {
-      if (!data || !product) {
-        CustomError.createCustomError({
-          name: "Param not provided",
-          cause: infoError.notProvidedParamErrorInfo("Cart", "updateProduct", [
-            data && product,
-          ]),
-          message: "There was an error reading certain parameters",
-          code: EErrors.INVALID_PARAM_ERROR,
-        });
-      }
+      ParamValidation.isProvided(
+        "updateProduct",
+        ["cart", cart],
+        ["product", product],
+        ["quantity", quantity]
+      );
 
-      if (
-        !quantity ||
-        typeof quantity !== "number" ||
-        quantity <= 0 ||
-        quantity > product.stock
-      ) {
-        CustomError.createCustomError({
-          name: "Invalid quantity error",
-          cause: infoError.productQuantityErrorInfo(quantity, product.stock),
-          message: "There was an error in the product's quantity provided",
-          code: EErrors.INVALID_PARAM_ERROR,
-        });
-      }
+      ParamValidation.validatePattern(
+        "updateProduct",
+        /^(?!0)\d+$/,
+        [["quantity", quantity.toString()]],
+        infoError.productQuantity(quantity, product.stock)
+      );
+      ParamValidation.validateComparison(
+        "updateProduct",
+        parseInt(quantity),
+        ">",
+        0,
+        infoError.productQuantity(quantity, product.stock)
+      );
+      ParamValidation.validateComparison(
+        "updateProduct",
+        parseInt(quantity),
+        "<=",
+        product.stock,
+        infoError.productQuantity(quantity, product.stock)
+      );
 
-      const cart = await cartDAO.get(data);
-
-      if (!cart.status) {
+      const updateCart = await cartDAO.get(cart);
+      if (updateCart.status === "error")
         CustomError.createCustomError({
           name: "Database error",
-          cause: infoError.databaseErrorInfo("updateProduct", cart.error),
+          cause: infoError.unhandledDatabase("cartDAO.get", updateCart.error),
           message: "There was an error trying to consult the database",
-          code: EErrors.DATABASE_ERROR,
+          code: EErrors.UNHANDLED_DATABASE,
         });
-      }
 
       //Aumento la cantidad del producto con el pid específico
-      const productToUpdate = cart.payload.products.find(
+      const updateProduct = updateCart.payload.products.find(
         (p) => p.product._id.toString() === product._id.toString()
       );
 
       if (state === "add") {
-        productToUpdate.quantity += quantity;
+        updateProduct.quantity += quantity;
       } else if (state === "edit") {
-        productToUpdate.quantity = quantity;
+        updateProduct.quantity = quantity;
       }
 
-      const update = await cartDAO.update(data, cart.payload);
-
-      if (update.status) {
-        return update;
-      } else {
+      const update = await cartDAO.update(cart, updateCart.payload);
+      if (update.status === "error")
         CustomError.createCustomError({
           name: "Database error",
-          cause: infoError.databaseErrorInfo("updateProduct", update.error),
+          cause: infoError.unhandledDatabase("cartDAO.update", update.error),
           message: "There was an error trying to consult the database",
-          code: EErrors.DATABASE_ERROR,
+          code: EErrors.UNHANDLED_DATABASE,
         });
-      }
+
+      return update;
     } catch (err) {
-      return { status: false, error: err };
+      return { status: "error", error: err };
     }
   };
 
-  //Actualiza el carrito
-  updateCart = async (data, arr) => {
+  updateCart = async (cart, arr) => {
     try {
-      if (!data) {
-        CustomError.createCustomError({
-          name: "Param not provided",
-          cause: infoError.notProvidedParamErrorInfo("Cart", "updateCart", [
-            data,
-          ]),
-          message: "There was an error reading certain parameters",
-          code: EErrors.INVALID_PARAM_ERROR,
-        });
-      }
+      ParamValidation.isProvided("updateCart", ["cart", cart]);
+      ParamValidation.validateDatatype(
+        "updateCart",
+        "array",
+        arr,
+        infoError.productsInserted()
+      );
 
-      if (!(arr instanceof Array)) {
-        CustomError.createCustomError({
-          name: "Products to insert Error",
-          cause: infoError.productsInsertedErrorInfo(),
-          message: "There was an error in the product's array",
-          code: EErrors.INVALID_PARAM_ERROR,
-        });
-      }
       for (const object of arr) {
         for (const key in object) {
           if (key !== "product" && key !== "quantity")
             CustomError.createCustomError({
-              name: "Products to insert Error",
-              cause: infoError.productsInsertedErrorInfo(),
-              message: "There was an error in the product's array",
-              code: EErrors.INVALID_PARAM_ERROR,
+              name: "Invalid parameter Error",
+              cause: infoError.invalidParam({
+                message: infoError.productsInserted(),
+                method,
+              }),
+              message: `One or more parameters did not pass their respective validations.`,
+              code: EErrors.INVALID_PARAM,
             });
         }
       }
 
-      const update = await cartDAO.update(data, {
+      const update = await cartDAO.update(cart, {
         $addToSet: { products: { $each: arr } },
       });
-
-      if (update.status) {
-        return update;
-      } else {
+      if (update.status === "error")
         CustomError.createCustomError({
           name: "Database error",
-          cause: infoError.databaseErrorInfo("insertProducts", update.error),
+          cause: infoError.unhandledDatabase("cartDAO.update", update.error),
           message: "There was an error trying to consult the database",
-          code: EErrors.DATABASE_ERROR,
+          code: EErrors.UNHANDLED_DATABASE,
         });
-      }
+
+      return update;
     } catch (err) {
-      return { status: false, error: err };
+      return { status: "error", error: err };
     }
   };
 
-  purchaseProducts = async (data, user) => {
+  purchaseProducts = async (cart, user) => {
     try {
-      if (!data || !user) {
-        CustomError.createCustomError({
-          name: "Param not provided",
-          cause: infoError.notProvidedParamErrorInfo("Cart", "getCartById", [
-            data && user,
-          ]),
-          message: "There was an error reading certain parameters",
-          code: EErrors.INVALID_PARAM_ERROR,
-        });
-      }
+      ParamValidation.isProvided(
+        "purchaseProducts",
+        ["cart", cart],
+        ["user", cart]
+      );
 
-      const cart = await cartDAO.get(data),
-        products = await productService.getProducts();
-
-      if (!cart.status) {
+      const userCart = await cartDAO.get(cart);
+      if (userCart.status === "error")
         CustomError.createCustomError({
           name: "Database error",
-          cause: infoError.databaseErrorInfo("purchaseProducts", cart.error),
+          cause: infoError.unhandledDatabase("cartDAO.get", userCart.error),
           message: "There was an error trying to consult the database",
-          code: EErrors.DATABASE_ERROR,
+          code: EErrors.UNHANDLED_DATABASE,
         });
-      }
 
-      if (!products.status) throw products.error;
+      const products = await productService.getProducts();
+      if (products.status === "error") throw products.error;
 
       let amount = 0,
         unprocessed = [];
 
-      cart.payload.products.forEach(async (pref) => {
+      userCart.payload.products.forEach(async (pref) => {
         const product = products.payload.docs.find(
           (p) => pref.product._id.toString() === p._id.toString()
         );
@@ -361,27 +305,28 @@ class CartService {
         if (product.stock >= pref.quantity) {
           amount += product.price * pref.quantity;
 
-          const update = await productService.updateProduct(product, {
-            $set: { stock: product.stock - pref.quantity },
-          });
-
-          if (!update.status) throw update.error;
+          const updateProductStock = await productService.updateProduct(
+            product,
+            {
+              $set: { stock: product.stock - pref.quantity },
+            }
+          );
+          if (updateProductStock.status === "error")
+            throw updateProductStock.error;
         } else {
-          console.log("PRODUCTO NO PROCESADO");
           unprocessed.push(pref);
         }
       });
 
-      if (amount === 0) {
-        CustomError.createCustomError({
-          name: "No products processed error",
-          cause: infoError.noProductsProcessedErrorInfo(),
-          message: "There was an error processing products",
-          code: EErrors.DATABASE_ERROR,
-        });
-      }
+      ParamValidation.validateComparison(
+        "purchaseProducts",
+        amount,
+        "!==",
+        0,
+        infoError.noProductsProcessed()
+      );
 
-      let code = Math.round(Math.random() * 10000).toString();
+      let code = Math.round(Math.random() * 10000 + 1000).toString();
 
       const ticketData = {
         code,
@@ -390,26 +335,21 @@ class CartService {
         purchaser: user.email,
       };
 
-      const deleted = await this.deleteAllProducts(cart.payload);
+      const deleteProducts = await this.deleteAllProducts(userCart.payload);
+      if (deleteProducts.status === "error") throw deleteProducts.error;
 
-      if (!deleted.status) throw deleted.error;
-
-      const updated = await this.updateCart(
-        { _id: cart.payload._id },
+      const updateCart = await this.updateCart(
+        { _id: userCart.payload._id },
         unprocessed
       );
-
-      if (!updated.status) throw updated.error;
+      if (updateCart.status === "error") throw updateCart.error;
 
       const ticket = await ticketService.createTicket(ticketData);
+      if (ticket.status === "error") throw ticket.error;
 
-      if (ticket.status) {
-        return ticket;
-      } else {
-        throw ticket.error;
-      }
+      return ticket;
     } catch (err) {
-      return { status: false, error: err };
+      return { status: "error", error: err };
     }
   };
 }

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose"),
   paginate = require("mongoose-paginate-v2");
 
-const cartCollection = "carts";
+const CART_COLLECTION = "carts";
 
 const cartSchema = new mongoose.Schema({
   products: [
@@ -9,8 +9,12 @@ const cartSchema = new mongoose.Schema({
       product: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "products",
+        match: /^[a-f\d]{24}$/i,
       },
-      quantity: Number,
+      quantity: {
+        type: Number,
+        match: /^(?!0)\d+$/,
+      },
     },
   ],
 });
@@ -21,6 +25,6 @@ cartSchema.pre("find", function () {
 
 cartSchema.plugin(paginate);
 
-const CartModel = mongoose.model(cartCollection, cartSchema);
+const CartModel = mongoose.model(CART_COLLECTION, cartSchema);
 
 module.exports = CartModel;

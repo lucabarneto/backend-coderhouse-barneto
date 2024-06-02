@@ -1,4 +1,5 @@
 const express = require("express"),
+  ParamValidation = require("../utils/validations.js"),
   CustomError = require("../services/errors/custom_error.js"),
   infoError = require("../services/errors/info_error.js"),
   EErrors = require("../services/errors/enum_error.js");
@@ -35,55 +36,67 @@ class Router {
 
     res.sendRedirect = (url) => res.status(301).redirect(url);
 
-    res.sendUserError = (error) =>
-      res.status(400).send({ status: "error", status_code: 400, error });
+    res.sendUserError = (error, message = "An error occurred") =>
+      res
+        .status(400)
+        .send({ status: "error", status_code: 400, error, message });
+
+    res.sendAuthenticationError = (error, message = "An error occurred") =>
+      res
+        .status(401)
+        .send({ status: "error", status_code: 401, error, message });
+
+    res.sendAuthorizationError = (error, message = "An error occurred") =>
+      res
+        .status(403)
+        .send({ status: "error", status_code: 403, error, message });
+
+    res.sendNotFoundError = (error, message = "An error occurred") =>
+      res
+        .status(404)
+        .send({ status: "error", status_code: 404, error, message });
+
+    res.sendServerError = (error, message = "An error occurred") =>
+      res
+        .status(500)
+        .send({ status: "error", status_code: 500, error, message });
 
     res.sendUnhandledError = () =>
       res
-        .status(400)
-        .send({ status: "error", status_code: 400, error: "Unhandled Error" });
-
-    res.sendAuthenticationError = (error) =>
-      res.status(401).send({ status: "error", status_code: 401, error });
-
-    res.sendAuthorizationError = (error) =>
-      res.status(403).send({ status: "error", status_code: 403, error });
-
-    res.sendNotFoundError = (error) =>
-      res.status(404).send({ status: "error", status_code: 404, error });
-
-    res.sendServerError = (error) =>
-      res.status(500).send({ status: "error", status_code: 500, error });
+        .status(500)
+        .send({ status: "error", status_code: 500, error: "Unhandled Error" });
 
     next();
   }
 
-  handlePolicies(policies = []) {
-    if (!(policies instanceof Array) || policies.length === 0) {
-      CustomError.createCustomError({
-        name: "Incorrect policies error",
-        cause: infoError.incorrectPolicyErrorInfo(policies),
-        message: "There was an error in the given policies for the endpoint",
-        code: EErrors.INVALID_PARAM_ERROR,
-      });
-    }
+  handlePolicies(policies) {
+    ParamValidation.validateDatatype(
+      "handlePolicies",
+      "array",
+      policies,
+      infoError.incorrectPolicyErrorInfo(policies)
+    );
+    ParamValidation.validateComparison(
+      "handlePolicies",
+      policies.length,
+      "!==",
+      0,
+      infoError.incorrectPolicyErrorInfo(policies)
+    );
 
     for (const policy of policies) {
-      if (
-        typeof policy !== "string" ||
-        policy.match(/^[A-Z]+$/) === null ||
-        (policy !== "PUBLIC" &&
-          policy !== "USER" &&
-          policy !== "ADMIN" &&
-          policy !== "PREMIUM")
-      ) {
-        CustomError.createCustomError({
-          name: "Incorrect policies error",
-          cause: infoError.incorrectPolicyErrorInfo(policies),
-          message: "There was an error in the given policies for the endpoint",
-          code: EErrors.INVALID_PARAM_ERROR,
-        });
-      }
+      ParamValidation.validateDatatype(
+        "handlePolicies",
+        "string",
+        policy,
+        infoError.incorrectPolicyErrorInfo(policies)
+      );
+      ParamValidation.validatePattern(
+        "handlePolicies",
+        /^(PUBLIC|USER|ADMIN|PREMIUM)$/,
+        [["policy", policy]],
+        infoError.incorrectPolicyErrorInfo(policies)
+      );
     }
 
     return (req, res, next) => {

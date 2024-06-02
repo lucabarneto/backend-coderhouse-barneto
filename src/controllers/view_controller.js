@@ -1,13 +1,13 @@
 const ProductService = require("../services/product_service.js"),
   CartService = require("../services/cart_service.js"),
-  UserService = require("../services/user_service.js"),
   TicketService = require("../services/ticket.service.js"),
-  CustomError = require("../services/errors/custom_error.js");
+  CustomError = require("../services/errors/custom_error.js"),
+  infoError = require("../services/errors/info_error.js"),
+  EErrors = require("../services/errors/enum_error.js");
 
 const productService = new ProductService(),
   cartService = new CartService(),
-  ticketService = new TicketService(),
-  userService = new UserService();
+  ticketService = new TicketService();
 
 class ViewController {
   renderProducts = async (req, res) => {
@@ -15,7 +15,7 @@ class ViewController {
       const products = await productService.getProducts();
 
       const productsToJSON = JSON.stringify(products);
-      if (products.status) {
+      if (products.status === "success") {
         return res.render("home", {
           products: JSON.parse(productsToJSON).payload.docs,
           profile: req.user,
@@ -33,7 +33,7 @@ class ViewController {
       const products = await productService.getProducts();
 
       const productsToJSON = JSON.stringify(products);
-      if (products.status) {
+      if (products.status === "success") {
         return res.render("realTimeProducts", {
           products: JSON.parse(productsToJSON).payload.docs,
         });
@@ -82,7 +82,7 @@ class ViewController {
       let pid = req.params.id;
       const product = await productService.getProductById(pid);
 
-      if (product.status) {
+      if (product.status === "success") {
         return res.render("product", {
           product: product.payload.toJSON(),
           profile: req.user,
@@ -98,9 +98,21 @@ class ViewController {
   renderCart = async (req, res) => {
     try {
       let cid = req.params.id;
+
+      if (req.user.cart._id !== cid)
+        CustomError.createCustomError({
+          name: "Authorization error",
+          cause: infoError.notAuthorized({
+            userRole: req.user.role,
+            policy: req.policy,
+          }),
+          message: "User was unauthorized to enter this page",
+          code: EErrors.FORBIDDEN,
+        });
+
       const cart = await cartService.getCartById(cid);
 
-      if (cart.status) {
+      if (cart.status === "success") {
         return res.render("cart", {
           cart: cart.payload.toJSON(),
           profile: req.user,
@@ -119,7 +131,7 @@ class ViewController {
 
       const ticket = await ticketService.getTicketById(tid);
 
-      if (ticket.status) {
+      if (ticket.status === "success") {
         return res.sendSuccess(ticket.payload);
       } else {
         throw ticket.error;
@@ -130,21 +142,26 @@ class ViewController {
   };
 
   renderControl = async (req, res) => {
-    const products = await productService.getProducts();
+    try {
+      const products = await productService.getProducts();
+      if (products.status === "error") throw products.error;
 
-    const userProducts = JSON.stringify(
-      products.payload.docs.filter((pr) => pr.owner === req.user._id)
-    );
+      const userProducts = JSON.stringify(
+        products.payload.docs.filter((pr) => pr.owner === req.user._id)
+      );
 
-    const productsToJSON = JSON.stringify(products);
+      const productsToJSON = JSON.stringify(products);
 
-    return res.render("control", {
-      profile: req.user,
-      products:
-        req.user.role === "premium"
-          ? JSON.parse(userProducts)
-          : JSON.parse(productsToJSON).payload.docs,
-    });
+      return res.render("control", {
+        profile: req.user,
+        products:
+          req.user.role === "premium"
+            ? JSON.parse(userProducts)
+            : JSON.parse(productsToJSON).payload.docs,
+      });
+    } catch (err) {
+      CustomError.handleError(err, req, res);
+    }
   };
 }
 

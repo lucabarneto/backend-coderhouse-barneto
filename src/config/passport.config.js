@@ -1,12 +1,15 @@
+const infoError = require("../services/errors/info_error.js");
+
 const UserService = require("../services/user_service.js"),
   CartService = require("../services/cart_service.js"),
-  bcrypt = require("../utils/bcrypt.js"),
+  Encryption = require("../utils/bcrypt.js"),
   config = require("../config/config.js"),
   passport = require("passport"),
   LocalStrategy = require("passport-local").Strategy,
   GithubStrategy = require("passport-github2").Strategy,
   JwtStrategy = require("passport-jwt").Strategy,
-  ExtractJwt = require("passport-jwt").ExtractJwt;
+  ExtractJwt = require("passport-jwt").ExtractJwt,
+  ParamValidation = require("../utils/validations.js");
 
 const userService = new UserService(),
   cartService = new CartService();
@@ -28,24 +31,22 @@ const intilializePassport = () => {
       { usernameField: "email", passReqToCallback: true },
       async (req, username, password, done) => {
         try {
-          let { firstName, lastName, email, tel } = req.body;
+          let { firstName, lastName, tel } = req.body;
 
-          const user = await userService.getUserByEmail(username);
-          if (user.status) {
-            return done(
-              "An account already exists with the following email: " + username
-            );
-          }
+          ParamValidation.validatePattern("passport register", /^[a-zñ\d]+$/i, [
+            ["password", password],
+          ]);
 
           const userCart = await cartService.addCart();
+          if (userCart.status === "error") throw userCart.error;
 
           const userData = {
             firstName,
             lastName,
-            email,
+            email: username,
             tel,
-            password: bcrypt.createHash(password),
-            cart: userCart.payload._id,
+            password: Encryption.createHash(password),
+            cart: userCart.payload._id.toString(),
             role:
               username === config.admin.email &&
               password === config.admin.password
@@ -53,14 +54,12 @@ const intilializePassport = () => {
                 : "user",
           };
 
-          const result = await userService.saveUser(userData);
-          if (result.status) {
-            return done(null, result.payload);
-          } else {
-            return done(result.error);
-          }
+          const result = await userService.saveUser(userData, "local");
+          if (result.status === "error") throw result.error;
+
+          return done(null, result.payload);
         } catch (err) {
-          return done("An error has occurred: " + err);
+          return done(err);
         }
       }
     )
@@ -73,11 +72,20 @@ const intilializePassport = () => {
       async (username, password, done) => {
         try {
           const user = await userService.getUserByEmail(username);
-          if (!user.status)
-            return done("A user with the email " + username + " doesn't exist");
+          if (user.status === "error") throw user.error;
 
-          let checkPassword = bcrypt.validatePassword(user.payload, password);
-          if (!checkPassword) return done("Password is incorrect");
+          let checkPassword = Encryption.validatePassword(
+            user.payload,
+            password
+          );
+
+          ParamValidation.validateComparison(
+            "passport login",
+            checkPassword,
+            "===",
+            true,
+            "Incorrect email or password"
+          );
 
           const userDTO = {
             _id: user.payload._id,
@@ -89,7 +97,7 @@ const intilializePassport = () => {
 
           return done(null, userDTO);
         } catch (err) {
-          return done(err.message);
+          return done(err);
         }
       }
     )
@@ -115,36 +123,34 @@ const intilializePassport = () => {
 
           const user = await userService.getUserByEmail(email || html_url);
 
-          if (!user.status) {
+          if (user.status === "error") {
             const userCart = await cartService.addCart();
+            if (userCart.status === "error") throw userCart.error;
 
             const githubUser = {
               firstName: name || login,
-              lastName: "",
+              lastName: "unprovided",
               email: email || html_url,
-              tel: 0,
-              password: "",
-              cart: userCart.payload._id,
+              tel: 1,
+              password: "unprovided",
+              cart: userCart.payload._id.toString(),
               role: "user",
               github: profile,
             };
 
-            const result = await userService.saveUser(githubUser);
+            const result = await userService.saveUser(githubUser, "github");
+            if (result.status === "error") throw result.error;
 
-            if (result.status) {
-              userDTO.cart = userCart.payload;
+            userDTO.cart = userCart.payload;
 
-              return done(null, userDTO);
-            } else {
-              return done(result.error);
-            }
+            return done(null, userDTO);
           } else {
             userDTO.cart = user.payload.cart;
 
             return done(null, userDTO);
           }
         } catch (err) {
-          return done("An error has occurred: " + err);
+          return done(err);
         }
       }
     )
@@ -159,11 +165,14 @@ const intilializePassport = () => {
       },
       async (jwt_payload, done) => {
         try {
-          if (!jwt_payload) return done("No payload from jwt");
+          ParamValidation.isProvided("passport jwt", [
+            "jwt_payload",
+            jwt_payload,
+          ]);
 
           return done(null, jwt_payload.user);
         } catch (err) {
-          return done("An error has occurred: " + err);
+          return done(err);
         }
       }
     )

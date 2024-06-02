@@ -1,59 +1,68 @@
-const Product = require("../../models/product.model");
+const Product = require("../../models/product.model.js");
 
 class ProductMongo {
   constructor() {}
 
-  get = async () => {
+  get = async (data) => {
+    try {
+      const product = await Product.findOne(data);
+      return { status: "success", payload: product[0] };
+    } catch (err) {
+      return { status: "error", payload: null };
+    }
+  };
+
+  getAll = async () => {
     try {
       const products = await Product.find();
-      return { status: true, payload: products };
+      return { status: "success", payload: products };
     } catch (err) {
-      return { status: false, error: err.message };
+      return { status: "error", error: err.message };
     }
   };
 
   getById = async (id) => {
     try {
       const product = await Product.find({ _id: id });
-      return { status: true, payload: product[0] };
+      return { status: "success", payload: product[0] };
     } catch (err) {
-      return { status: false, error: err.message };
+      return { status: "error", error: err.message };
     }
   };
 
   create = async (data) => {
     try {
       const product = await Product.create(data);
-      return { status: true, payload: product };
+      return { status: "success", payload: product };
     } catch (err) {
-      return { status: false, error: err.message };
+      return { status: "error", error: err.message };
     }
   };
 
   update = async (data, update) => {
     try {
       await Product.updateOne(data, update);
-      return { status: true, payload: "Product updated successfully" };
+      return { status: "success", payload: "Product updated successfully" };
     } catch (err) {
-      return { status: false, error: err.message };
+      return { status: "error", error: err.message };
     }
   };
 
   delete = async (data) => {
     try {
       await Product.deleteOne(data);
-      return { status: true, payload: "Product deleted successfully" };
+      return { status: "success", payload: "Product deleted successfully" };
     } catch (err) {
-      return { status: false, error: err.message };
+      return { status: "error", error: err.message };
     }
   };
 
   paginate = async (queries, options) => {
     try {
       const products = await Product.paginate(queries, options);
-      return { status: true, payload: products };
+      return { status: "success", payload: products };
     } catch (err) {
-      return { status: false, error: err.message };
+      return { status: "error", error: err.message };
     }
   };
 }
