@@ -14,7 +14,9 @@ const express = require("express"),
   passport = require("passport"),
   config = require("./config/config.js"),
   compression = require("express-compression"),
-  addLogger = require("./middleware/logger.js");
+  addLogger = require("./middleware/logger.js"),
+  swaggerUIExpress = require("swagger-ui-express"),
+  swaggerSpecs = require("./config/swagger.config.js");
 
 const app = express();
 
@@ -47,6 +49,13 @@ app.set("view engine", "handlebars");
 
 //Configuro carpeta public
 app.use(express.static(__dirname + "/public"));
+
+// Configuro documentación con Swagger
+app.use(
+  "/apidocs",
+  swaggerUIExpress.serve,
+  swaggerUIExpress.setup(swaggerSpecs)
+);
 
 //Configuro middlewares de cookies
 app.use(cookieparser()); // AGREGAR SECRETO

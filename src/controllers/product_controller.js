@@ -36,7 +36,7 @@ class productController {
       );
 
       if (products.status === "success") {
-        return res.sendCreatedSuccess(products.payload);
+        return res.sendSuccess(products.payload);
       } else {
         throw products.error;
       }

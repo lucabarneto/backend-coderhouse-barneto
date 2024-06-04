@@ -135,7 +135,7 @@ class ProductService {
       ParamValidation.validateComparison(
         "getProducts",
         page,
-        ">=",
+        "<=",
         Math.ceil(products.payload.length / limit),
         infoError.productPagination({
           limit,

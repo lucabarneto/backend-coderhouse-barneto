@@ -40,7 +40,7 @@ const productSchema = new mongoose.Schema({
     type: String,
     require: true,
     default: "admin",
-    match: /(admin|(^[a-f\d]{24}$))/i,
+    match: /^(admin|([a-f\d]{24}))$/i,
   },
 });
 

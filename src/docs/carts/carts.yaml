@@ -1,0 +1,245 @@
+#
+#
+# Paths
+
+paths:
+  /api/carts/:
+    post:
+      summary: Añade un carrito a la base de datos
+      tags:
+        - Carts
+      responses:
+        "201":
+          description: La operación fue exitosa. Se devuelve un objeto con el nuevo carrito creado.
+        "500":
+          description: Ocurrió un error. Hubo un error interno del servidor.
+
+  #
+
+  /api/carts/{cid}:
+    parameters:
+      - cidParam:
+        name: cid
+        in: path
+        description: el id específico del carrito.
+        required: true
+        schema:
+          type: ObjectId
+        example: 66575ae01981f8a52fb63c6e
+    get:
+      summary: Obtiene un carrito específico.
+      tags:
+        - Carts
+      responses:
+        "200":
+          description: La operación fue exitosa. Se devuelve un array con los productos del carrito específico.
+        "400":
+          description: Ocurrió un error. El id enviado por URL no pasó validaciones.
+        "404":
+          description: Ocurrió un error. No se encontró el carrito específico.
+        "500":
+          description: Ocurrió un error. Hubo un error interno del servidor.
+    put:
+      description: Agrega un array de productos al carrito específico. Los productos deben tener el formato de producto del esquema de Carts
+      tags:
+        - Carts
+      requestBody:
+        $ref: "#/components/requestBodies/insertProducts"
+      responses:
+        "201":
+          description: La operación fue exitosa. Se devuelve un texto indicando que el carrito fue actualizado.
+        "400":
+          description: Ocurrió un error. El id enviado por URL no pasó validaciones, o bien uno o más productos enviados en el request body no pasaron sus respectivas validaciones.
+        "404":
+          description: Ocurrió un error. No se encontró el carrito específico.
+        "500":
+          description: Ocurrió un error. Hubo un error interno del servidor.
+    delete:
+      summary: Elimina todos los productos de un carrito específico.
+      tags:
+        - Carts
+      responses:
+        "200":
+          description: La operación fue exitosa. Se devuelve un texto indicando que los productos fueron eliminados del carrito.
+        "400":
+          description: Ocurrió un error. El id enviado por URL no pasó validaciones.
+        "404":
+          description: Ocurrió un error. No se encontró el carrito específico.
+        "500":
+          description: Ocurrió un error. Hubo un error interno del servidor.
+  #
+
+  /api/carts/{cid}/products/{pid}:
+    parameters:
+      - cidParam:
+        name: cid
+        in: path
+        description: el id específico del carrito.
+        required: true
+        schema:
+          type: ObjectId
+        example: 66575ae01981f8a52fb63c6e
+      - pidParam:
+        name: pid
+        in: path
+        description: el id específico del producto.
+        required: true
+        schema:
+          type: ObjectId
+        example: 665cb5b2ff4c8f94a801b977
+
+    post:
+      summary: Añade un producto específico a un carrito específico.
+      tags:
+        - Carts
+      requestBody:
+        $ref: "#/components/requestBodies/addProductToCart"
+      responses:
+        "201":
+          description: La operación fue exitosa. Se devuelve un texto indicando que el carrito fue actualizado
+        "400":
+          description: Ocurrió un error. Alguno o ambos ids enviados por URL no pasaron sus respectivas validaciones. De otra forma, la cantidad enviada por el requestBody no pasó validaciones.
+        "404":
+          description: Ocurrió un error. No se encontró el carrito o el producto específico.
+        "500":
+          description: Ocurrió un error. Hubo un error interno del servidor.
+
+    put:
+      summary: Actualiza la cantidad de un producto específico de un carrito específico.
+      tags:
+        - Carts
+      requestBody:
+        $ref: "#/components/requestBodies/updateProductQuantity"
+      responses:
+        "201":
+          description: La operación fue exitosa. Se devuelve un texto indicando que el carrito fue actualizado.
+        "400":
+          description: Ocurrió un error. Alguno o ambos ids enviados por URL no pasaron sus respectivas validaciones. De otra forma, la cantidad o el state enviados por el requestBody no pasó validaciones.
+        "404":
+          description: Ocurrió un error. No se encontró el carrito o el producto específico.
+        "500":
+          description: Ocurrió un error. Hubo un error interno del servidor.
+
+    delete:
+      summary: Elimina un producto específico de un carrito específico.
+      tags:
+        - Carts
+      responses:
+        "200":
+          description: La operación fue exitosa. Se devuelve un texto indicando que el productos fue eliminado del carrito.
+        "400":
+          description: Ocurrió un error. Alguno o ambos ids enviados por URL no pasaron sus respectivas validaciones.
+        "404":
+          description: Ocurrió un error. No se encontró el carrito o producto específico.
+        "500":
+          description: Ocurrió un error. Hubo un error interno del servidor.
+
+  /api/carts/{cid}/purchase:
+    parameters:
+      - cidParam:
+        name: cid
+        in: path
+        description: el id específico del carrito.
+        required: true
+        schema:
+          type: ObjectId
+        example: 66575ae01981f8a52fb63c6e
+    post:
+      summary: Realiza la compra del producto, actualiza el stock del mismo y vacía el carrito.
+      tags:
+        - Carts
+      responses:
+        "200":
+          description: La operación fue exitosa. Se devuelve un objeto con el ticket de compra.
+        "400":
+          description: Ocurrió un error. El id enviado por URL no pasó validaciones. De otra forma, ningún producto en el carrito fue procesado-
+        "404":
+          description: Ocurrió un error. No se encontró el carrito específico.
+        "500":
+          description: Ocurrió un error. Hubo un error interno del servidor.
+#
+#
+# Components
+
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: Id autogenerado por mongo
+          pattern: /^[a-f\d]{24}$/
+        products:
+          type: array
+          description: Array con todos los productos dentro del carrito.
+          items:
+            type: object
+            description: Producto dentro del carrito.
+            properties:
+              product:
+                type: ObjectId
+                description: Id que referencia a un producto en la base de datos
+                pattern: /^[a-f\d]{24}$/
+              quantity:
+                type: Number
+                description: Cantidad del producto específico en el carrito. No debe ser superior al stock del producto.
+                pattern: /^(?!0)\d+$/
+      example:
+        _id: ObjectId("665c99de4e31990aacb59d3a")
+        products:
+          - product:
+              _id: ObjectId("66575ae01981f8a52fb63c6e")
+              title: Cuadro Rana Hechizera
+              description: Aquí va la descripción del producto
+              price: 65
+              thumbnails: []
+              code: 38569
+              stock: 45
+              category: Abstracto
+              owner: admin
+            quantity: 1
+  requestBodies:
+    insertProducts:
+      required: true
+      description: Un array con productos para agregar al carrito
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Cart"
+            example:
+              - product: ObjectId("665c99de4e31990aacb59d3a")
+                quantity: 1
+              - product: ObjectId("665c98aeb7c3f3bee24f315d")
+                quantity: 3
+    addProductToCart:
+      required: true
+      description: Un objeto con la cantidad del producto
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              quantity:
+                type: Number
+                description: La cantidad del producto a a gregar al carrito
+            example:
+              quantity: 5
+    updateProductQuantity:
+      required: true
+      description: Un objeto con la cantidad del producto a actualizar y un estado de actualización
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              quantity:
+                type: Number
+                description: La cantidad del producto a a gregar al carrito
+              state:
+                type: String
+                description: Describe el estado de actualización, para determinar si la cantidad en el request body se debe sumar a la ya existente, o debe reemplazarla
+                enum: ["add", "edit"]
+            example:
+              quantity: 5
+              state: edit

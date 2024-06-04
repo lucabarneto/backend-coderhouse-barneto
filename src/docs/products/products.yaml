@@ -1,0 +1,227 @@
+#
+#
+# Paths
+
+paths:
+  /api/products/:
+    get:
+      summary: Obtiene todos los productos disponibles paginados.
+      tags:
+        - Products
+      responses:
+        "200":
+          description: La operación fue exitosa. Se devuelve un objeto con los productos paginados en su propiedad "docs".
+        "400":
+          description: Ocurrió un error. Uno o más parámetros enviados por queries no pasaron sus respectivas validaciones.
+        "404":
+          description: Ocurrió un error. No se encontraron los productos buscados.
+        "500":
+          description: Ocurrió un error. Hubo un error interno del servidor.
+      parameters:
+        - limitParam:
+          name: limit
+          in: query
+          description: Especifica la cantidad de documentos que se pueden mostrar en la interfaz.
+          required: false
+          schema:
+            type: Number
+            default: 10
+        - pageParam:
+          name: page
+          in: query
+          description: Especifica qué página se debe mostrar en la interfaz.
+          required: false
+          schema:
+            type: Number
+            default: 1
+        - sortParam:
+          name: sort
+          in: query
+          description: Especifica el orden en el que deben aparecer los productos, basado en su precio. Sus posibles valoes son 1 y -1
+          required: false
+          schema:
+            type: Number
+            default: 0
+          example: 1
+        - queriesParam:
+          name: queries
+          in: query
+          description: Agrega filtros de búsqueda en cuanto al stock y categoría del producto
+          required: false
+          schema:
+            type: object
+            default: {}
+
+    post:
+      summary: Agrega un producto a la base de datos
+      tags:
+        - Products
+      requestBody:
+        $ref: "#/components/requestBodies/addProduct"
+      responses:
+        "201":
+          description: La operación fue exitosa. Se devuelve un objeto con el nuevo producto creado.
+        "400":
+          description: Ocurrió un error. Una o más propiedades del request body no pasaron sus respectivas validaciones, o el producto a crear ya existía en la base de datos.
+        "500":
+          description: Ocurrió un error. Hubo un error interno del servidor.
+
+  #
+
+  /api/products/{pid}:
+    parameters:
+      - pidParam:
+        name: pid
+        in: path
+        description: el id específico del producto.
+        required: true
+        schema:
+          type: ObjectId
+        example: 665cb5b2ff4c8f94a801b977
+
+    get:
+      summary: Obtiene un producto específico.
+      tags:
+        - Products
+      responses:
+        "200":
+          description: La operación fue exitosa. Se devuelve un objeto con el producto específico.
+        "400":
+          description: Ocurrió un error. El id enviado por URL no pasó validaciones.
+        "404":
+          description: Ocurrió un error. No se encontró el producto específico.
+        "500":
+          description: Ocurrió un error. Hubo un error interno del servidor.
+
+    put:
+      summary: Actualiza un producto específico
+      tags:
+        - Products
+      requestBody:
+        $ref: "#/components/requestBodies/updateProduct"
+      responses:
+        "201":
+          description: La operación fue exitosa. Se devuelve un texto indicando que el producto fue actualizado.
+        "400":
+          description: Ocurrió un error. Una o más propiedades del request body no pasaron sus respectivas validaciones.
+        "404":
+          description: Ocurrió un error. No se encontró el producto específico.
+        "500":
+          description: Ocurrió un error. Hubo un error interno del servidor.
+
+    delete:
+      summary: Elimina un producto específico
+      tags:
+        - Products
+      responses:
+        "200":
+          description: La operación fue exitosa. Se devuelve un texto indicando que el producto fue eliminado.
+        "400":
+          description: Ocurrió un error. El id enviado por URL no pasó validaciones.
+        "404":
+          description: Ocurrió un error. No se encontró el producto específico.
+        "500":
+          description: Ocurrió un error. Hubo un error interno del servidor.
+
+  #
+
+  /api/products/mockingproducts:
+    get:
+      summary: Genera productos falsos sobre los cuales realizar testings
+      tags:
+        - Products
+      responses:
+        "200":
+          description: La operación fue exitosa. Se devuelve un objeto con el producto específico.
+#
+#
+# Components
+
+components:
+  schemas:
+    Product:
+      type: object
+      required:
+        - title
+        - price
+        - stock
+        - code
+        - description
+        - category
+        - owner
+      properties:
+        _id:
+          type: Objectid
+          description: Id autogenerado por mongo
+          pattern: /^[a-f\d]{24}$/
+        title:
+          type: String
+          description: Título del producto
+          pattern: /^[a-zñáéíóúü0-9-\+/#,\.\$&\(\)\s]+$/i
+        description:
+          type: String
+          description: Descripción del producto
+        price:
+          type: Number
+          description: Precio del producto. No puede empezar con 0
+          pattern: /^(?!0)\d+$/
+        code:
+          type: Number
+          description: Código del producto.
+          pattern: /^\d{5}$/
+        stock:
+          type: Number
+          description: Stock del producto. No puede empezar con 0
+          pattern: /^(?!0)\d+$/
+        thumbnails:
+          type: array
+          description: Imágenes del producto
+          items:
+            type: String
+            description: Imagen particular del producto
+        category:
+          type: String
+          description: Categoría en la que cae el producto
+          enum: [Anime, Paisajes, Sci-Fi, Abstracto, Retratos]
+        owner:
+          type: String
+          description: ID del dueño del producto. Si no posee dueño, su valor es "admin"
+          default: admin
+          pattern: /(admin|(^[a-f\d]{24}$))/i
+      example:
+        _id: ObjectId("66575ae01981f8a52fb63c6e")
+        title: Cuadro Rana Hechizera
+        description: Aquí va la descripción del producto
+        price: 65
+        thumbnails: []
+        code: 38569
+        stock: 45
+        category: Abstracto
+        owner: admin
+
+  requestBodies:
+    addProduct:
+      required: true
+      description: Un objeto con toda la información necesaria para crear un nuevo Producto en la base de datos
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Product"
+            example:
+              title: Cuadro Rana Hechizera
+              description: Aquí va la descripción del producto
+              price: 65
+              code: 38569
+              stock: 45
+              category: Abstracto
+              owner: admin
+    updateProduct:
+      required: true
+      description: Un objeto con las propiedades que se quieran actualizar del producto.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Product"
+            example:
+              price: 68
+              stock: 2
