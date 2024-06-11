@@ -21,7 +21,13 @@ class CartRouter extends Router {
       cartController.createCart
     );
 
-    this.get("/:cid", ["USER", "ADMIN", "PREMIUM"], cartController.getProducts);
+    this.get(
+      "/:cid",
+      ["USER", "ADMIN", "PREMIUM"],
+      authenticate("jwt", { session: false }),
+      authorize,
+      cartController.getProducts
+    );
 
     this.post(
       "/:cid/products/:pid",

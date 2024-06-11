@@ -1,4 +1,5 @@
-const ProductService = require("../services/product_service.js"),
+const ParamValidation = require("../utils/validations.js"),
+  ProductService = require("../services/product_service.js"),
   CustomError = require("../services/errors/custom_error.js"),
   faker = require("../utils/faker.js");
 
@@ -65,6 +66,13 @@ class productController {
 
   updateProduct = async (req, res) => {
     try {
+      if (req.user.role !== "admin")
+        ParamValidation.validateAuthorization(
+          "updateProduct",
+          req.user._id.toString(),
+          req.product.owner.toString()
+        );
+
       const product = await productService.updateProduct(req.product, req.body);
 
       if (product.status === "success") {
@@ -79,6 +87,13 @@ class productController {
 
   deleteProduct = async (req, res) => {
     try {
+      if (req.user.role !== "admin")
+        ParamValidation.validateAuthorization(
+          "updateProduct",
+          req.user._id.toString(),
+          req.product.owner.toString()
+        );
+
       const product = await productService.deleteProduct(req.product);
 
       if (product.status === "success") {

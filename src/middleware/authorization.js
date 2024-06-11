@@ -8,14 +8,8 @@ const authorize = (req, res, next) => {
 
     req.policy.includes(req.user.role)
       ? next()
-      : CustomError.createCustomError({
-          name: "Authorization error",
-          cause: infoError.notAuthorized({
-            userRole: req.user.role,
-            policy: req.policy,
-          }),
-          message: "User was unauthorized to enter this page",
-          code: EErrors.FORBIDDEN,
+      : CustomError.createCustomError(EErrors.FORBIDDEN, {
+          message: infoError.IncorrectUserRole(req.user.role, req.policy),
         });
   } catch (err) {
     CustomError.handleError(err, req, res);

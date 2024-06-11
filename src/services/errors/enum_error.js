@@ -6,6 +6,7 @@ const EErrors = {
   UNAUTHENTICATED: 5,
   FORBIDDEN: 6,
   UNHANDLED_DATABASE: 7,
+  INTERNAL: 8,
 };
 
 module.exports = EErrors;

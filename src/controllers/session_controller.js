@@ -1,4 +1,5 @@
 const UserService = require("../services/user_service.js"),
+  ParamValidation = require("../utils/validations.js"),
   CustomError = require("../services/errors/custom_error.js"),
   AccessToken = require("../utils/jwt.js");
 
@@ -36,6 +37,13 @@ class SessionController {
 
   updateUserRole = async (req, res) => {
     try {
+      if (req.user.role !== "admin")
+        ParamValidation.validateAuthorization(
+          "updateUserRole",
+          req.user._id.toString(),
+          req.params.uid.toString()
+        );
+
       const user = await userService.getUserById(req.params.uid);
       if (user.status === "error") throw user.error;
 

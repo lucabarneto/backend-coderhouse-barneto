@@ -1,6 +1,7 @@
 const ProductService = require("../services/product_service.js"),
   CartService = require("../services/cart_service.js"),
   TicketService = require("../services/ticket.service.js"),
+  ParamValidation = require("../utils/validations.js"),
   CustomError = require("../services/errors/custom_error.js"),
   infoError = require("../services/errors/info_error.js"),
   EErrors = require("../services/errors/enum_error.js");
@@ -97,18 +98,15 @@ class ViewController {
 
   renderCart = async (req, res) => {
     try {
-      let cid = req.params.id;
+      if (req.user.role !== "admin") {
+        ParamValidation.validateAuthorization(
+          "renderCart",
+          req.user.cart._id.toString(),
+          req.params.id.toString()
+        );
+      }
 
-      if (req.user.cart._id !== cid)
-        CustomError.createCustomError({
-          name: "Authorization error",
-          cause: infoError.notAuthorized({
-            userRole: req.user.role,
-            policy: req.policy,
-          }),
-          message: "User was unauthorized to enter this page",
-          code: EErrors.FORBIDDEN,
-        });
+      let cid = req.params.id;
 
       const cart = await cartService.getCartById(cid);
 

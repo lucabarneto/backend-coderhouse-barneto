@@ -8,7 +8,7 @@ const authenticate = (strategy, options = {}) => {
   return async (req, res, next) => {
     passport.authenticate(strategy, options, function (err, user, info) {
       try {
-        ParamValidation.isProvided("authenticate", ["strategy", strategy]);
+        ParamValidation.isProvided("authenticate", [["strategy", strategy]]);
         ParamValidation.validatePattern(
           "authenticate",
           /^(login|register|github|jwt)$/,
@@ -18,8 +18,8 @@ const authenticate = (strategy, options = {}) => {
         ParamValidation.validateDatatype(
           "authenticate",
           "object",
-          [["options", options]],
-          infoError.noAuthStrategy({ strategy, options })
+          options,
+          infoError.noAuthStrategy(strategy, options)
         );
 
         if (err) {
@@ -29,12 +29,7 @@ const authenticate = (strategy, options = {}) => {
         if (!user) {
           return req.policy.includes("public")
             ? next()
-            : CustomError.createCustomError({
-                name: "Unauthenticated user Error",
-                cause: infoError.notAuthenticated(),
-                message: "There was an error tryng to authenticate the user",
-                code: EErrors.UNAUTHENTICATED,
-              });
+            : CustomError.createCustomError(EErrors.UNAUTHENTICATED, {});
         } else {
           req.user = user;
         }

@@ -1,26 +1,4 @@
 const infoError = {
-  unprovidedParam: (method, param) =>
-    `One or more parameters were not provided in the following method: ${method}().
-    Unprovided parameters: ${param}.`,
-
-  invalidParam: (information) =>
-    `One or more parameters did not pass their respective validations in the following method: ${information.method}.
-    ${information.message}`,
-
-  idNotFound: (id, collection) =>
-    `The given ID was not found in the database's ${collection} collection.
-    ID searched: ${id}.`,
-
-  userNotFound: (user) =>
-    `The given user was not found in the database's User collection
-    User searched: ${user}`,
-
-  objectNotFound: (collection, method) =>
-    `The given object in the method: ${method}(), was not found in the database's ${collection} collection`,
-
-  objectAlreadyInDatabase: (method) =>
-    `Cannot create a new document in the method: ${method}, because it already exists in the database`,
-
   productQuantity: (
     quantity,
     stock
@@ -41,39 +19,68 @@ const infoError = {
       * page: optional (default = 1). If present, it must be a positive Number, representing an existing page (1-${plength}). Received: ${page}.
       * sort: optional (default = 0). If present, it must be a Number, either -1 or 1. Received: ${sort}.`,
 
-  unhandledDatabase: (method, cause) =>
-    `An unhandled error occurred while trying to execute the ${method}() database method.
-    The error's cause: ${cause}.`,
-
   noProductsProcessed: () =>
     `None of the products in the cart were processed. Each product's quantity must be lesser to equal than the product's stock.`,
 
-  noAuthStrategy: (argument) =>
+  noAuthStrategy: (strategy, options) =>
     `One or more authentication arguments were invalid:
     List of authentication arguments:
-      * strategy: required. Must be a String representing a valid passport strategy (register, login, github, jwt). Received: ${
-        argument.strategy
-      }.
+      * strategy: required. Must be a String representing a valid passport strategy (register, login, github, jwt). Received: ${strategy}.
       * options: optional. Must be an Object containing valid passport additional configurations. Received: ${JSON.stringify(
-        argument.options
+        options
       )}.`,
 
-  notAuthenticated: () =>
-    `User was not authenticated and tried to enter a page that required authentication. User was automatically redirected to /login.`,
+  IncorrectUserRole: (userRole, policy) =>
+    `Access to the page was forbidden for the user.\n* role: ${userRole}.\n* required role(s): ${policy}.`,
 
-  notAuthorized: (data) =>
-    `Access to the page was forbidden for the user.
-      * role: ${data.userRole}.
-      * required role(s): ${data.policy}.`,
+  notAuthorized: (method) =>
+    `User tried to execute the method ${method}() with an object that was not theirs`,
 
-  incorrectPolicyErrorInfo: (policies) =>
+  incorrectPolicy: () =>
     `One or more policies were invalid. Policies are required and must be inside an Array. Each policy must be written in upper case
-      * List of allowed policies: PUBLIC, USER, ADMIN, PREMIUM
-      * Received policies: ${JSON.stringify(policies.join(" - "))}`,
+      * List of allowed policies: PUBLIC, USER, ADMIN, PREMIUM`,
 
-  ParamValidation: (method, message) =>
-    `One or more parameters in the param validation method: ${method}() did not pass their own respective validations.
-    ${message}`,
+  ParamValidation: (
+    paramMethod,
+    {
+      method,
+      params = "",
+      param = "",
+      datatype = "",
+      term = "",
+      operand = "",
+      operator1 = "",
+      operator2 = "",
+      regex = "",
+      userId = "",
+      objectId = "",
+    }
+  ) =>
+    `One or more parameters in the param validation method: ${paramMethod}() did not pass their own respective validations while validating the ${method}() method.
+  List of Possible parameters:
+    * method: String, contains information about the method where the error occurred. Received: ${method}
+
+    * params: Array, appears in the following methods: isProvided(), validateParameter(). Contains subarrays with each parameter's name (string) and value. Check whether "params" is, indeed, an array, and if each parameter is a subarray holding its name and value. Received: ${params}, and parameter ${param}
+
+    * datatype: String, appears in the following methods: valiateDatatype(). Contains the datatype to compare a term against. Check whether it is a string and if its value is one of the following: string, number, boolean, undefined, object, array, date, regex. Received: ${datatype}
+
+    * term: It appears in the following method: validateDatatype(). Contains the value to check its datatype. It is required for the method to work. Received: ${term}
+
+    * operand: String, appears in the following methods: validateComparison(). Contains a valid operand to compare both operators. Check whether it is a string and if its value is one of the following: ===, ==, !==, >, >=, <, <=. Received: ${operand}
+
+    * operators: They appear in the following methods: validateComparison() and contain the values to compare. Both operator are required for the method to work. Received: ${operator1} & ${operator2}
+
+    * regex: RegExp, appears in the following methods: validatePattern(). Contains the regular expression that the parameter must pass. Received: ${regex}
+
+    * userId & objectId. Strings, they appear in the following methods: validateAuthorization(). Both are required and contain an id in mongo format. Received: userId: ${userId} & objectId: ${objectId}
+    `,
+
+  CustomError: (code, method, message) =>
+    `One or more parameters did not pass their respective validations in the following method: CustomError().
+  Possible Parameters:
+    * code: Number, must be an enumerated error (1-9). Received: ${code} 
+    * method: String, contains information about the method where the error occurred. Must be inside an object. Received: ${method}
+    * message: String, contains additional and personalized information regarding the error's nature. Must be inside an object. Received: ${message}`,
 };
 
 module.exports = infoError;

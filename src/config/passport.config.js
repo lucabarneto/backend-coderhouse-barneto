@@ -166,8 +166,7 @@ const intilializePassport = () => {
       async (jwt_payload, done) => {
         try {
           ParamValidation.isProvided("passport jwt", [
-            "jwt_payload",
-            jwt_payload,
+            ["jwt_payload", jwt_payload],
           ]);
 
           return done(null, jwt_payload.user);

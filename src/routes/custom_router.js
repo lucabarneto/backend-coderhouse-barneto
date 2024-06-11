@@ -69,38 +69,33 @@ class Router {
     next();
   }
 
-  handlePolicies(policies) {
-    ParamValidation.validateDatatype(
-      "handlePolicies",
-      "array",
-      policies,
-      infoError.incorrectPolicyErrorInfo(policies)
-    );
-    ParamValidation.validateComparison(
-      "handlePolicies",
-      policies.length,
-      "!==",
-      0,
-      infoError.incorrectPolicyErrorInfo(policies)
-    );
-
-    for (const policy of policies) {
-      ParamValidation.validateDatatype(
-        "handlePolicies",
-        "string",
-        policy,
-        infoError.incorrectPolicyErrorInfo(policies)
-      );
-      ParamValidation.validatePattern(
-        "handlePolicies",
-        /^(PUBLIC|USER|ADMIN|PREMIUM)$/,
-        [["policy", policy]],
-        infoError.incorrectPolicyErrorInfo(policies)
-      );
-    }
-
+  handlePolicies(policies = undefined) {
     return (req, res, next) => {
       try {
+        if (
+          policies === undefined ||
+          !(policies instanceof Array) ||
+          policies.length === 0
+        )
+          CustomError.createCustomError(EErrors.INTERNAL, {
+            method: "handlePolicies",
+            message: infoError.incorrectPolicy(),
+          });
+
+        for (const policy of policies) {
+          if (
+            typeof policy !== "string" ||
+            (policy !== "PUBLIC" &&
+              policy !== "USER" &&
+              policy !== "ADMIN" &&
+              policy !== "PREMIUM")
+          )
+            CustomError.createCustomError(EErrors.INTERNAL, {
+              method: "handlePolicies",
+              message: infoError.incorrectPolicy(),
+            });
+        }
+
         let policy = [];
 
         if (policies.includes("USER")) policy.push("user");
@@ -114,7 +109,7 @@ class Router {
         req.policy = policy;
         next();
       } catch (err) {
-        return { status: false, error: err };
+        CustomError.handleError(err, req, res);
       }
     };
   }

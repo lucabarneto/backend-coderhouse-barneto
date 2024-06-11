@@ -18,11 +18,9 @@ class CartService {
       const cart = await cartDAO.create();
 
       if (cart.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase("cartDAO.create", cart.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "cartDAO.create",
+          message: cart.error,
         });
 
       return cart;
@@ -33,18 +31,16 @@ class CartService {
 
   getCartById = async (cid) => {
     try {
-      ParamValidation.isProvided("getCartById", ["cid", cid]);
+      ParamValidation.isProvided("getCartById", [["cid", cid]]);
       ParamValidation.validatePattern("getCartById", /^[a-f\d]{24}$/i, [
         ["cid", cid],
       ]);
 
       const cart = await cartDAO.getById(cid);
       if (cart.status === "error")
-        CustomError.createCustomError({
-          name: "Not Found Error",
-          cause: infoError.idNotFound(cid, "carts"),
-          message: "There was an error while searching for the given id",
-          code: EErrors.NOT_FOUND,
+        CustomError.createCustomError(EErrors.NOT_FOUND, {
+          method: "getCartById",
+          message: cid,
         });
 
       return cart;
@@ -55,12 +51,11 @@ class CartService {
 
   addProductToCart = async (cart, product, quantity) => {
     try {
-      ParamValidation.isProvided(
-        "addProductToCart",
+      ParamValidation.isProvided("addProductToCart", [
         ["cart", cart],
         ["product", product],
-        ["quantity", quantity]
-      );
+        ["quantity", quantity],
+      ]);
 
       ParamValidation.validatePattern(
         "addProductToCart",
@@ -93,11 +88,9 @@ class CartService {
 
       const updateCart = await cartDAO.get(cart);
       if (updateCart.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase("cartDAO.get", updateCart.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "cartDAO.get",
+          message: updateCart.error,
         });
 
       updateCart.payload.products.push({
@@ -108,11 +101,9 @@ class CartService {
       const update = await cartDAO.update(cart, updateCart.payload);
 
       if (update.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase("cartDAO.update", update.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "cartDAO.update",
+          message: update.error,
         });
 
       return update;
@@ -123,17 +114,15 @@ class CartService {
 
   deleteAllProducts = async (cart) => {
     try {
-      ParamValidation.isProvided("deleteAllProducts", ["cart", cart]);
+      ParamValidation.isProvided("deleteAllProducts", [["cart", cart]]);
 
       const update = await cartDAO.update(cart, {
         $set: { products: [] },
       });
       if (update.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase("cartDAO.update", update.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "cartDAO.update",
+          message: update.error,
         });
 
       return update;
@@ -144,21 +133,18 @@ class CartService {
 
   deleteProduct = async (cart, product) => {
     try {
-      ParamValidation.isProvided(
-        "deleteProduct",
+      ParamValidation.isProvided("deleteProduct", [
         ["cart", cart],
-        ["product", product]
-      );
+        ["product", product],
+      ]);
 
       const update = await cartDAO.update(cart, {
         $pull: { products: { product: product._id } },
       });
       if (update.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase("cartDAO.update", update.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "cartDAO.update",
+          message: update.error,
         });
 
       return update;
@@ -169,12 +155,11 @@ class CartService {
 
   updateProduct = async (cart, product, quantity, state) => {
     try {
-      ParamValidation.isProvided(
-        "updateProduct",
+      ParamValidation.isProvided("updateProduct", [
         ["cart", cart],
         ["product", product],
-        ["quantity", quantity]
-      );
+        ["quantity", quantity],
+      ]);
 
       ParamValidation.validatePattern(
         "updateProduct",
@@ -199,11 +184,9 @@ class CartService {
 
       const updateCart = await cartDAO.get(cart);
       if (updateCart.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase("cartDAO.get", updateCart.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "cartDAO.get",
+          message: updateCart.error,
         });
 
       //Aumento la cantidad del producto con el pid específico
@@ -219,11 +202,9 @@ class CartService {
 
       const update = await cartDAO.update(cart, updateCart.payload);
       if (update.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase("cartDAO.update", update.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "cartDAO.update",
+          message: update.error,
         });
 
       return update;
@@ -234,7 +215,7 @@ class CartService {
 
   updateCart = async (cart, arr) => {
     try {
-      ParamValidation.isProvided("updateCart", ["cart", cart]);
+      ParamValidation.isProvided("updateCart", [["cart", cart]]);
       ParamValidation.validateDatatype(
         "updateCart",
         "array",
@@ -245,14 +226,9 @@ class CartService {
       for (const object of arr) {
         for (const key in object) {
           if (key !== "product" && key !== "quantity")
-            CustomError.createCustomError({
-              name: "Invalid parameter Error",
-              cause: infoError.invalidParam({
-                message: infoError.productsInserted(),
-                method,
-              }),
-              message: `One or more parameters did not pass their respective validations.`,
-              code: EErrors.INVALID_PARAM,
+            CustomError.createCustomError(EErrors.INVALID_PARAM, {
+              method: "updateCart",
+              message: infoError.productsInserted(),
             });
         }
       }
@@ -261,11 +237,9 @@ class CartService {
         $addToSet: { products: { $each: arr } },
       });
       if (update.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase("cartDAO.update", update.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "cartDAO.update",
+          message: update.error,
         });
 
       return update;
@@ -276,19 +250,16 @@ class CartService {
 
   purchaseProducts = async (cart, user) => {
     try {
-      ParamValidation.isProvided(
-        "purchaseProducts",
+      ParamValidation.isProvided("purchaseProducts", [
         ["cart", cart],
-        ["user", cart]
-      );
+        ["user", cart],
+      ]);
 
       const userCart = await cartDAO.get(cart);
       if (userCart.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase("cartDAO.get", userCart.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "cartDAO.get",
+          message: userCart.error,
         });
 
       const products = await productService.getProducts();

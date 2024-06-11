@@ -1,5 +1,6 @@
 const CartService = require("../services/cart_service.js"),
   ProductService = require("../services/product_service.js"),
+  ParamValidation = require("../utils/validations.js"),
   CustomError = require("../services/errors/custom_error.js");
 
 const cartService = new CartService(),
@@ -52,11 +53,29 @@ class CartController {
   };
 
   getProducts = async (req, res) => {
-    return req.cart.products;
+    try {
+      if (req.user.role !== "admin")
+        ParamValidation.validateAuthorization(
+          "getProducts",
+          req.user.cart._id.toString(),
+          req.cart._id.toString()
+        );
+
+      return req.cart.products;
+    } catch (err) {
+      CustomError.handleError(err, req, res);
+    }
   };
 
   addProductToCart = async (req, res) => {
     try {
+      if (req.user.role !== "admin")
+        ParamValidation.validateAuthorization(
+          "addProductToCart",
+          req.user.cart._id.toString(),
+          req.cart._id.toString()
+        );
+
       let quantity = req.body.quantity;
 
       const cart = await cartService.addProductToCart(
@@ -79,6 +98,13 @@ class CartController {
 
   deleteAllProducts = async (req, res) => {
     try {
+      if (req.user.role !== "admin")
+        ParamValidation.validateAuthorization(
+          "deleteAllProducts",
+          req.user.cart._id.toString(),
+          req.cart._id.toString()
+        );
+
       const cart = await cartService.deleteAllProducts(req.cart);
 
       if (cart.status === "success") {
@@ -93,6 +119,13 @@ class CartController {
 
   deleteProduct = async (req, res) => {
     try {
+      if (req.user.role !== "admin")
+        ParamValidation.validateAuthorization(
+          "deleteProduct",
+          req.user.cart._id.toString(),
+          req.cart._id.toString()
+        );
+
       const cart = await cartService.deleteProduct(req.cart, req.product);
 
       if (cart.status === "success") {
@@ -107,6 +140,13 @@ class CartController {
 
   updateProduct = async (req, res) => {
     try {
+      if (req.user.role !== "admin")
+        ParamValidation.validateAuthorization(
+          "updateProduct",
+          req.user.cart._id.toString(),
+          req.cart._id.toString()
+        );
+
       let quantity = req.body.quantity,
         state = req.body.state;
 
@@ -129,6 +169,13 @@ class CartController {
 
   InsertProducts = async (req, res) => {
     try {
+      if (req.user.role !== "admin")
+        ParamValidation.validateAuthorization(
+          "deleteProduct",
+          req.user.cart._id.toString(),
+          req.cart._id.toString()
+        );
+
       const cart = await cartService.updateCart(req.cart, req.body);
 
       if (cart.status === "success") {
@@ -143,6 +190,13 @@ class CartController {
 
   purchaseProducts = async (req, res) => {
     try {
+      if (req.user.role !== "admin")
+        ParamValidation.validateAuthorization(
+          "deleteProduct",
+          req.user.cart._id.toString(),
+          req.cart._id.toString()
+        );
+
       const ticket = await cartService.purchaseProducts(req.cart, req.user);
 
       if (ticket.status === "success") {

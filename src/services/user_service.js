@@ -1,8 +1,7 @@
 const UserDAO = require("../dao/mongo/user.mongo.js"),
   ParamValidation = require("../utils/validations.js"),
   CustomError = require("../services/errors/custom_error.js"),
-  EErrors = require("../services/errors/enum_error.js"),
-  infoError = require("../services/errors/info_error.js");
+  EErrors = require("../services/errors/enum_error.js");
 
 const userDAO = new UserDAO();
 
@@ -13,8 +12,7 @@ class UserService {
     try {
       let { firstName, lastName, email, tel, password, cart, role } = user;
 
-      ParamValidation.isProvided(
-        "saveUser",
+      ParamValidation.isProvided("saveUser", [
         ["strategy", strategy],
         ["firstName", firstName],
         ["lastName", lastName],
@@ -22,8 +20,8 @@ class UserService {
         ["tel", tel],
         ["password", password],
         ["cart", cart],
-        ["role", role]
-      );
+        ["role", role],
+      ]);
 
       ParamValidation.validatePattern("saveUser", /^(local|github)$/, [
         ["strategy", strategy],
@@ -49,21 +47,15 @@ class UserService {
 
       const alreadyExists = await userDAO.getByEmail(email);
       if (alreadyExists.status === "success")
-        CustomError.createCustomError({
-          name: "Existing user Error",
-          cause: infoError.objectAlreadyInDatabase("saveUser"),
-          message:
-            "An account already exists with the following email: " + email,
-          code: EErrors.ALREADY_IN_DATABASE,
+        CustomError.createCustomError(EErrors.ALREADY_IN_DATABASE, {
+          method: "saveUser",
         });
 
       const result = await userDAO.create(user);
       if (result.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase("userDAO.create", result.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "userDAO.create",
+          message: result.error,
         });
 
       return result;
@@ -74,7 +66,7 @@ class UserService {
 
   getUserByEmail = async (email) => {
     try {
-      ParamValidation.isProvided("getUserByEmail", ["email", email]);
+      ParamValidation.isProvided("getUserByEmail", [["email", email]]);
       ParamValidation.validatePattern(
         "getuserByEmail",
         /^(([a-zñ\d]+(.[_a-zñ\d]+)*@[a-zñ\d-]+(.[a-zñ\d-]+)*(.[a-zñ]{2,15}))|(https:\/\/github\.com\/[a-z\d]+))$/i,
@@ -83,11 +75,9 @@ class UserService {
 
       const user = await userDAO.getByEmail(email);
       if (user.status === "error")
-        CustomError.createCustomError({
-          name: "Not Found Error",
-          cause: infoError.userNotFound(email),
-          message: "There was an error while searching for the given user",
-          code: EErrors.NOT_FOUND,
+        CustomError.createCustomError(EErrors.NOT_FOUND, {
+          method: "getUserByEmail",
+          message: email,
         });
 
       return user;
@@ -98,18 +88,16 @@ class UserService {
 
   getUserById = async (id) => {
     try {
-      ParamValidation.isProvided("getUserById", ["id", id]);
+      ParamValidation.isProvided("getUserById", [["id", id]]);
       ParamValidation.validatePattern("passport register", /^[a-f\d]{24}$/i, [
         ["id", id],
       ]);
 
       const user = await userDAO.getById(id);
       if (user.status === "error")
-        CustomError.createCustomError({
-          name: "Not Found Error",
-          cause: infoError.idNotFound(id, "users"),
-          message: "There was an error while searching for the given id",
-          code: EErrors.NOT_FOUND,
+        CustomError.createCustomError(EErrors.NOT_FOUND, {
+          method: "getUserById",
+          message: id,
         });
 
       return user;
@@ -120,7 +108,7 @@ class UserService {
 
   updateUserRole = async (user) => {
     try {
-      ParamValidation.isProvided("updateUserRole", ["user", user]);
+      ParamValidation.isProvided("updateUserRole", [["user", user]]);
 
       let update;
       if (user.role === "user") {
@@ -134,11 +122,9 @@ class UserService {
       }
 
       if (update.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase("userDAO.update", update.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "userDAO.update",
+          message: update.error,
         });
 
       return update;

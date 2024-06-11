@@ -13,16 +13,15 @@ class ProductService {
     try {
       let { title, description, price, code, stock, category, owner } = data;
 
-      ParamValidation.isProvided(
-        "addProduct",
+      ParamValidation.isProvided("addProduct", [
         ["title", title],
         ["description", description],
         ["price", price],
         ["code", code],
         ["stock", stock],
         ["category", category],
-        ["owner", owner]
-      );
+        ["owner", owner],
+      ]);
 
       ParamValidation.validatePattern(
         "addProduct",
@@ -49,23 +48,15 @@ class ProductService {
 
       const alreadyExists = await productDAO.get(data);
       if (alreadyExists.status === "success")
-        CustomError.createCustomError({
-          name: "Existing product Error",
-          cause: infoError.objectAlreadyInDatabase("addProduct"),
-          message: "Product already inside database",
-          code: EErrors.ALREADY_IN_DATABASE,
+        CustomError.createCustomError(EErrors.ALREADY_IN_DATABASE, {
+          method: "addProduct",
         });
 
       const product = await productDAO.create(data);
       if (product.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase(
-            "productDAO.create",
-            product.error
-          ),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "productDAO.create",
+          message: product.error,
         });
 
       return product;
@@ -76,18 +67,16 @@ class ProductService {
 
   getProductById = async (pid) => {
     try {
-      ParamValidation.isProvided("getProductById", ["pid", pid]);
+      ParamValidation.isProvided("getProductById", [["pid", pid]]);
       ParamValidation.validatePattern("getProductById", /^[a-f\d]{24}$/i, [
         ["pid", pid],
       ]);
 
       const product = await productDAO.getById(pid);
       if (product.status === "error")
-        CustomError.createCustomError({
-          name: "Not Found Error",
-          cause: infoError.idNotFound(pid, "products"),
-          message: "There was an error while searching for the given id",
-          code: EErrors.NOT_FOUND,
+        CustomError.createCustomError(EErrors.NOT_FOUND, {
+          method: "getProductById",
+          message: pid,
         });
 
       return product;
@@ -100,11 +89,9 @@ class ProductService {
     try {
       const products = await productDAO.getAll();
       if (products.status === "error")
-        CustomError.createCustomError({
-          name: "Not Found Error",
-          cause: infoError.objectNotFound("products", "getProducts"),
-          message: "There was an error while searching for the given object(s)",
-          code: EErrors.NOT_FOUND,
+        CustomError.createCustomError(EErrors.NOT_FOUND, {
+          method: "getProducts",
+          message: "every product",
         });
 
       ParamValidation.validatePattern(
@@ -160,14 +147,9 @@ class ProductService {
         sort: isSorted,
       });
       if (paginated.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase(
-            "productDAO.paginate",
-            paginated.error
-          ),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "productDAO.paginate",
+          message: paginated.error,
         });
 
       return paginated;
@@ -178,11 +160,10 @@ class ProductService {
 
   updateProduct = async (data, update) => {
     try {
-      ParamValidation.isProvided(
-        "updateProduct",
+      ParamValidation.isProvided("updateProduct", [
         ["data", data],
-        ["update", update]
-      );
+        ["update", update],
+      ]);
 
       for (const key in update) {
         switch (key) {
@@ -217,14 +198,9 @@ class ProductService {
             break;
           default:
             if (!key.startsWith("$"))
-              CustomError.createCustomError({
-                name: "Invalid parameter Error",
-                cause: infoError.invalidParam({
-                  message: `Cannot update inexistent property "${key}"`,
-                  method: "updateProduct",
-                }),
-                message: `One or more parameters did not pass their respective validations.`,
-                code: EErrors.INVALID_PARAM,
+              CustomError.createCustomError(EErrors.INVALID_PARAM, {
+                method: "updateProduct",
+                message: `Cannot update inexistent property "${key}"`,
               });
             break;
         }
@@ -232,11 +208,9 @@ class ProductService {
 
       const result = await productDAO.update(data, update);
       if (result.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase("productDAO.update", result.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "productDAO.update",
+          message: result.error,
         });
 
       return result;
@@ -247,15 +221,13 @@ class ProductService {
 
   deleteProduct = async (data) => {
     try {
-      ParamValidation.isProvided("deleteProduct", ["data", data]);
+      ParamValidation.isProvided("deleteProduct", [["data", data]]);
 
       const result = await productDAO.delete(data);
       if (result.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase("productDAO.delete", result.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "productDAO.delete",
+          message: result.error,
         });
 
       return result;

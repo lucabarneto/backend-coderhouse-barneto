@@ -1,8 +1,7 @@
 const TicketDAO = require("../dao/mongo/ticket.mongo"),
   ParamValidation = require("../utils/validations.js"),
   CustomError = require("../services/errors/custom_error.js"),
-  EErrors = require("../services/errors/enum_error.js"),
-  infoError = require("../services/errors/info_error.js");
+  EErrors = require("../services/errors/enum_error.js");
 
 const ticketDAO = new TicketDAO();
 
@@ -13,13 +12,12 @@ class TicketService {
     try {
       let { code, purchase_datetime, amount, purchaser } = ticket;
 
-      ParamValidation.isProvided(
-        "createTicket",
+      ParamValidation.isProvided("createTicket", [
         ["code", code],
         ["purchase_datetime", purchase_datetime],
         ["amount", amount],
-        ["purchaser", purchaser]
-      );
+        ["purchaser", purchaser],
+      ]);
 
       ParamValidation.validatePattern("createTicket", /^(?!0)\d{4,5}$/, [
         ["code", code],
@@ -35,11 +33,9 @@ class TicketService {
 
       const result = await ticketDAO.create(ticket);
       if (result.status === "error")
-        CustomError.createCustomError({
-          name: "Database error",
-          cause: infoError.unhandledDatabase("ticketDAO.create", result.error),
-          message: "There was an error trying to consult the database",
-          code: EErrors.UNHANDLED_DATABASE,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "ticketDAO.create",
+          message: result.error,
         });
 
       return result;
@@ -50,18 +46,16 @@ class TicketService {
 
   getTicketById = async (tid) => {
     try {
-      ParamValidation.isProvided("getTicketById", ["tid", tid]);
+      ParamValidation.isProvided("getTicketById", [["tid", tid]]);
       ParamValidation.validatePattern("getTicketById", /^[a-f\d]{24}$/i, [
         ["tid", tid],
       ]);
 
       const result = await ticketDAO.getById(tid);
       if (result.status === "error")
-        CustomError.createCustomError({
-          name: "Not Found Error",
-          cause: infoError.idNotFound(tid, "tickets"),
-          message: "There was an error while searching for the given id",
-          code: EErrors.NOT_FOUND,
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "ticketDAO.getById",
+          message: result.error,
         });
 
       return result;
