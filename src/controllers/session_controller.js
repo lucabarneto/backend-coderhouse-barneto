@@ -1,9 +1,5 @@
-const UserService = require("../services/user_service.js"),
-  ParamValidation = require("../utils/validations.js"),
-  CustomError = require("../services/errors/custom_error.js"),
+const CustomError = require("../services/errors/custom_error.js"),
   AccessToken = require("../utils/jwt.js");
-
-const userService = new UserService();
 
 class SessionController {
   registerUser = (req, res) => {
@@ -34,27 +30,6 @@ class SessionController {
   };
 
   handleGithub = (req, res) => {};
-
-  updateUserRole = async (req, res) => {
-    try {
-      if (req.user.role !== "admin")
-        ParamValidation.validateAuthorization(
-          "updateUserRole",
-          req.user._id.toString(),
-          req.params.uid.toString()
-        );
-
-      const user = await userService.getUserById(req.params.uid);
-      if (user.status === "error") throw user.error;
-
-      const updateRole = await userService.updateUserRole(user.payload);
-      if (updateRole.status === "error") throw updateRole.error;
-
-      return res.redirect(303, "/api/sessions/logout");
-    } catch (err) {
-      CustomError.handleError(err, req, res);
-    }
-  };
 }
 
 module.exports = SessionController;

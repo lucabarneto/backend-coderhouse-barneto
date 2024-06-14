@@ -42,6 +42,26 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "user", "premium"],
       require: true,
     },
+    avatar: {
+      type: String,
+      default: "/img/avatar_placeholder.png",
+    },
+    documents: [
+      {
+        name: {
+          type: String,
+          required: true,
+        },
+        reference: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+    lastConnection: {
+      type: Date,
+      required: true,
+    },
   },
   {
     timestamps: true,

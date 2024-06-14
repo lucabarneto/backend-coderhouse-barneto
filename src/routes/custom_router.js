@@ -1,5 +1,4 @@
 const express = require("express"),
-  ParamValidation = require("../utils/validations.js"),
   CustomError = require("../services/errors/custom_error.js"),
   infoError = require("../services/errors/info_error.js"),
   EErrors = require("../services/errors/enum_error.js");

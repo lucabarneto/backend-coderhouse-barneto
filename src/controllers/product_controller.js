@@ -1,6 +1,7 @@
-const ParamValidation = require("../utils/validations.js"),
-  ProductService = require("../services/product_service.js"),
+const ProductService = require("../services/product_service.js"),
   CustomError = require("../services/errors/custom_error.js"),
+  EErrors = require("../services/errors/enum_error.js"),
+  infoError = require("../services/errors/info_error.js"),
   faker = require("../utils/faker.js");
 
 const productService = new ProductService();
@@ -12,8 +13,19 @@ class productController {
       const product = await productService.getProductById(pid);
 
       if (product.status === "success") {
-        req.product = product.payload;
-        next();
+        if (req.user.role !== "admin") {
+          if (product.payload.owner.toString() === req.user._id.toString()) {
+            req.product = product.payload;
+            next();
+          } else {
+            CustomError.createCustomError(EErrors.FORBIDDEN, {
+              message: infoError.notAuthorized("handlePid"),
+            });
+          }
+        } else {
+          req.product = product.payload;
+          next();
+        }
       } else {
         throw product.error;
       }
@@ -66,13 +78,6 @@ class productController {
 
   updateProduct = async (req, res) => {
     try {
-      if (req.user.role !== "admin")
-        ParamValidation.validateAuthorization(
-          "updateProduct",
-          req.user._id.toString(),
-          req.product.owner.toString()
-        );
-
       const product = await productService.updateProduct(req.product, req.body);
 
       if (product.status === "success") {
@@ -87,13 +92,6 @@ class productController {
 
   deleteProduct = async (req, res) => {
     try {
-      if (req.user.role !== "admin")
-        ParamValidation.validateAuthorization(
-          "updateProduct",
-          req.user._id.toString(),
-          req.product.owner.toString()
-        );
-
       const product = await productService.deleteProduct(req.product);
 
       if (product.status === "success") {

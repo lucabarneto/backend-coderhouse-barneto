@@ -50,16 +50,6 @@ class SessionRouter extends Router {
       authenticate("github", { session: false }),
       sessionController.logUser
     );
-
-    this.put(
-      "/premium/:uid",
-      ["USER", "PREMIUM"],
-      authenticate("jwt", {
-        session: false,
-      }),
-      authorize,
-      sessionController.updateUserRole
-    );
   }
 }
 

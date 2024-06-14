@@ -27,7 +27,7 @@
       <input
         type="text"
         id="add-product-name"
-        name="name"
+        name="title"
         class="input"
         placeholder="Escribe aquí..."
         required
@@ -82,12 +82,10 @@
         <option>Retratos</option>
         <option>Sci-Fi</option>
       </datalist>
-      <input
-        type="hidden"
-        name="owner"
-        value={{profile._id}}
-        data-role={{profile.role}}
-      />
+      <label for="add-product-files">Thumbnails</label>
+      <input type="file" name="thumbnails" id="add-product-files" multiple />
+      <input type="hidden" name="owner" value={{profile._id}} />
+      <input type="hidden" name="role" value={{profile.role}} />
       <button type="submit" name="submit" class="primary-button submit">Agregar
         Producto</button>
     </form>

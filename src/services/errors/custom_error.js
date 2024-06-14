@@ -167,11 +167,11 @@ class CustomError {
       default:
         req.logger.fatal(
           `${
-            err.cause || "An unhandled error has occurred"
+            err.message || "An unhandled error has occurred"
           } - ${new Date().toLocaleString()}`
         );
 
-        res.sendUnhandledError();
+        res.send("UnhandledError");
         break;
     }
   };

@@ -28,6 +28,11 @@ const $registerBtn = d.getElementById("register"),
   $deleteProductBtn = d.querySelectorAll(".delete-product-button"),
   $editProductBtn = d.querySelectorAll(".edit-product-button");
 
+const $editAvatarForm = d.getElementById("edit-avatar-form");
+const $avatar = d.querySelector(".avatar");
+const $editAvatarLabel = d.querySelector(".edit-avatar");
+const $avatarContainer = d.getElementById(".avatar-container");
+
 let quantity = 1;
 
 let initialAmount = 0;
@@ -181,6 +186,12 @@ d.addEventListener("click", async (e) => {
   });
 });
 
+d.addEventListener("mouseover", async (e) => {
+  if (e.target === $avatar || e.target.matches(".avatar *")) {
+    $editAvatarLabel.classList.toggle("display-none");
+  }
+});
+
 d.addEventListener("submit", async (e) => {
   if (e.target === $addToCartForm) {
     try {
@@ -296,7 +307,7 @@ d.addEventListener("submit", async (e) => {
               category: $addProductForm.category.value,
             }),
             headers: {
-              "Content-type": "application/json; charset=utf-8",
+              "Content-type": "application/json; charset= utf-8",
             },
           }
         ),
@@ -336,4 +347,8 @@ d.addEventListener("submit", async (e) => {
       }
     }
   }
+});
+
+$editAvatarForm.avatar.addEventListener("change", async (e) => {
+  $editAvatarForm.submit();
 });

@@ -89,7 +89,7 @@ class UserService {
   getUserById = async (id) => {
     try {
       ParamValidation.isProvided("getUserById", [["id", id]]);
-      ParamValidation.validatePattern("passport register", /^[a-f\d]{24}$/i, [
+      ParamValidation.validatePattern("getUserById", /^[a-f\d]{24}$/i, [
         ["id", id],
       ]);
 
@@ -106,9 +106,34 @@ class UserService {
     }
   };
 
-  updateUserRole = async (user) => {
+  uploadFile = async (file, user) => {
     try {
-      ParamValidation.isProvided("updateUserRole", [["user", user]]);
+      const upload = await userDAO.getById(user._id);
+      if (upload.status === "error")
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "userDAO.getById",
+          message: upload.error,
+        });
+
+      const result = await userDAO.update(
+        { _id: user._id },
+        { $set: { avatar: file } }
+      );
+      if (result.status === "error")
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "userDAO.update",
+          message: result.error,
+        });
+
+      return result;
+    } catch (err) {
+      return { status: "error", error: err };
+    }
+  };
+
+  updateRole = async (user) => {
+    try {
+      ParamValidation.isProvided("updateRole", [["user", user]]);
 
       let update;
       if (user.role === "user") {
@@ -128,7 +153,7 @@ class UserService {
         });
 
       return update;
-    } catch (error) {
+    } catch (err) {
       return { status: "error", error: err };
     }
   };

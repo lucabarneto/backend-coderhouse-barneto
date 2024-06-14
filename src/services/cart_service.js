@@ -81,7 +81,7 @@ class CartService {
       let checkExistingProduct = cart.products.some(
         (pr) => pr.product._id.toString() === product._id.toString()
       );
-      // Envío un error "update" para que el cliente haga un fetch con método PUT
+      // Envío un status "update" para que el cliente haga un fetch con método PUT
       if (checkExistingProduct) {
         return { status: "update" };
       }

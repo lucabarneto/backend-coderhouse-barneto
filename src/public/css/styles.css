@@ -43,7 +43,7 @@ label {
   height: 2.5rem;
   border-radius: 0.75rem;
   border: none;
-  background-color: blueviolet;
+  background-color: #8a2be2;
   color: white;
   font-weight: 700;
   padding: 0 1.5rem;
@@ -410,6 +410,58 @@ label {
   pointer-events: none;
 }
 
+/* PROFILE */
+
+.profile {
+  display: flex;
+  justify-content: space-evenly;
+  background-color: white;
+  margin: 32px 15vw;
+  border-radius: 16px;
+}
+
+.profile article {
+  margin: 24px;
+}
+
+.avatar-container {
+  height: 216px;
+  width: 216px;
+  margin: 24px;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+.avatar-container figure {
+  width: inherit;
+  margin: 0;
+}
+
+.avatar {
+  max-width: 100%;
+  object-fit: cover;
+}
+
+.edit-avatar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #0007;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.edit-avatar i {
+  font-size: 48px;
+  color: white;
+}
+
 /* :::: Control :::: */
 
 .add-product,
@@ -459,4 +511,16 @@ label {
 .user-products > div .cart-product {
   width: auto;
   margin-right: 0;
+}
+
+.display-none {
+  display: none;
+}
+
+.display-flex {
+  display: flex;
+}
+
+.hidden {
+  visibility: hidden;
 }

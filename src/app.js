@@ -5,6 +5,7 @@ const express = require("express"),
   MessageRouter = require("./routes/chat.routes.js"),
   SessionRouter = require("./routes/sessions.routes.js"),
   PerformanceRouter = require("./routes/performance.routes.js"),
+  UserRouter = require("./routes/users.routes.js"),
   http = require("http"),
   { Server } = require("socket.io"),
   Database = require("./config/mongo_connection.config.js"),
@@ -29,7 +30,8 @@ const productRouter = new ProductRouter(),
   sessionRouter = new SessionRouter(),
   viewRouter = new ViewRouter(),
   messageRouter = new MessageRouter(),
-  performanceRouter = new PerformanceRouter();
+  performanceRouter = new PerformanceRouter(),
+  userRouter = new UserRouter();
 
 //Configuro Logger
 app.use(addLogger);
@@ -75,6 +77,7 @@ app.use("/", viewRouter.getRouter);
 app.use("/api/chat", messageRouter.getRouter);
 app.use("/api/sessions", sessionRouter.getRouter);
 app.use("/api/performance", performanceRouter.getRouter);
+app.use("/api/users", userRouter.getRouter);
 
 //Creo el .listen
 httpServer.listen(Number(config.port), () => {

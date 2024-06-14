@@ -42,11 +42,11 @@ class UserMongo {
 
   update = async (data, update) => {
     try {
-      await User.updateOne(data, update);
+      const user = await User.updateOne(data, update);
 
       return {
         status: "success",
-        payload: "User updated successfully",
+        payload: user,
       };
     } catch (err) {
       return { status: "error", error: err.message };

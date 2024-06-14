@@ -93,6 +93,7 @@ const intilializePassport = () => {
             email: username,
             role: user.payload.role,
             cart: user.payload.cart,
+            avatar: user.payload.avatar,
           };
 
           return done(null, userDTO);

@@ -26,31 +26,45 @@
 </header>
 <main>
   <h1>Bienvenido, {{name}}</h1>
-  <div>
-    <h2>Tus datos de perfil:</h2>
-    <ul>
-      <li>Nombre: <strong>{{name}}</strong></li>
-      <li>Email: <strong>{{email}}</strong></li>
-      <li>Rol:
-        <strong>{{role}}</strong>
-        {{#ifEqual role "premium"}}
-        -
-        <button
-          id="change-role-button"
-          class="text-button"
-          data-id={{_id}}
-        >cambiar de rol</button></li>
-        {{/ifEqual}}
-        {{#ifEqual role "user"}}
-        -
-        <button
-          id="change-role-button"
-          class="text-button"
-          data-id={{_id}}
-        >cambiar de rol</button></li>
-        {{/ifEqual}}
-    </ul>
-  </div>
+  <section class="profile">
+    <div class="avatar-container">
+      <img src="{{avatar}}" class="avatar" alt="placeholder avatar">
+      <form id="edit-avatar-form" method="post" action="/api/users/{{_id}}/avatar" enctype="multipart/form-data">
+        <label for="avatar" class="edit-avatar display-none">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </label>
+        <input type="file" name="avatar" id="avatar" class="display-none">
+        <input type="hidden" name="upload" value="avatar">
+      </form>
+    </div>
+
+    <article>
+      <h2>Tus datos de perfil:</h2>
+      <ul>
+        <li>Nombre: <strong>{{name}}</strong></li>
+        <li>Email: <strong>{{email}}</strong></li>
+        <li>Rol:
+          <strong>{{role}}</strong>
+          {{#ifEqual role "premium"}}
+          -
+          <button
+            id="change-role-button"
+            class="text-button"
+            data-id={{_id}}
+          >cambiar de rol</button></li>
+          {{/ifEqual}}
+          {{#ifEqual role "user"}}
+          -
+          <button
+            id="change-role-button"
+            class="text-button"
+            data-id={{_id}}
+          >cambiar de rol</button></li>
+          {{/ifEqual}}
+      </ul>
+    </article>
+
+  </section>
 
   <form action="/api/sessions/logout" method="get">
     <button type="submit" class="primary-button">
