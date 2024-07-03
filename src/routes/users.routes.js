@@ -27,6 +27,7 @@ class UserRouter extends Router {
         session: false,
       }),
       authorize,
+      upload.array("documents"),
       userController.uploadDocuments
     );
 
@@ -39,17 +40,6 @@ class UserRouter extends Router {
       authorize,
       upload.single("avatar"),
       userController.uploadAvatar
-    );
-
-    this.post(
-      "/:uid/thumbnails",
-      ["PREMIUM", "ADMIN"],
-      authenticate("jwt", {
-        session: false,
-      }),
-      authorize,
-      upload.array("thumbnails"),
-      userController.uploadProductThumbnails
     );
   }
 }

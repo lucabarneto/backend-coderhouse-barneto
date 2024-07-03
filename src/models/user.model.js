@@ -51,6 +51,7 @@ const userSchema = new mongoose.Schema(
         name: {
           type: String,
           required: true,
+          enum: ["identification", "address", "account_status"],
         },
         reference: {
           type: String,
@@ -58,10 +59,6 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
-    lastConnection: {
-      type: Date,
-      required: true,
-    },
   },
   {
     timestamps: true,

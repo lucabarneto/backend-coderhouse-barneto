@@ -34,10 +34,13 @@
 </header>
 <main class="product-view">
   <figure>
-    <img
-      src="/img/img-placeholder-424w.jpg"
-      alt="Un ícono de una imagen en fondo gris"
-    />
+    <picture>
+      <source srcset="{{product.thumbnails}}" />
+      <img
+        src="/img/img-placeholder-424w.jpg"
+        alt="Un ícono de una imagen en fondo gris"
+      />
+    </picture>
     <figcaption>Imágen del producto</figcaption>
   </figure>
   <section class="product-details">

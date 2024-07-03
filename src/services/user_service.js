@@ -108,6 +108,38 @@ class UserService {
 
   uploadFile = async (file, user) => {
     try {
+      let { fieldname, files } = file;
+
+      ParamValidation.isProvided("uploadFile", [
+        ["user", user],
+        ["fieldname", fieldname],
+        ["files", files],
+      ]);
+      ParamValidation.validatePattern("uploadFile", /^(avatar|documents)$/, [
+        ["fieldname", fieldname],
+      ]);
+      ParamValidation.validateDatatype("uploadFile", "array", files);
+      ParamValidation.validateComparison("uploadFile", files.length, "!==", 0);
+
+      let update;
+
+      switch (fieldname) {
+        case "avatar":
+          update = { $set: { avatar: files[0] } };
+          break;
+        case "documents":
+          files.forEach((file) => {
+            ParamValidation.validatePattern(
+              "uploadFile",
+              /^(identification|address|account_status)$/,
+              [["file.name", file.name]]
+            );
+          });
+
+          update = { $addToSet: { documents: { $each: files } } };
+          break;
+      }
+
       const upload = await userDAO.getById(user._id);
       if (upload.status === "error")
         CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
@@ -115,10 +147,7 @@ class UserService {
           message: upload.error,
         });
 
-      const result = await userDAO.update(
-        { _id: user._id },
-        { $set: { avatar: file } }
-      );
+      const result = await userDAO.update({ _id: user._id }, update);
       if (result.status === "error")
         CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
           method: "userDAO.update",
@@ -137,13 +166,19 @@ class UserService {
 
       let update;
       if (user.role === "user") {
-        update = await userDAO.update(user, {
-          $set: { role: "premium" },
-        });
+        update = await userDAO.update(
+          { _id: user._id },
+          {
+            $set: { role: "premium" },
+          }
+        );
       } else if (user.role === "premium") {
-        update = await userDAO.update(user, {
-          $set: { role: "user" },
-        });
+        update = await userDAO.update(
+          { _id: user._id },
+          {
+            $set: { role: "user" },
+          }
+        );
       }
 
       if (update.status === "error")

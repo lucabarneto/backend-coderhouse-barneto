@@ -2,7 +2,8 @@
 const Router = require("./custom_router.js"),
   ProductController = require("../controllers/product_controller.js"),
   authenticate = require("../middleware/authentication.js"),
-  authorize = require("../middleware/authorization.js");
+  authorize = require("../middleware/authorization.js"),
+  upload = require("../utils/multer.js");
 
 const productController = new ProductController();
 
@@ -40,6 +41,7 @@ class ProductRouter extends Router {
       ["ADMIN", "PREMIUM"],
       authenticate("jwt", { session: false }),
       authorize,
+      upload.array("thumbnails"),
       productController.addProduct
     );
 

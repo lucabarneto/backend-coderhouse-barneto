@@ -36,10 +36,14 @@
   <section class="products">
     {{#each products}}
       <article class="product" data-id={{this._id}}>
-        <img
-          src="/img/img-placeholder-216w.jpg"
-          alt="Un ícono de una imagen en fondo gris"
-        />
+        <picture>
+          <source srcset="{{this.thumbnails}}" />
+          <img
+            src="/img/img-placeholder-216w.jpg"
+            alt="Un ícono de una imagen en fondo gris"
+          />
+        </picture>
+
         <div class="product-info">
           <p><strong>{{this.title}}</strong></p>
           <p>${{this.price}}</p>

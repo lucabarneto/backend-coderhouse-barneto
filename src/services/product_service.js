@@ -11,7 +11,16 @@ class ProductService {
 
   addProduct = async (data) => {
     try {
-      let { title, description, price, code, stock, category, owner } = data;
+      let {
+        title,
+        description,
+        price,
+        code,
+        stock,
+        category,
+        owner,
+        thumbnails,
+      } = data;
 
       ParamValidation.isProvided("addProduct", [
         ["title", title],
@@ -45,6 +54,10 @@ class ProductService {
         /(admin|(^[a-f\d]{24}$))/i,
         [["owner", owner]]
       );
+      ParamValidation.validateDatatype("addProduct", "array", [
+        "thumbnails",
+        thumbnails,
+      ]);
 
       const alreadyExists = await productDAO.get(data);
       if (alreadyExists.status === "success")
@@ -195,6 +208,10 @@ class ProductService {
               /^(Anime|Paisajes|Sci-Fi|Abstracto|Retratos)$/,
               [["category", update[key]]]
             );
+            break;
+          case "description":
+            break;
+          case "thumnbnails":
             break;
           default:
             if (!key.startsWith("$"))

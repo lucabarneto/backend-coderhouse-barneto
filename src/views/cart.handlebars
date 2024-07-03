@@ -45,10 +45,14 @@
     </div>
     {{#each cart.products}}
       <article class="cart-product">
-        <img
-          src="/img/img-placeholder-144w.jpg"
-          alt="Un ícono de una imagen en fondo gris"
-        />
+        <picture>
+          <source srcset="{{this.product.thumbnails}}" />
+          <img
+            src="/img/img-placeholder-144w.jpg"
+            alt="Un ícono de una imagen en fondo gris"
+          />
+        </picture>
+
         <div class="product-info">
           <p><strong>{{this.product.title}}</strong></p>
           <p>${{this.product.price}}</p>
@@ -63,7 +67,7 @@
       </article>
     {{/each}}
     <dialog id="edit-quantity-modal">
-      <h2>Editar producto</h2>
+      <h3>Editar producto</h3>
       <form id="edit-quantity-form" data-cart={{profile.cart._id}}>
         <label for="edit-quantity-input">Cantidad Nueva</label>
         <input id="edit-quantity-input" name="quantity" type="number" min="0" />

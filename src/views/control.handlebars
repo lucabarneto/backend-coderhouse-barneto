@@ -22,12 +22,21 @@
 <main class="control-view">
   <section class="add-product">
     <h2>Agregar producto</h2>
-    <form id="add-product-form">
-      <label for="add-product-name">Nombre</label>
+    <form id="add-product-form" enctype="multipart/form-data">
+      <label for="add-product-title">Nombre</label>
       <input
         type="text"
-        id="add-product-name"
+        id="add-product-title"
         name="title"
+        class="input"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <label for="add-product-description">Descripcion</label>
+      <input
+        type="text"
+        id="add-product-description"
+        name="description"
         class="input"
         placeholder="Escribe aquí..."
         required
@@ -100,7 +109,7 @@
       {{#each products}}
         <article class="cart-product">
           <img
-            src="/img/img-placeholder-144w.jpg"
+            src="{{thumbnails}}"
             alt="Un ícono de una imagen en fondo gris"
           />
           <div class="product-info">
@@ -118,6 +127,7 @@
               class="icon-button edit-product-button"
               data-product={{this._id}}
               data-title="{{this.title}}"
+              data-description="{{this.description}}"
               data-price={{this.price}}
               data-stock={{this.stock}}
               data-category={{this.category}}
@@ -129,5 +139,86 @@
     </div>
 
   </section>
+  <dialog id="edit-product-modal">
+    <h3>Editar producto</h3>
+    <form id="edit-product-form">
+      <label for="edit-product-title">Nombre</label>
+      <input
+        type="text"
+        id="edit-product-title"
+        name="title"
+        class="input"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <label for="edit-product-description">Descripcion</label>
+      <input
+        type="text"
+        id="edit-product-description"
+        name="description"
+        class="input"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <label for="edit-product-price">Precio</label>
+      <input
+        type="number"
+        id="edit-product-price"
+        name="price"
+        class="input"
+        min="1"
+        pattern="^(?!0)\d+$"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <label for="edit-product-code">Código</label>
+      <input
+        type="number"
+        id="edit-product-code"
+        name="code"
+        title="Debe tener 5 dígitos de longitud"
+        class="input"
+        pattern="^\d{5}$"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <label for="edit-product-stock">Stock</label>
+      <input
+        type="number"
+        id="edit-product-stock"
+        name="stock"
+        class="input"
+        min="1"
+        pattern="^(?!0)\d+$"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <label for="edit-product-category">Categoría</label>
+      <input
+        type="text"
+        id="edit-product-category"
+        name="category"
+        list="product-categories"
+        class="input"
+        placeholder="Escribe aquí..."
+        required
+      />
+      <datalist id="product-categories">
+        <option>Anime</option>
+        <option>Paisajes</option>
+        <option>Abstracto</option>
+        <option>Retratos</option>
+        <option>Sci-Fi</option>
+      </datalist>
+      <input type="hidden" name="owner" value={{profile._id}} />
+      <input type="hidden" name="role" value={{profile.role}} />
+      <button type="submit" class="submit">Actualizar producto</button>
+      <button
+        type="button"
+        class="secondary-button"
+        id="edit-product-cancel"
+      >Cancelar</button>
+    </form>
+  </dialog>
   <script src="/js/index.js"></script>
 </main>

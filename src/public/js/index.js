@@ -26,7 +26,8 @@ const $registerBtn = d.getElementById("register"),
   $controlBtn = d.getElementById("control-btn"),
   $addProductForm = d.getElementById("add-product-form"),
   $deleteProductBtn = d.querySelectorAll(".delete-product-button"),
-  $editProductBtn = d.querySelectorAll(".edit-product-button");
+  $editProductBtn = d.querySelectorAll(".edit-product-button"),
+  $editProductForm = d.getElementById("edit-product-form");
 
 const $editAvatarForm = d.getElementById("edit-avatar-form");
 const $avatar = d.querySelector(".avatar");
@@ -128,7 +129,7 @@ d.addEventListener("click", async (e) => {
   }
 
   if (e.target === $changeRoleBtn) {
-    await fetch(`/api/sessions/premium/${$changeRoleBtn.dataset.id}`, {
+    await fetch(`/api/users/premium/${$changeRoleBtn.dataset.id}`, {
       method: "put",
     });
 
@@ -155,35 +156,22 @@ d.addEventListener("click", async (e) => {
 
   $editProductBtn.forEach(async (btn) => {
     if (e.target === btn || e.target.matches(`.edit-product-button *`)) {
-      if (btn.querySelector("i").classList.contains("fa-pen-to-square")) {
-        d.querySelector(".add-product").querySelector("h2").textContent =
-          "Editar Producto";
-        $addProductForm.name.value = btn.dataset.title;
-        $addProductForm.price.value = btn.dataset.price;
-        $addProductForm.code.value = btn.dataset.code;
-        $addProductForm.stock.value = btn.dataset.stock;
-        $addProductForm.category.value = btn.dataset.category;
-        $addProductForm.submit.textContent = "Editar producto";
+      d.getElementById("edit-product-modal").showModal();
 
-        $addProductForm.submit.dataset.product = btn.dataset.product;
+      console.log(btn.dataset.product);
 
-        btn.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
-      } else {
-        d.querySelector(".add-product").querySelector("h2").textContent =
-          "Agregar producto";
-        $addProductForm.name.value = "";
-        $addProductForm.price.value = "";
-        $addProductForm.code.value = "";
-        $addProductForm.stock.value = "";
-        $addProductForm.category.value = "";
-        $addProductForm.submit.textContent = "Agregar producto";
-
-        $addProductForm.submit.removeAttribute("data-product");
-
-        btn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
-      }
+      $editProductForm.dataset.product = btn.dataset.product;
+      $editProductForm.title.value = btn.dataset.title;
+      $editProductForm.description.value = btn.dataset.description;
+      $editProductForm.price.value = btn.dataset.price;
+      $editProductForm.code.value = btn.dataset.code;
+      $editProductForm.stock.value = btn.dataset.stock;
+      $editProductForm.category.value = btn.dataset.category;
     }
   });
+
+  if (e.target === d.getElementById("edit-product-cancel"))
+    d.getElementById("edit-product-modal").close();
 });
 
 d.addEventListener("mouseover", async (e) => {
@@ -293,58 +281,35 @@ d.addEventListener("submit", async (e) => {
 
   if (e.target === $addProductForm) {
     e.preventDefault();
+    let formData = new FormData($addProductForm);
+    await fetch(`/api/products`, {
+      method: "post",
+      body: formData,
+    });
 
-    if ($addProductForm.submit.dataset.product) {
-      let res = await fetch(
-          `/api/products/${$addProductForm.submit.dataset.product}`,
-          {
-            method: "put",
-            body: JSON.stringify({
-              title: $addProductForm.name.value,
-              price: parseInt($addProductForm.price.value),
-              code: parseInt($addProductForm.code.value),
-              stock: parseInt($addProductForm.stock.value),
-              category: $addProductForm.category.value,
-            }),
-            headers: {
-              "Content-type": "application/json; charset= utf-8",
-            },
-          }
-        ),
-        json = await res.json();
-
-      if (json.status === "success") {
-        location.reload();
-      } else {
-        console.error(json.error);
-      }
-    } else {
-      let res = await fetch("/api/products", {
-          method: "post",
-          body: JSON.stringify({
-            title: $addProductForm.name.value,
-            description: "Aquí va la descripción del producto",
-            price: parseInt($addProductForm.price.value),
-            thumbnails: [],
-            code: parseInt($addProductForm.code.value),
-            stock: parseInt($addProductForm.stock.value),
-            category: $addProductForm.category.value,
-            owner:
-              $addProductForm.owner.dataset.role === "premium"
-                ? $addProductForm.owner.value
-                : "admin",
-          }),
-          headers: {
-            "Content-type": "application/json; charset=utf-8",
-          },
+    location.reload();
+  }
+  if (e.target === $editProductForm) {
+    let res = await fetch(`/api/products/${$editProductForm.dataset.product}`, {
+        method: "put",
+        body: JSON.stringify({
+          title: $editProductForm.title.value,
+          description: $editProductForm.description.value,
+          price: parseInt($editProductForm.price.value),
+          code: parseInt($editProductForm.code.value),
+          stock: parseInt($editProductForm.stock.value),
+          category: $editProductForm.category.value,
         }),
-        json = await res.json();
+        headers: {
+          "Content-type": "application/json; charset= utf-8",
+        },
+      }),
+      json = await res.json();
 
-      if (json.status === "success") {
-        location.reload();
-      } else {
-        console.error(json.error);
-      }
+    if (json.status === "success") {
+      location.reload();
+    } else {
+      console.error(json.error);
     }
   }
 });

@@ -9,7 +9,7 @@ const storage = multer.diskStorage({
       case "thumbnails":
         cb(null, __dirname + "/../public/uploads/thumbnails");
         break;
-      case "document":
+      case "documents":
         cb(null, __dirname + "/../public/uploads/documents");
         break;
     }

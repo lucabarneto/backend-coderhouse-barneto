@@ -52,6 +52,8 @@ const intilializePassport = () => {
               password === config.admin.password
                 ? "admin"
                 : "user",
+            avatar: "/img/avatar_placeholder.png",
+            documents: [],
           };
 
           const result = await userService.saveUser(userData, "local");
@@ -87,6 +89,10 @@ const intilializePassport = () => {
             "Incorrect email or password"
           );
 
+          let documents = [];
+
+          user.payload.documents.forEach((doc) => documents.push(doc.name));
+
           const userDTO = {
             _id: user.payload._id,
             name: `${user.payload.firstName} ${user.payload.lastName}`,
@@ -94,6 +100,7 @@ const intilializePassport = () => {
             role: user.payload.role,
             cart: user.payload.cart,
             avatar: user.payload.avatar,
+            documents,
           };
 
           return done(null, userDTO);
@@ -119,7 +126,6 @@ const intilializePassport = () => {
           const userDTO = {
             name: name || login,
             email: email || html_url,
-            role: "user",
           };
 
           const user = await userService.getUserByEmail(email || html_url);
@@ -137,16 +143,30 @@ const intilializePassport = () => {
               cart: userCart.payload._id.toString(),
               role: "user",
               github: profile,
+              documents: [],
+              avatar: "/img/avatar_placeholder.png",
             };
 
             const result = await userService.saveUser(githubUser, "github");
             if (result.status === "error") throw result.error;
 
             userDTO.cart = userCart.payload;
+            userDTO._id = result.payload._id;
+            userDTO.documents = [];
+            userDTO.avatar = "/img/avatar_placeholder.png";
+            userDTO.role = "user";
 
             return done(null, userDTO);
           } else {
+            let documents = [];
+
+            user.payload.documents.forEach((doc) => documents.push(doc.name));
+
+            userDTO._id = user.payload._id;
             userDTO.cart = user.payload.cart;
+            userDTO.documents = documents;
+            userDTO.avatar = user.payload.avatar;
+            userDTO.role = user.payload.role;
 
             return done(null, userDTO);
           }

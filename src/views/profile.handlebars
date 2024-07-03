@@ -5,9 +5,11 @@
   </div>
   <nav>
     <ul type="none">
-      <li><button class="icon-button selected" id="user-btn"><i
-            class="fa-solid fa-user"
-          ></i></button></li>
+      <li><button
+          class="icon-button selected"
+          id="user-btn"
+          data-user={{_id}}
+        ><i class="fa-solid fa-user"></i></button></li>
       <li><button class="icon-button" id="cart-btn" data-cart={{cart._id}}><i
             class="fa-solid fa-cart-shopping"
           ></i></button></li>
@@ -28,13 +30,26 @@
   <h1>Bienvenido, {{name}}</h1>
   <section class="profile">
     <div class="avatar-container">
-      <img src="{{avatar}}" class="avatar" alt="placeholder avatar">
-      <form id="edit-avatar-form" method="post" action="/api/users/{{_id}}/avatar" enctype="multipart/form-data">
+      <picture>
+        <source src="{{avatar}}" class="avatar" />
+        <img
+          src="/img/avatar_placeholder.png"
+          class="avatar"
+          alt="placeholder avatar"
+        />
+      </picture>
+
+      <form
+        id="edit-avatar-form"
+        method="post"
+        action="/api/users/{{_id}}/avatar"
+        enctype="multipart/form-data"
+      >
         <label for="avatar" class="edit-avatar display-none">
           <i class="fa-solid fa-pen-to-square"></i>
         </label>
-        <input type="file" name="avatar" id="avatar" class="display-none">
-        <input type="hidden" name="upload" value="avatar">
+        <input type="file" name="avatar" id="avatar" class="display-none" />
+        <input type="hidden" name="upload" value="avatar" />
       </form>
     </div>
 
@@ -45,26 +60,82 @@
         <li>Email: <strong>{{email}}</strong></li>
         <li>Rol:
           <strong>{{role}}</strong>
-          {{#ifEqual role "premium"}}
-          -
-          <button
-            id="change-role-button"
-            class="text-button"
-            data-id={{_id}}
-          >cambiar de rol</button></li>
-          {{/ifEqual}}
-          {{#ifEqual role "user"}}
-          -
-          <button
-            id="change-role-button"
-            class="text-button"
-            data-id={{_id}}
-          >cambiar de rol</button></li>
-          {{/ifEqual}}
+        </li>
       </ul>
     </article>
-
   </section>
+
+  {{#ifEqual role "user"}}
+    <section class="upgrade-to-premium">
+      <h2>Hazte premium para poder vender tus propios productos</h2>
+      <article>
+        <h3>Enviar documentos</h3>
+        <p>Debes enviar tres imagenes con tu
+          <strong>identificación</strong>, un
+          <strong>corroborante de dirección</strong>
+          y un
+          <strong>corroborante de estado de cuenta</strong></p>
+        <p>Las imágenes de identificación, corroborante de dirección y
+          corroborante de estado de cuenta deben tener los nombres:
+          <em>identification</em>,
+          <em>"address"</em>
+          y
+          <em>"account_status"</em>
+          , respectivamente.</p>
+        <p>Una vez enviados los documentos, podrás convertirte en un usuario
+          premium.</p>
+        <form
+          id="u2p-form"
+          enctype="multipart/form-data"
+          method="post"
+          action="/api/users/{{_id}}/documents"
+        >
+          <label for="u2p-documents">Archivos</label>
+          <input
+            type="file"
+            name="documents"
+            id="u2p-documents"
+            multiple
+            required
+          />
+          <input type="submit" class="submit" value="Enviar Documentos" />
+        </form>
+      </article>
+      <article>
+        <h3>Pasarse a premium</h3>
+        {{#ifEqual documents.length 3}}
+          <p>Haz enviado correctamente todos los documentos solicitados. Puedes
+            pasarte a premium</p>
+          <button
+            id="change-role-button"
+            class="primary-button"
+            title="necesitas haber enviado todos los documentos requeridos para cambiarte a premium"
+            data-id={{_id}}
+          >
+            Cambiar a premium
+          </button>
+        {{else}}
+          <p>No haz enviado todos los documentos solicitados, por lo que no
+            puedes pasarte a premium. Documentos enviados:
+          </p>
+          <ul>
+            {{#each documents}}
+              <li>{{this}}</li>
+            {{/each}}
+          </ul>
+          <button
+            id="change-role-button"
+            class="primary-button disabled"
+            title="necesitas haber enviado todos los documentos requeridos para cambiarte a premium"
+            data-id={{_id}}
+          >
+            Cambiar a premium
+          </button>
+        {{/ifEqual}}
+      </article>
+
+    </section>
+  {{/ifEqual}}
 
   <form action="/api/sessions/logout" method="get">
     <button type="submit" class="primary-button">

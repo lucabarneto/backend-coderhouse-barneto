@@ -1,7 +1,6 @@
 const ProductService = require("../services/product_service.js"),
   CustomError = require("../services/errors/custom_error.js"),
-  EErrors = require("../services/errors/enum_error.js"),
-  infoError = require("../services/errors/info_error.js"),
+  ParamValidation = require("../utils/validations.js"),
   faker = require("../utils/faker.js");
 
 const productService = new ProductService();
@@ -13,19 +12,11 @@ class productController {
       const product = await productService.getProductById(pid);
 
       if (product.status === "success") {
-        if (req.user.role !== "admin") {
-          if (product.payload.owner.toString() === req.user._id.toString()) {
-            req.product = product.payload;
-            next();
-          } else {
-            CustomError.createCustomError(EErrors.FORBIDDEN, {
-              message: infoError.notAuthorized("handlePid"),
-            });
-          }
-        } else {
-          req.product = product.payload;
-          next();
-        }
+        req.logger.http(
+          `The given pid (${pid}) was found inside the database - ${new Date().toLocaleString()}`
+        );
+        req.product = product.payload;
+        next();
       } else {
         throw product.error;
       }
@@ -64,9 +55,23 @@ class productController {
 
   addProduct = async (req, res) => {
     try {
-      const product = await productService.addProduct(req.body);
+      let thumbnails = [];
+
+      req.files.forEach((file) => {
+        thumbnails.push(`/uploads/thumbnails/${file.filename}`);
+      });
+
+      const productData = {
+        ...req.body,
+        thumbnails,
+      };
+
+      const product = await productService.addProduct(productData);
 
       if (product.status === "success") {
+        req.logger.http(
+          `Product added to database successfully - ${new Date().toLocaleString()}`
+        );
         return res.sendCreatedSuccess(product.payload);
       } else {
         throw product.error;
@@ -78,9 +83,18 @@ class productController {
 
   updateProduct = async (req, res) => {
     try {
+      ParamValidation.validateAuthorization(
+        "updateProduct",
+        req.product.owner,
+        req.user._id
+      );
+
       const product = await productService.updateProduct(req.product, req.body);
 
       if (product.status === "success") {
+        req.logger.http(
+          `Product updated successfully - ${new Date().toLocaleString()}`
+        );
         return res.sendCreatedSuccess(product.payload);
       } else {
         throw product.error;
@@ -92,9 +106,18 @@ class productController {
 
   deleteProduct = async (req, res) => {
     try {
+      ParamValidation.validateAuthorization(
+        "deleteProduct",
+        req.product.owner,
+        req.user._id
+      );
+
       const product = await productService.deleteProduct(req.product);
 
       if (product.status === "success") {
+        req.logger.http(
+          `Product deleted successfully - ${new Date().toLocaleString()}`
+        );
         return res.sendSuccess(product.payload);
       } else {
         throw product.error;
