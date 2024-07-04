@@ -36,7 +36,7 @@
   <section class="products">
     {{#each products}}
       <article class="product" data-id={{this._id}}>
-        <picture>
+        <picture data-id={{this._id}}>
           <source srcset="{{this.thumbnails}}" />
           <img
             src="/img/img-placeholder-216w.jpg"
@@ -44,7 +44,7 @@
           />
         </picture>
 
-        <div class="product-info">
+        <div class="product-info" data-id={{this._id}}>
           <p><strong>{{this.title}}</strong></p>
           <p>${{this.price}}</p>
           <p><small>{{this.stock}} unidades disponibles</small></p>

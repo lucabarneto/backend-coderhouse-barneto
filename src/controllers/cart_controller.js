@@ -1,8 +1,7 @@
 const CartService = require("../services/cart_service.js"),
   ProductService = require("../services/product_service.js"),
   CustomError = require("../services/errors/custom_error.js"),
-  EErrors = require("../services/errors/enum_error.js"),
-  infoError = require("../services/errors/info_error.js");
+  ParamValidation = require("../utils/validations.js");
 
 const cartService = new CartService(),
   productService = new ProductService();
@@ -14,6 +13,9 @@ class CartController {
       const product = await productService.getProductById(pid);
 
       if (product.status === "success") {
+        req.logger.http(
+          `The given pid (${pid}) was found inside the database - ${new Date().toLocaleString()}`
+        );
         req.product = product.payload;
         next();
       } else {
@@ -29,19 +31,11 @@ class CartController {
       const cart = await cartService.getCartById(cid);
 
       if (cart.status === "success") {
-        if (req.user.role !== "admin") {
-          if (cart.payload._id.toString() === req.user.cart._id.toString()) {
-            req.cart = cart.payload;
-            next();
-          } else {
-            CustomError.createCustomError(EErrors.FORBIDDEN, {
-              message: infoError.notAuthorized("handleCid"),
-            });
-          }
-        } else {
-          req.cart = cart.payload;
-          next();
-        }
+        req.logger.http(
+          `The given cid (${cid}) was found inside the database - ${new Date().toLocaleString()}`
+        );
+        req.cart = cart.payload;
+        next();
       } else {
         throw cart.error;
       }
@@ -66,6 +60,12 @@ class CartController {
 
   getProducts = async (req, res) => {
     try {
+      ParamValidation.validateAuthorization(
+        "getProducts",
+        req.cart._id.toString(),
+        req.user.cart._id.toString()
+      );
+
       return req.cart.products;
     } catch (err) {
       CustomError.handleError(err, req, res);
@@ -74,6 +74,12 @@ class CartController {
 
   addProductToCart = async (req, res) => {
     try {
+      ParamValidation.validateAuthorization(
+        "addProductToCart",
+        req.cart._id.toString(),
+        req.user.cart._id.toString()
+      );
+
       let quantity = req.body.quantity;
 
       const cart = await cartService.addProductToCart(
@@ -96,6 +102,12 @@ class CartController {
 
   deleteAllProducts = async (req, res) => {
     try {
+      ParamValidation.validateAuthorization(
+        "deleteAllProducts",
+        req.cart._id.toString(),
+        req.user.cart._id.toString()
+      );
+
       const cart = await cartService.deleteAllProducts(req.cart);
 
       if (cart.status === "success") {
@@ -110,6 +122,12 @@ class CartController {
 
   deleteProduct = async (req, res) => {
     try {
+      ParamValidation.validateAuthorization(
+        "deleteProduct",
+        req.cart._id.toString(),
+        req.user.cart._id.toString()
+      );
+
       const cart = await cartService.deleteProduct(req.cart, req.product);
 
       if (cart.status === "success") {
@@ -124,6 +142,12 @@ class CartController {
 
   updateProduct = async (req, res) => {
     try {
+      ParamValidation.validateAuthorization(
+        "updateProduct",
+        req.cart._id.toString(),
+        req.user.cart._id.toString()
+      );
+
       let quantity = req.body.quantity,
         state = req.body.state;
 
@@ -160,6 +184,12 @@ class CartController {
 
   purchaseProducts = async (req, res) => {
     try {
+      ParamValidation.validateAuthorization(
+        "purchaseProducts",
+        req.cart._id.toString(),
+        req.user.cart._id.toString()
+      );
+
       const ticket = await cartService.purchaseProducts(req.cart, req.user);
 
       if (ticket.status === "success") {

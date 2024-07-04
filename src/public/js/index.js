@@ -99,7 +99,7 @@ d.addEventListener("click", async (e) => {
     location.assign(`/cart/${$cartbtn.dataset.cart}`);
 
   if (e.target.matches(".product") || e.target.matches(`.product *`)) {
-    let target = e.target.parentElement || e.target;
+    let target = e.target.parentElement;
 
     location.assign(`/product/${target.dataset.id}`);
   }

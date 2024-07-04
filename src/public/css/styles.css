@@ -245,7 +245,7 @@ label {
   align-items: flex-start;
 }
 
-.product-view > figure > img {
+.product-view > figure img {
   width: 424px;
   height: 424px;
   object-fit: cover;
