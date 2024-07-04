@@ -64,6 +64,34 @@ class UserService {
     }
   };
 
+  getUsers = async () => {
+    try {
+      const users = await userDAO.getAll();
+
+      if (users.status === "error")
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "userDAO.getAll",
+          message: users.error,
+        });
+
+      let usersDTO = [];
+
+      users.payload.forEach((user) => {
+        usersDTO.push({
+          _id: user._id,
+          name: `${user.firstName} ${user.lastName}`,
+          email: user.email,
+          role: user.role,
+          avatar: user.avatar,
+        });
+      });
+
+      return { status: "success", payload: usersDTO };
+    } catch (err) {
+      return { status: "error", error: err };
+    }
+  };
+
   getUserByEmail = async (email) => {
     try {
       ParamValidation.isProvided("getUserByEmail", [["email", email]]);
@@ -162,24 +190,16 @@ class UserService {
 
   updateRole = async (user) => {
     try {
-      ParamValidation.isProvided("updateRole", [["user", user]]);
+      let { _id, role } = user;
+      ParamValidation.isProvided("updateRole", [
+        ["_id", _id],
+        ["role", role],
+      ]);
 
-      let update;
-      if (user.role === "user") {
-        update = await userDAO.update(
-          { _id: user._id },
-          {
-            $set: { role: "premium" },
-          }
-        );
-      } else if (user.role === "premium") {
-        update = await userDAO.update(
-          { _id: user._id },
-          {
-            $set: { role: "user" },
-          }
-        );
-      }
+      let update = await userDAO.update(
+        { _id: _id },
+        { $set: { role: role === "user" ? "premium" : "user" } }
+      );
 
       if (update.status === "error")
         CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
@@ -188,6 +208,23 @@ class UserService {
         });
 
       return update;
+    } catch (err) {
+      return { status: "error", error: err };
+    }
+  };
+
+  deleteUser = async (data) => {
+    try {
+      ParamValidation.isProvided("deleteUser", [["data", data]]);
+
+      const result = await userDAO.delete(data);
+      if (result.status === "error")
+        CustomError.createCustomError(EErrors.UNHANDLED_DATABASE, {
+          method: "userDAO.delete",
+          message: result.error,
+        });
+
+      return result;
     } catch (err) {
       return { status: "error", error: err };
     }

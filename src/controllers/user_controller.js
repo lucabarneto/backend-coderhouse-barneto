@@ -24,6 +24,20 @@ class UserController {
     }
   };
 
+  getUsers = async (req, res) => {
+    try {
+      const users = await userService.getUsers();
+
+      if (users.status === "success") {
+        return res.sendSuccess(users.payload);
+      } else {
+        throw users.error;
+      }
+    } catch (err) {
+      CustomError.handleError(err, req, res);
+    }
+  };
+
   uploadAvatar = async (req, res) => {
     try {
       ParamValidation.validateAuthorization(
@@ -89,14 +103,41 @@ class UserController {
 
   updateUserRole = async (req, res) => {
     try {
-      const updateRole = await userService.updateRole(req.user);
+      let user = {
+        _id: req.body._id || req.user._id,
+        role: req.body.role || req.user.role,
+      };
+
+      const updateRole = await userService.updateRole(user);
+
       if (updateRole.status === "success") {
         req.logger.http(
           `User role updated successfully - ${new Date().toLocaleString()}`
         );
-        return res.redirect(303, "/api/sessions/logout");
+        if (user._id === req.user._id) {
+          return res.redirect(303, "/api/sessions/logout");
+        } else {
+          return res.sendCreatedSuccess(updateRole.payload);
+        }
       } else {
         throw updateRole.error;
+      }
+    } catch (err) {
+      CustomError.handleError(err, req, res);
+    }
+  };
+
+  deleteUser = async (req, res) => {
+    try {
+      const user = await userService.deleteUser({ _id: req.params.uid });
+
+      if (user.status === "success") {
+        req.logger.http(
+          `User deleted successfully - ${new Date().toLocaleString()}`
+        );
+        return res.sendSuccess(user.payload);
+      } else {
+        throw user.error;
       }
     } catch (err) {
       CustomError.handleError(err, req, res);

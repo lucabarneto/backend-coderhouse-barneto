@@ -3,6 +3,16 @@ const User = require("../../models/user.model");
 class UserMongo {
   constructor() {}
 
+  getAll = async () => {
+    try {
+      const users = await User.find();
+
+      return { status: "success", payload: users };
+    } catch (error) {
+      return { status: "error", error: err.message };
+    }
+  };
+
   getByEmail = async (data) => {
     try {
       const user = await User.find({ email: data });
@@ -48,6 +58,15 @@ class UserMongo {
         status: "success",
         payload: user,
       };
+    } catch (err) {
+      return { status: "error", error: err.message };
+    }
+  };
+
+  delete = async (data) => {
+    try {
+      await User.deleteOne(data);
+      return { status: "success", payload: "Product deleted successfully" };
     } catch (err) {
       return { status: "error", error: err.message };
     }

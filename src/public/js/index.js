@@ -34,6 +34,9 @@ const $avatar = d.querySelector(".avatar");
 const $editAvatarLabel = d.querySelector(".edit-avatar");
 const $avatarContainer = d.getElementById(".avatar-container");
 
+const $updateUserRoleBtn = d.querySelectorAll(".update-user-role-button");
+const $deleteUserBtn = d.querySelectorAll(".delete-user-button");
+
 let quantity = 1;
 
 let initialAmount = 0;
@@ -136,13 +139,38 @@ d.addEventListener("click", async (e) => {
     location.reload();
   }
 
+  $updateUserRoleBtn.forEach(async (btn) => {
+    if (e.target === btn || e.target === btn.querySelector("i")) {
+      await fetch(`api/users/premium/${btn.dataset.id}`, {
+        method: "put",
+        body: JSON.stringify({
+          _id: btn.dataset.id,
+          role: btn.dataset.role,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=utf-8",
+        },
+      });
+
+      location.reload();
+    }
+  });
+
+  $deleteUserBtn.forEach(async (btn) => {
+    if (e.target === btn || e.target === btn.querySelector("i")) {
+      await fetch(`/api/users/${btn.dataset.id}`, {
+        method: "delete",
+      });
+
+      location.reload();
+    }
+  });
+
   if (e.target === $controlBtn || e.target.matches(`#control-btn *`))
     location.assign("/control");
 
   $deleteProductBtn.forEach(async (btn) => {
     if (e.target === btn || e.target === btn.querySelector("i")) {
-      console.log(e.target);
-      console.log(btn.dataset.product);
       let res = await fetch(`/api/products/${btn.dataset.product}`, {
           method: "delete",
         }),

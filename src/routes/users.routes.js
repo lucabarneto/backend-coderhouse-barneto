@@ -10,14 +10,34 @@ class UserRouter extends Router {
   init() {
     this.router.param("uid", userController.handleUid);
 
+    this.get(
+      "/",
+      ["ADMIN"],
+      authenticate("jwt", {
+        session: false,
+      }),
+      authorize,
+      userController.getUsers
+    );
+
     this.put(
       "/premium/:uid",
-      ["USER", "PREMIUM"],
+      ["USER", "PREMIUM", "ADMIN"],
       authenticate("jwt", {
         session: false,
       }),
       authorize,
       userController.updateUserRole
+    );
+
+    this.delete(
+      "/:uid",
+      ["ADMIN"],
+      authenticate("jwt", {
+        session: false,
+      }),
+      authorize,
+      userController.deleteUser
     );
 
     this.post(

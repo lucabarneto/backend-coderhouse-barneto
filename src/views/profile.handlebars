@@ -62,6 +62,17 @@
           <strong>{{role}}</strong>
         </li>
       </ul>
+      {{#ifEqual role "premium"}}
+        <button
+          id="change-role-button"
+          class="primary-button"
+          title="Volverás a ser un usuario normal"
+          data-id={{_id}}
+          data-role={{role}}
+        >
+          Dejar de ser premium
+        </button>
+      {{/ifEqual}}
     </article>
   </section>
 
@@ -111,6 +122,7 @@
             class="primary-button"
             title="necesitas haber enviado todos los documentos requeridos para cambiarte a premium"
             data-id={{_id}}
+            data-role={{role}}
           >
             Cambiar a premium
           </button>
