@@ -1,13 +1,12 @@
-const jwt = require("jsonwebtoken"),
-  config = require("../config/config.js");
+const jwt = require("jsonwebtoken");
 
 class AccessToken {
   constructor() {}
 
   static generateToken = (user) =>
-    jwt.sign({ user }, config.secretKey, { expiresIn: "1h" });
+    jwt.sign({ user }, process.env.SECRET_KEY, { expiresIn: "1h" });
 
-  static validateToken = (token) => jwt.verify(token, config.secretKey);
+  static validateToken = (token) => jwt.verify(token, process.env.SECRET_KEY);
 }
 
 module.exports = AccessToken;

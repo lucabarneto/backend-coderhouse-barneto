@@ -3,7 +3,6 @@ const infoError = require("../services/errors/info_error.js");
 const UserService = require("../services/user_service.js"),
   CartService = require("../services/cart_service.js"),
   Encryption = require("../utils/bcrypt.js"),
-  config = require("../config/config.js"),
   passport = require("passport"),
   LocalStrategy = require("passport-local").Strategy,
   GithubStrategy = require("passport-github2").Strategy,
@@ -48,8 +47,8 @@ const intilializePassport = () => {
             password: Encryption.createHash(password),
             cart: userCart.payload._id.toString(),
             role:
-              username === config.admin.email &&
-              password === config.admin.password
+              username === process.env.ADMIN_EMAIL &&
+              password === process.env.ADMIN_PASSWORD
                 ? "admin"
                 : "user",
             avatar: "/img/avatar_placeholder.png",
@@ -115,9 +114,9 @@ const intilializePassport = () => {
     "github",
     new GithubStrategy(
       {
-        clientID: config.github.clientID,
-        clientSecret: config.github.clientSecret,
-        callbackURL: config.github.callbackUrl,
+        clientID: process.env.GITHUB_CLIENT_ID,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        callbackURL: process.env.GITHUB_CALLBACK_URL,
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
@@ -182,7 +181,7 @@ const intilializePassport = () => {
     new JwtStrategy(
       {
         jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
-        secretOrKey: config.secretKey,
+        secretOrKey: process.env.SECRET_KEY,
       },
       async (jwt_payload, done) => {
         try {

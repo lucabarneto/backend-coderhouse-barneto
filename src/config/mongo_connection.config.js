@@ -1,11 +1,10 @@
-const mongoose = require("mongoose"),
-  config = require("./config.js");
+const mongoose = require("mongoose");
 // USAR CUSTOM ERROR
 
 class MongoConnect {
   static #instance;
   constructor() {
-    mongoose.connect(config.mongoUrl).catch((err) => {
+    mongoose.connect(process.env.MONGO_URL).catch((err) => {
       console.log("Cannot connect to database: ", err);
       process.exit();
     });

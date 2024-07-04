@@ -13,7 +13,6 @@ const express = require("express"),
   intilializePassport = require("./config/passport.config.js"),
   { create } = require("express-handlebars"),
   passport = require("passport"),
-  config = require("./config/config.js"),
   compression = require("express-compression"),
   addLogger = require("./middleware/logger.js"),
   swaggerUIExpress = require("swagger-ui-express"),
@@ -24,6 +23,8 @@ const app = express();
 const httpServer = http.createServer(app);
 
 const io = new Server(httpServer);
+
+const PORT = process.env.PORT || 8080;
 
 const productRouter = new ProductRouter(),
   cartRouter = new CartRouter(),
@@ -80,9 +81,9 @@ app.use("/api/performance", performanceRouter.getRouter);
 app.use("/api/users", userRouter.getRouter);
 
 //Creo el .listen
-httpServer.listen(Number(config.port), () => {
-  console.log(`Working on ${config.mode.toUpperCase()} environment`);
-  console.log("Server running on port", config.port);
+httpServer.listen(PORT, () => {
+  console.log(`Working on ${process.env.MODE.toUpperCase()} environment`);
+  console.log("Server running on port", PORT);
   //Me conecto a la base de datos
   Database.getInstance();
 });
